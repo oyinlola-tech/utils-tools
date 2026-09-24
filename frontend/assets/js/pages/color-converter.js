@@ -94,7 +94,7 @@ if (kit.available) {
         const ratio = contrastRatio(fg.color, bg.color);
         // WCAG says not to round up, so truncate to two decimals.
         ratioOut.textContent = `${(Math.floor(ratio * 100) / 100).toFixed(2)}:1`;
-        const list = el("ul", { className: "devtool-wcag" });
+        const list = el("ul");
         for (const result of wcagResults(ratio)) {
             list.appendChild(
                 el("li", {}, [
