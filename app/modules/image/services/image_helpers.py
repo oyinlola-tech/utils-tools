@@ -1,10 +1,10 @@
 """Shared helpers for the image tool services."""
 
-from io import BytesIO
 
 from PIL import Image, ImageFont
 
 from app.infrastructure.compression.pillow_adapter import _parse_color
+from app.shared.utils.image_util import load_image
 
 SUPPORTED_CONVERSION_FORMATS = {"jpg", "png", "webp", "avif"}
 SUPPORTED_RESIZE_FORMATS = {"jpg", "png", "webp"}
@@ -21,9 +21,8 @@ POSITION_ALIASES = {
 
 
 def open_image(file_data: bytes) -> Image.Image:
-    image = Image.open(BytesIO(file_data))
-    image.load()
-    return image
+    """Decode an upload with EXIF orientation applied and a safe mode."""
+    return load_image(file_data)
 
 
 def is_animated(image: Image.Image) -> bool:

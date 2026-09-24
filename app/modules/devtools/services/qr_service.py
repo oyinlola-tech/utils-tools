@@ -6,6 +6,7 @@ from io import BytesIO
 from PIL import Image, ImageColor
 
 from app.core.logging import get_tool_logger
+from app.shared.utils.image_util import load_image
 
 MAX_BOX_SIZE = 30
 MAX_BORDER = 16
@@ -147,10 +148,7 @@ class QrService:
     @staticmethod
     def _overlay_logo(img: Image.Image, image_data: bytes) -> Image.Image:
         try:
-            logo = Image.open(BytesIO(image_data))
-            if logo.width * logo.height > Image.MAX_IMAGE_PIXELS:
-                raise ValueError("logo too large")
-            logo.load()
+            logo = load_image(image_data)
         except Exception as error:
             raise ValueError("The uploaded logo is not a valid image.") from error
         logo = logo.convert("RGBA")

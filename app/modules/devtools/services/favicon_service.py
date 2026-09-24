@@ -7,6 +7,7 @@ from PIL import Image
 
 from app.core.logging import get_tool_logger
 from app.modules.devtools.services.devtools_helpers import favicon_sizes
+from app.shared.utils.image_util import load_image
 
 _VALID_SIZES = (16, 32, 48, 64, 128, 180, 256)
 
@@ -23,8 +24,7 @@ class FaviconService:
         """Create a favicon set (ICO + PNGs) from a source image."""
         tool_logger = get_tool_logger("favicon-generator")
         started = time.monotonic()
-        source = Image.open(BytesIO(image_data))
-        source.load()
+        source = load_image(image_data)
         square = source.convert("RGBA")
         if square.width != square.height:
             side = min(square.size)

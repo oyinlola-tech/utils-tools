@@ -1,9 +1,9 @@
 import time
-from io import BytesIO
 
 from PIL import Image, ImageFilter
 
 from app.core.logging import get_tool_logger
+from app.shared.utils.image_util import load_image
 
 
 def _get_rembg_adapter():
@@ -19,10 +19,7 @@ class BackgroundService:
     ) -> tuple[Image.Image, int, int]:
         tool_logger = get_tool_logger("background-remover")
         started = time.monotonic()
-        image = Image.open(
-            BytesIO(file_data),
-        )
-        image.load()
+        image = load_image(file_data)
         width, height = image.size
         processed_image = (
             _get_rembg_adapter().remove_background(
@@ -55,15 +52,13 @@ class BackgroundService:
         """
         tool_logger = get_tool_logger("background-replacement")
         started = time.monotonic()
-        source = Image.open(BytesIO(file_data))
-        source.load()
+        source = load_image(file_data)
         width, height = source.size
         subject = _get_rembg_adapter().remove_background(source)
 
         if image_data is not None:
             try:
-                background = Image.open(BytesIO(image_data))
-                background.load()
+                background = load_image(image_data)
             except Exception as error:
                 raise ValueError(
                     "The uploaded background image is not valid."

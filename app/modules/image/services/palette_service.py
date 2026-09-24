@@ -1,11 +1,9 @@
 """Color palette extraction for the palette-extractor tool."""
 
 import time
-from io import BytesIO
-
-from PIL import Image
 
 from app.core.logging import get_tool_logger
+from app.shared.utils.image_util import load_image
 
 
 class PaletteExtractorService:
@@ -18,7 +16,7 @@ class PaletteExtractorService:
     ) -> list[dict]:
         tool_logger = get_tool_logger("palette-extractor")
         started = time.monotonic()
-        img = Image.open(BytesIO(image_data))
+        img = load_image(image_data)
         img = img.convert("RGB")
         img.thumbnail((150, 150))
         quantized = img.quantize(colors=num_colors)

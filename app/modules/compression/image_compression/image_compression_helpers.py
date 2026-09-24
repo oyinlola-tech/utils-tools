@@ -1,6 +1,5 @@
 """Shared image preparation and encoding helpers for compression."""
 
-from io import BytesIO
 
 from PIL import Image
 
@@ -10,6 +9,7 @@ from app.infrastructure.compression.pillow_adapter import (
 from app.modules.compression.image_compression.image_compression_settings import (
     PRESETS,
 )
+from app.shared.utils.image_util import load_image
 
 
 def prepare_image(
@@ -18,8 +18,7 @@ def prepare_image(
     strip_metadata: bool = True,
 ) -> Image.Image:
     """Open an image, optionally downscaling to ``max_dimension``."""
-    image = Image.open(BytesIO(file_data))
-    image.load()
+    image = load_image(file_data)
 
     if max_dimension:
         image.thumbnail(

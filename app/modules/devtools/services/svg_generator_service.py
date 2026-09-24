@@ -1,11 +1,9 @@
 """Raster-to-SVG tracing for the svg-generator tool."""
 
 import time
-from io import BytesIO
-
-from PIL import Image
 
 from app.core.logging import get_tool_logger
+from app.shared.utils.image_util import load_image
 
 
 class SvgGeneratorService:
@@ -29,8 +27,7 @@ class SvgGeneratorService:
         import numpy as np
         import potrace
 
-        source = Image.open(BytesIO(image_data))
-        source.load()
+        source = load_image(image_data)
         grayscale = source.convert("L")
         bw = grayscale.point(lambda x: 0 if x < threshold else 255, mode="1")
         bitmap = potrace.Bitmap(np.array(bw))

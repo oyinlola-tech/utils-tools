@@ -1,7 +1,6 @@
 """Watermark overlay logic for the watermark tool."""
 
 import time
-from io import BytesIO
 
 from PIL import Image, ImageDraw
 
@@ -12,6 +11,7 @@ from app.modules.image.services.image_helpers import (
     default_font,
     open_image,
 )
+from app.shared.utils.image_util import load_image
 
 
 class WatermarkService:
@@ -92,8 +92,7 @@ class WatermarkService:
         rotation: int,
     ) -> Image.Image:
         try:
-            logo = Image.open(BytesIO(logo_data))
-            logo.load()
+            logo = load_image(logo_data)
         except Exception as error:
             raise ValueError("The uploaded watermark logo is not a valid image.") from error
         logo = logo.convert("RGBA")
