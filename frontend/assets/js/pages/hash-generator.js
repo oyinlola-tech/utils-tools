@@ -105,7 +105,10 @@ if (kit.available) {
 
     wireCopy(document.querySelector("#hash-copy-all"), () =>
         digests
-            ? ALGORITHMS.map((algorithm) => `${algorithm}: ${encodeDigest(digests[algorithm], format.value)}`).join("\n")
+            ? ALGORITHMS.map(
+                  (algorithm) =>
+                      `${keyInput.value ? "HMAC-" : ""}${algorithm}: ${encodeDigest(digests[algorithm], format.value)}`
+              ).join("\n")
             : ""
     );
 
