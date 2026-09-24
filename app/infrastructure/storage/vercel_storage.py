@@ -72,6 +72,7 @@ class VercelStorage(StorageInterface):
             blob_path,
             data,
             access=self._access,
+            overwrite=True,
         )
         self._urls[blob_path] = result.url
 
@@ -87,7 +88,7 @@ class VercelStorage(StorageInterface):
     def read(self, file_path: Path) -> bytes:
         self._check_token()
         blob_path = self._blob_key(file_path)
-        result = get(blob_path, access=self._access)
+        result = get(blob_path, access=self._access, use_cache=False)
         return result.content
 
     def materialize(self, file_path: Path) -> Path:
@@ -97,6 +98,7 @@ class VercelStorage(StorageInterface):
             result = get(
                 self._blob_key(file_path),
                 access=self._access,
+                use_cache=False,
             )
         except BlobNotFoundError:
             return file_path

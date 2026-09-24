@@ -20,12 +20,16 @@ def blob_path(prefix: str, job_id: str, filename: str) -> str:
 
 
 def put_blob(blob_path_value: str, data: bytes, access: str) -> None:
-    put(blob_path_value, data, access=access)
+    # Job metadata is rewritten on every status change; the SDK rejects
+    # writes to an existing pathname unless overwrite is explicit.
+    put(blob_path_value, data, access=access, overwrite=True)
 
 
 def get_blob(blob_path_value: str, access: str) -> bytes | None:
+    # Bypass the CDN cache, otherwise polling sees the first version of
+    # metadata.json forever.
     try:
-        result = get(blob_path_value, access=access)
+        result = get(blob_path_value, access=access, use_cache=False)
     except BlobNotFoundError:
         return None
     return result.content

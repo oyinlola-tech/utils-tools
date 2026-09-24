@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.infrastructure.storage import storage
-from app.shared.utils.file_util import resolve_safe_path
+from app.shared.utils.file_util import resolve_safe_path, unique_filename
 
 
 class BackgroundRepository:
@@ -12,7 +12,7 @@ class BackgroundRepository:
     ) -> Path:
         output_path = resolve_safe_path(
             storage.processed_path,
-            filename,
+            unique_filename(filename),
         )
         storage.write(output_path, data)
         return output_path

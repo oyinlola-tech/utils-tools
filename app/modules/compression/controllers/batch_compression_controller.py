@@ -1,7 +1,6 @@
 """Batch compression controller."""
 
 import logging
-from datetime import datetime
 from pathlib import Path
 
 from fastapi import HTTPException, UploadFile
@@ -124,7 +123,7 @@ class BatchCompressionController:
             if successful_files == 0:
                 raise HTTPException(status_code=422, detail="None of the uploaded files could be processed.")
 
-            archive_filename = f"compressed_files_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+            archive_filename = generate_filename("compressed_files", extension="zip")
             archive_data = archive_service.create_zip(archive_files)
             compression_repository.save(archive_data, archive_filename)
 

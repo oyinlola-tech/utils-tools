@@ -46,6 +46,21 @@ def generate_filename(
     return filename
 
 
+def unique_filename(filename: str) -> str:
+    """Keep the readable name but make it unguessable and collision-free.
+
+    Outputs share one directory (and one Blob namespace on Vercel), so two
+    users uploading ``image.png`` would otherwise overwrite and download
+    each other's results.
+    """
+    if not is_safe_filename(filename):
+        raise ValueError("Invalid filename")
+    path = Path(filename)
+    token = generate_file_id()[:12]
+    max_stem = MAX_FILENAME_LENGTH - len(path.suffix) - len(token) - 1
+    return f"{path.stem[:max_stem]}_{token}{path.suffix}"
+
+
 def is_safe_filename(filename: str) -> bool:
     if not filename or filename in {".", ".."}:
         return False
