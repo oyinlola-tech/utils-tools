@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f6f0" />
+    <meta name="description" content="Generate lorem ipsum placeholder text by paragraphs, sentences or words, as plain text or HTML paragraphs." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tools.oyinlola.site/tools/lorem-ipsum" />
+    <meta property="og:title" content="Lorem Ipsum Generator - Utils-tool" />
+    <meta property="og:description" content="Generate lorem ipsum placeholder text by paragraphs, sentences or words, as plain text or HTML paragraphs." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Utils-tool" />
+    <meta property="og:url" content="https://tools.oyinlola.site/tools/lorem-ipsum" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Lorem Ipsum Generator - Utils-tool</title>
+    <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/brand/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/brand/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
+    <script type="module" src="/static/assets/js/error-boundary.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/reset.css" />
+    <link rel="stylesheet" href="/static/assets/css/variables.css" />
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
+    <link rel="stylesheet" href="/static/assets/css/pages.css" />
+    <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+  </head>
+  <body>
+
+    <div id="site-header"></div>
+    <main class="tool-page">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Text tool</span>
+            <h1>Lorem Ipsum Generator</h1>
+            <p class="hero-description">Generate placeholder paragraphs, sentences or words for mockups and layouts, as plain text or HTML.</p>
+          </div>
+          <section class="tool-card">
+            <div id="tool-unavailable" class="hidden" role="alert"></div>
+            <div class="tool-options" id="tool-options">
+              <div class="option-row">
+                <div class="option-field">
+                  <label for="lorem-unit">Generate</label>
+                  <select id="lorem-unit" class="select-input">
+                    <option value="paragraphs" selected>Paragraphs</option>
+                    <option value="sentences">Sentences</option>
+                    <option value="words">Words</option>
+                  </select>
+                </div>
+                <div class="option-field">
+                  <label for="lorem-count">How many</label>
+                  <input id="lorem-count" type="number" min="1" max="200" value="3" inputmode="numeric" />
+                </div>
+              </div>
+              <div class="option-row">
+                <label class="toggle">
+                  <input id="lorem-classic" type="checkbox" checked />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Start with “Lorem ipsum dolor sit amet…”</span>
+                </label>
+                <label class="toggle">
+                  <input id="lorem-html" type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Wrap in &lt;p&gt; tags</span>
+                </label>
+              </div>
+              <div class="option-field">
+                <label for="lorem-output">Placeholder text</label>
+                <textarea id="lorem-output" class="code-output" rows="12" readonly></textarea>
+                <small id="lorem-meta" aria-live="polite"></small>
+              </div>
+              <div class="result-actions">
+                <button type="button" class="primary-button" id="lorem-generate">Generate new</button>
+                <button type="button" class="secondary-button" id="lorem-copy">Copy</button>
+              </div>
+            </div>
+            <div id="tool-processing"></div>
+            <div id="tool-results"></div>
+            <div id="tool-error"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script type="module" src="/static/assets/js/pages/lorem-ipsum.js"></script>
+    <script defer src="/static/assets/js/vercel-analytics.js"></script>
+  </body>
+</html>

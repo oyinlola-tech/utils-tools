@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f6f0" />
+    <meta name="description" content="Generate UUID v4, sortable UUID v7 and ULID identifiers in bulk, in your browser. Nothing is sent to a server." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tools.oyinlola.site/tools/uuid-generator" />
+    <meta property="og:title" content="UUID &amp; ULID Generator - Utils-tool" />
+    <meta property="og:description" content="Generate UUID v4, sortable UUID v7 and ULID identifiers in bulk, in your browser. Nothing is sent to a server." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Utils-tool" />
+    <meta property="og:url" content="https://tools.oyinlola.site/tools/uuid-generator" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>UUID &amp; ULID Generator - Utils-tool</title>
+    <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/brand/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/brand/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
+    <script type="module" src="/static/assets/js/error-boundary.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/reset.css" />
+    <link rel="stylesheet" href="/static/assets/css/variables.css" />
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
+    <link rel="stylesheet" href="/static/assets/css/pages.css" />
+    <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+  </head>
+  <body>
+
+    <div id="site-header"></div>
+    <main class="tool-page">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Developer tool</span>
+            <h1>UUID &amp; ULID Generator</h1>
+            <p class="hero-description">Generate random UUID v4, time-ordered UUID v7 or ULID identifiers in bulk. Created with your browser's secure random generator.</p>
+          </div>
+          <section class="tool-card">
+            <div id="tool-unavailable" class="hidden" role="alert"></div>
+            <div class="tool-options" id="tool-options">
+              <div class="option-row">
+                <div class="option-field">
+                  <label for="uuid-kind">Type</label>
+                  <select id="uuid-kind" class="select-input">
+                    <option value="v4" selected>UUID v4 (random)</option>
+                    <option value="v7">UUID v7 (time-ordered)</option>
+                    <option value="ulid">ULID (time-ordered, 26 chars)</option>
+                    <option value="nil">Nil UUID</option>
+                  </select>
+                </div>
+                <div class="option-field">
+                  <label for="uuid-count">How many (1-1000)</label>
+                  <input id="uuid-count" type="number" min="1" max="1000" value="10" inputmode="numeric" />
+                </div>
+              </div>
+              <div class="option-row">
+                <label class="toggle">
+                  <input id="uuid-upper" type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Uppercase</span>
+                </label>
+                <label class="toggle">
+                  <input id="uuid-hyphens" type="checkbox" checked />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Hyphens</span>
+                </label>
+                <label class="toggle">
+                  <input id="uuid-braces" type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Braces { }</span>
+                </label>
+              </div>
+              <div class="option-field">
+                <label for="uuid-output">Generated IDs</label>
+                <textarea id="uuid-output" class="code-output" rows="12" readonly spellcheck="false"></textarea>
+                <small id="uuid-meta" aria-live="polite"></small>
+              </div>
+              <div class="result-actions">
+                <button type="button" class="primary-button" id="uuid-generate">Generate new</button>
+                <button type="button" class="secondary-button" id="uuid-copy">Copy</button>
+              </div>
+            </div>
+            <div id="tool-processing"></div>
+            <div id="tool-results"></div>
+            <div id="tool-error"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script type="module" src="/static/assets/js/pages/uuid-generator.js"></script>
+    <script defer src="/static/assets/js/vercel-analytics.js"></script>
+  </body>
+</html>

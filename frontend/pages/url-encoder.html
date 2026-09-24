@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f6f0" />
+    <meta name="description" content="Encode and decode URL components and parse URLs into host, path and query parameters, in your browser." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tools.oyinlola.site/tools/url-encoder" />
+    <meta property="og:title" content="URL Encoder, Decoder &amp; Parser - Utils-tool" />
+    <meta property="og:description" content="Encode and decode URL components and parse URLs into host, path and query parameters, in your browser." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Utils-tool" />
+    <meta property="og:url" content="https://tools.oyinlola.site/tools/url-encoder" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>URL Encoder, Decoder &amp; Parser - Utils-tool</title>
+    <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/brand/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/brand/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
+    <script type="module" src="/static/assets/js/error-boundary.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/reset.css" />
+    <link rel="stylesheet" href="/static/assets/css/variables.css" />
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
+    <link rel="stylesheet" href="/static/assets/css/pages.css" />
+    <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+    <style>.devtool-section-title{font-size:1.1rem;margin:8px 0 0}</style>
+  </head>
+  <body>
+
+    <div id="site-header"></div>
+    <main class="tool-page">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Developer tool</span>
+            <h1>URL Encoder, Decoder &amp; Parser</h1>
+            <p class="hero-description">Percent-encode or decode URL text, and split any URL into its protocol, host, path, hash and a table of query parameters.</p>
+          </div>
+          <section class="tool-card">
+            <div id="tool-unavailable" class="hidden" role="alert"></div>
+            <div class="tool-options" id="tool-options">
+              <h2 class="devtool-section-title">Encode or decode</h2>
+              <div class="option-row">
+                <div class="option-field">
+                  <span class="option-label" id="url-mode-label">Mode</span>
+                  <div class="segmented" role="group" aria-labelledby="url-mode-label" id="url-mode">
+                    <button type="button" data-value="encode" class="active">Encode</button>
+                    <button type="button" data-value="decode">Decode</button>
+                  </div>
+                </div>
+                <div class="option-field">
+                  <label for="url-scope">Encoding scope</label>
+                  <select id="url-scope" class="select-input">
+                    <option value="component" selected>Component: also escapes / ? &amp; = #</option>
+                    <option value="uri">Full URL: keeps the URL structure</option>
+                  </select>
+                </div>
+                <div class="option-field">
+                  <span class="option-label">Spaces</span>
+                  <label class="toggle">
+                  <input id="url-plus" type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Use + for spaces (form encoding)</span>
+                </label>
+                </div>
+              </div>
+              <div class="option-field">
+                <label for="url-input" id="url-input-label">Text to encode</label>
+                <textarea id="url-input" class="code-output" rows="4" spellcheck="false">name=Ada Lovelace&amp;city=Zürich &amp; more/?</textarea>
+              </div>
+              <div class="option-field">
+                <label for="url-output" id="url-output-label">Encoded output</label>
+                <textarea id="url-output" class="code-output" rows="4" readonly spellcheck="false"></textarea>
+              </div>
+              <div class="result-actions">
+                <button type="button" class="primary-button" id="url-copy">Copy output</button>
+                <button type="button" class="secondary-button" id="url-swap">Swap input and output</button>
+              </div>
+              <h2 class="devtool-section-title">Parse a URL</h2>
+              <div class="option-field">
+                <label for="url-parse-input">URL</label>
+                <input id="url-parse-input" type="text" spellcheck="false" autocomplete="off" value="https://user:secret@example.com:8080/docs/getting%20started?query=hello%20world&amp;lang=en&amp;tag=a&amp;tag=b#install" />
+                <small id="url-parse-note" aria-live="polite"></small>
+              </div>
+              <div id="url-parts"></div>
+              <div id="url-params"></div>
+              <div class="result-actions">
+                <button type="button" class="secondary-button" id="url-params-copy">Copy parameters as JSON</button>
+              </div>
+            </div>
+            <div id="tool-processing"></div>
+            <div id="tool-results"></div>
+            <div id="tool-error"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script type="module" src="/static/assets/js/pages/url-encoder.js"></script>
+    <script defer src="/static/assets/js/vercel-analytics.js"></script>
+  </body>
+</html>

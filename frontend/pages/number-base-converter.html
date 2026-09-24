@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f6f0" />
+    <meta name="description" content="Convert numbers between binary, octal, decimal, hexadecimal and any base up to 36, with support for very large integers." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tools.oyinlola.site/tools/number-base-converter" />
+    <meta property="og:title" content="Number Base Converter - Utils-tool" />
+    <meta property="og:description" content="Convert numbers between binary, octal, decimal, hexadecimal and any base up to 36, with support for very large integers." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Utils-tool" />
+    <meta property="og:url" content="https://tools.oyinlola.site/tools/number-base-converter" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Number Base Converter - Utils-tool</title>
+    <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/brand/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/brand/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
+    <script type="module" src="/static/assets/js/error-boundary.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/reset.css" />
+    <link rel="stylesheet" href="/static/assets/css/variables.css" />
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
+    <link rel="stylesheet" href="/static/assets/css/pages.css" />
+    <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+  </head>
+  <body>
+
+    <div id="site-header"></div>
+    <main class="tool-page">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Developer tool</span>
+            <h1>Number Base Converter</h1>
+            <p class="hero-description">Convert integers between binary, octal, decimal, hexadecimal and any base from 2 to 36. Arbitrarily large numbers are supported.</p>
+          </div>
+          <section class="tool-card">
+            <div id="tool-unavailable" class="hidden" role="alert"></div>
+            <div class="tool-options" id="tool-options">
+              <div class="option-row">
+                <label class="toggle">
+                  <input id="nb-upper" type="checkbox" checked />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Uppercase letters</span>
+                </label>
+                <label class="toggle">
+                  <input id="nb-group" type="checkbox" />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span class="toggle-label">Group digits</span>
+                </label>
+              </div>
+              <div class="option-field">
+                <label for="nb-10">Decimal (base 10)</label>
+                <input id="nb-10" data-base="10" type="text" spellcheck="false" autocomplete="off" value="255" />
+              </div>
+              <div class="option-field">
+                <label for="nb-16">Hexadecimal (base 16)</label>
+                <input id="nb-16" data-base="16" type="text" spellcheck="false" autocomplete="off" />
+              </div>
+              <div class="option-field">
+                <label for="nb-2">Binary (base 2)</label>
+                <input id="nb-2" data-base="2" type="text" spellcheck="false" autocomplete="off" />
+              </div>
+              <div class="option-field">
+                <label for="nb-8">Octal (base 8)</label>
+                <input id="nb-8" data-base="8" type="text" spellcheck="false" autocomplete="off" />
+              </div>
+              <div class="option-row">
+                <div class="option-field">
+                  <label for="nb-custom-base">Custom base</label>
+                  <select id="nb-custom-base" class="select-input"></select>
+                </div>
+                <div class="option-field">
+                  <label for="nb-custom">Value in custom base</label>
+                  <input id="nb-custom" data-base="custom" type="text" spellcheck="false" autocomplete="off" />
+                </div>
+              </div>
+              <small id="nb-info" aria-live="polite"></small>
+              <div class="result-actions" id="nb-copy-actions"></div>
+            </div>
+            <div id="tool-processing"></div>
+            <div id="tool-results"></div>
+            <div id="tool-error"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script type="module" src="/static/assets/js/pages/number-base-converter.js"></script>
+    <script defer src="/static/assets/js/vercel-analytics.js"></script>
+  </body>
+</html>

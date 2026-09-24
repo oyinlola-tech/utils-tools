@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f6f0" />
+    <meta name="description" content="Generate MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes and HMACs of text or files, privately in your browser." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tools.oyinlola.site/tools/hash-generator" />
+    <meta property="og:title" content="Hash Generator - Utils-tool" />
+    <meta property="og:description" content="Generate MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes and HMACs of text or files, privately in your browser." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Utils-tool" />
+    <meta property="og:url" content="https://tools.oyinlola.site/tools/hash-generator" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Hash Generator - Utils-tool</title>
+    <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/brand/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/brand/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
+    <script type="module" src="/static/assets/js/error-boundary.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/reset.css" />
+    <link rel="stylesheet" href="/static/assets/css/variables.css" />
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
+    <link rel="stylesheet" href="/static/assets/css/pages.css" />
+    <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+  </head>
+  <body>
+
+    <div id="site-header"></div>
+    <main class="tool-page">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Developer tool</span>
+            <h1>Hash Generator</h1>
+            <p class="hero-description">Compute MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes, or HMACs, of text or files. Files are hashed locally and never uploaded.</p>
+          </div>
+          <section class="tool-card">
+            <div id="tool-unavailable" class="hidden" role="alert"></div>
+            <div class="tool-options" id="tool-options">
+              <div class="option-field">
+                <span class="option-label" id="hash-source-label">Input</span>
+                <div class="segmented" role="group" aria-labelledby="hash-source-label" id="hash-source">
+                  <button type="button" data-value="text" class="active">Text</button>
+                  <button type="button" data-value="file">File</button>
+                </div>
+              </div>
+              <div class="option-field" id="hash-text-panel">
+                <label for="hash-text">Text to hash (UTF-8)</label>
+                <textarea id="hash-text" class="code-output" rows="5" spellcheck="false">The quick brown fox jumps over the lazy dog</textarea>
+              </div>
+              <div class="option-field hidden" id="hash-file-panel">
+                <label for="hash-file">File to hash (or drop it here)</label>
+                <input id="hash-file" type="file" />
+                <small id="hash-file-info" aria-live="polite">No file selected. Any size works; very large files need enough free memory.</small>
+              </div>
+              <div class="option-row">
+                <div class="option-field">
+                  <label for="hash-format">Output format</label>
+                  <select id="hash-format" class="select-input">
+                    <option value="hex" selected>Hex (lowercase)</option>
+                    <option value="HEX">Hex (uppercase)</option>
+                    <option value="base64">Base64</option>
+                  </select>
+                </div>
+                <div class="option-field">
+                  <label for="hash-key">HMAC secret key (optional)</label>
+                  <input id="hash-key" type="text" autocomplete="off" spellcheck="false" placeholder="Leave empty for plain hashes" />
+                </div>
+              </div>
+              <div id="hash-results" aria-live="polite"></div>
+              <div class="result-actions">
+                <button type="button" class="secondary-button" id="hash-copy-all">Copy all</button>
+              </div>
+            </div>
+            <div id="tool-processing"></div>
+            <div id="tool-results"></div>
+            <div id="tool-error"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script type="module" src="/static/assets/js/pages/hash-generator.js"></script>
+    <script defer src="/static/assets/js/vercel-analytics.js"></script>
+  </body>
+</html>

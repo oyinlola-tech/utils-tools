@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f6f0" />
+    <meta name="description" content="Convert colors between HEX, RGB, HSL, HWB, OKLCH and OKLab and check WCAG contrast ratios for accessible text." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tools.oyinlola.site/tools/color-converter" />
+    <meta property="og:title" content="Color Converter &amp; Contrast Checker - Utils-tool" />
+    <meta property="og:description" content="Convert colors between HEX, RGB, HSL, HWB, OKLCH and OKLab and check WCAG contrast ratios for accessible text." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Utils-tool" />
+    <meta property="og:url" content="https://tools.oyinlola.site/tools/color-converter" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Color Converter &amp; Contrast Checker - Utils-tool</title>
+    <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/brand/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/brand/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
+    <script type="module" src="/static/assets/js/error-boundary.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/reset.css" />
+    <link rel="stylesheet" href="/static/assets/css/variables.css" />
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
+    <link rel="stylesheet" href="/static/assets/css/pages.css" />
+    <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+    <style>.devtool-section-title{font-size:1.1rem;margin:8px 0 0}.devtool-swatch{height:72px;border-radius:12px;border:1px solid var(--color-border)}.devtool-contrast{padding:16px 20px;border-radius:12px;border:1px solid var(--color-border)}.devtool-contrast p{margin:0 0 8px}.devtool-contrast-large{font-size:24px}</style>
+  </head>
+  <body>
+
+    <div id="site-header"></div>
+    <main class="tool-page">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Developer tool</span>
+            <h1>Color Converter &amp; Contrast Checker</h1>
+            <p class="hero-description">Convert colors between HEX, RGB, HSL, HWB, OKLCH and OKLab, then check text contrast against WCAG 2.2 AA and AAA.</p>
+          </div>
+          <section class="tool-card">
+            <div id="tool-unavailable" class="hidden" role="alert"></div>
+            <div class="tool-options" id="tool-options">
+              <div class="option-row">
+                <div class="option-field">
+                  <label for="color-input">Color (any CSS format or name)</label>
+                  <input id="color-input" type="text" spellcheck="false" autocomplete="off" value="#1e90ff" />
+                </div>
+                <div class="option-field">
+                  <label for="color-picker">Pick a color</label>
+                  <input id="color-picker" type="color" value="#1e90ff" />
+                </div>
+              </div>
+              <div id="color-swatch" class="devtool-swatch" aria-hidden="true"></div>
+              <small id="color-note" aria-live="polite"></small>
+              <div id="color-formats"></div>
+              <h2 class="devtool-section-title">Contrast checker</h2>
+              <div class="option-row">
+                <div class="option-field">
+                  <label for="contrast-fg">Text color</label>
+                  <input id="contrast-fg" type="text" spellcheck="false" autocomplete="off" value="#1e90ff" />
+                </div>
+                <div class="option-field">
+                  <label for="contrast-fg-picker">Pick text color</label>
+                  <input id="contrast-fg-picker" type="color" value="#1e90ff" />
+                </div>
+                <div class="option-field">
+                  <label for="contrast-bg">Background color</label>
+                  <input id="contrast-bg" type="text" spellcheck="false" autocomplete="off" value="#ffffff" />
+                </div>
+                <div class="option-field">
+                  <label for="contrast-bg-picker">Pick background</label>
+                  <input id="contrast-bg-picker" type="color" value="#ffffff" />
+                </div>
+              </div>
+              <div class="result-actions">
+                <button type="button" class="secondary-button" id="contrast-swap">Swap colors</button>
+                <button type="button" class="secondary-button" id="contrast-use">Use converted color as text</button>
+              </div>
+              <div id="contrast-preview" class="devtool-contrast">
+                <p class="devtool-contrast-large">Large text sample (24px)</p>
+                <p>Normal body text sample. The quick brown fox jumps over the lazy dog.</p>
+              </div>
+              <p>Contrast ratio: <strong id="contrast-ratio" aria-live="polite">-</strong></p>
+              <div id="contrast-results"></div>
+            </div>
+            <div id="tool-processing"></div>
+            <div id="tool-results"></div>
+            <div id="tool-error"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script type="module" src="/static/assets/js/pages/color-converter.js"></script>
+    <script defer src="/static/assets/js/vercel-analytics.js"></script>
+  </body>
+</html>

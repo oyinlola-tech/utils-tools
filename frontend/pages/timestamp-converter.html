@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f6f0" />
+    <meta name="description" content="Convert Unix epoch timestamps to human dates and dates to timestamps in any time zone, with automatic seconds and milliseconds detection." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://tools.oyinlola.site/tools/timestamp-converter" />
+    <meta property="og:title" content="Unix Timestamp Converter - Utils-tool" />
+    <meta property="og:description" content="Convert Unix epoch timestamps to human dates and dates to timestamps in any time zone, with automatic seconds and milliseconds detection." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Utils-tool" />
+    <meta property="og:url" content="https://tools.oyinlola.site/tools/timestamp-converter" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Unix Timestamp Converter - Utils-tool</title>
+    <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/brand/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/brand/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
+    <script type="module" src="/static/assets/js/error-boundary.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/reset.css" />
+    <link rel="stylesheet" href="/static/assets/css/variables.css" />
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
+    <link rel="stylesheet" href="/static/assets/css/pages.css" />
+    <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+  </head>
+  <body>
+
+    <div id="site-header"></div>
+    <main class="tool-page">
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="eyebrow">Developer tool</span>
+            <h1>Unix Timestamp Converter</h1>
+            <p class="hero-description">Convert Unix timestamps to readable dates and back, in any time zone. Seconds, milliseconds, microseconds and nanoseconds are detected automatically.</p>
+          </div>
+          <section class="tool-card">
+            <div id="tool-unavailable" class="hidden" role="alert"></div>
+            <div class="tool-options" id="tool-options">
+              <p>Current Unix time: <output id="ts-now" aria-live="off">-</output></p>
+              <div class="option-field">
+                <label for="ts-input">Timestamp or date</label>
+                <input id="ts-input" type="text" spellcheck="false" autocomplete="off" aria-describedby="ts-hint" />
+                <small id="ts-hint">Examples: 1700000000, 1700000000000, 2024-05-01T12:00:00Z, 2024-05-01 12:00 (read as your local time)</small>
+              </div>
+              <div class="option-row">
+                <div class="option-field">
+                  <label for="ts-unit">Timestamp unit</label>
+                  <select id="ts-unit" class="select-input">
+                    <option value="auto" selected>Auto-detect</option>
+                    <option value="seconds">Seconds</option>
+                    <option value="milliseconds">Milliseconds</option>
+                    <option value="microseconds">Microseconds</option>
+                    <option value="nanoseconds">Nanoseconds</option>
+                  </select>
+                </div>
+                <div class="option-field">
+                  <label for="ts-zone">Time zone</label>
+                  <select id="ts-zone" class="select-input"></select>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button type="button" class="secondary-button" id="ts-now-button">Use current time</button>
+              </div>
+              <p id="ts-detected" aria-live="polite"></p>
+              <div id="ts-results"></div>
+              <div class="result-actions">
+                <button type="button" class="secondary-button" id="ts-copy-all">Copy all</button>
+              </div>
+            </div>
+            <div id="tool-processing"></div>
+            <div id="tool-results"></div>
+            <div id="tool-error"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="site-footer"></div>
+    <script type="module" src="/static/assets/js/pages/timestamp-converter.js"></script>
+    <script defer src="/static/assets/js/vercel-analytics.js"></script>
+  </body>
+</html>
