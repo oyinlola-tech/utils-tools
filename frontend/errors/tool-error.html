@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="A Utils-tool tool couldn't finish the job." />
-    <title>Tool error - Utils-tool</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="This tool hit a problem. Go back and try again, or check the file before retrying." />
+    <title>Tool error — Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,28 +21,24 @@
   </head>
   <body>
     <div id="site-header"></div>
-    <main class="error-page">
-      <div class="container error-page-inner">
-        <p class="error-status" aria-hidden="true"><span class="error-status-dot"></span><span id="tool-error-status">status: tool_error</span></p>
-        <div class="error-code" aria-hidden="true" id="tool-error-code"><span class="error-code-accent">!</span></div>
-        <h1 class="error-title" id="tool-error-title">This tool hit a problem.</h1>
-        <p class="error-lead" id="tool-error-lead">
-          The tool couldn't finish the job. Go back and try again, or
-          check the file before retrying.
-        </p>
-        <div class="error-actions">
-          <a href="javascript:history.back()" class="primary-button" id="tool-error-back">Back to the tool</a>
-          <a href="/tools" class="secondary-button">Browse tools</a>
+    <main class="error-page" data-status="tool-error">
+      <div class="err-wrap">
+        <div class="err-main">
+          <p class="err-status"><span class="err-dot" aria-hidden="true"></span><span id="tool-error-status">tool error</span></p>
+          <p class="err-code" aria-hidden="true" id="tool-error-code"><span>!</span></p>
+          <h1 class="err-title" id="tool-error-title">This tool hit a problem.</h1>
+          <p class="err-lead" id="tool-error-lead">Go back and try again, or check the file before retrying.</p>
+          <p id="error-detail" class="err-detail" hidden></p>
+          <div class="err-actions">
+            <a href="javascript:history.back()" class="primary-button" id="tool-error-back">Back to the tool</a>
+            <button type="button" class="secondary-button" data-shell-search>Search tools</button>
+            <a href="/" class="err-home">Go to the home page</a>
+          </div>
         </div>
-        <div id="error-detail" class="error-detail"></div>
-        <div class="error-fix">
-          <h2 class="error-fix-title">What to do next</h2>
-          <ul class="error-fix-list">
-            <li>Go back and run the tool again.</li>
-            <li>Make sure the file is a supported format and within the size limit.</li>
-            <li>If it keeps failing, report it on GitHub.</li>
-          </ul>
-        </div>
+        <figure class="err-dump" data-status-slug="tool_error">
+          <figcaption><span>hexdump</span> the tool stopped before finishing</figcaption>
+          <pre data-error-dump aria-label="The address you requested, shown as bytes"></pre>
+        </figure>
       </div>
     </main>
     <div id="site-footer"></div>

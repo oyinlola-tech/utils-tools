@@ -1,5 +1,5 @@
 import { initToolPage } from "./tool-kit.js";
-import { apiJsonPost } from "../api.js";
+import { apiJsonPost, isInputError } from "../api.js";
 
 const kit = await initToolPage("json-csv-converter");
 
@@ -24,7 +24,11 @@ jsonToCsvBtn.addEventListener("click", async () => {
         }
     } catch (err) {
         kit.setBusy(false);
-        kit.showError(err);
+        if (isInputError(err)) {
+            kit.banner.show(err.message);
+        } else {
+            kit.showError(err);
+        }
     }
 });
 
@@ -44,6 +48,10 @@ csvToJsonBtn.addEventListener("click", async () => {
         }
     } catch (err) {
         kit.setBusy(false);
-        kit.showError(err);
+        if (isInputError(err)) {
+            kit.banner.show(err.message);
+        } else {
+            kit.showError(err);
+        }
     }
 });

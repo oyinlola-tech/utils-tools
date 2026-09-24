@@ -1,5 +1,5 @@
 import { initToolPage } from "./tool-kit.js";
-import { apiJsonPost } from "../api.js";
+import { apiJsonPost, isInputError } from "../api.js";
 
 const kit = await initToolPage("text-diff");
 
@@ -23,6 +23,10 @@ runBtn.addEventListener("click", async () => {
         }
     } catch (err) {
         kit.setBusy(false);
-        kit.showError(err);
+        if (isInputError(err)) {
+            kit.banner.show(err.message);
+        } else {
+            kit.showError(err);
+        }
     }
 });

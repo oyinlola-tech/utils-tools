@@ -97,27 +97,74 @@ def test_api_video_info_endpoint():
 
 
 def test_api_video_download_endpoint():
-    """Test POST /api/v1/tools/video/download API route."""
-    from pathlib import Path
+    """POST /download persists the file and returns a relative URL."""
+    from app.infrastructure.storage import storage
 
-    with patch("app.modules.video.video_service.video_downloader_service.download_video") as mock_dl:
-        mock_dl.return_value = Path("storage/temp/video_test_sample.mp4")
+    storage.temp_path.mkdir(parents=True, exist_ok=True)
+    source = storage.temp_path / "video_test_sample.mp4"
+    source.write_bytes(b"\x00\x00\x00\x18ftypmp42" + b"0" * 64)
 
-        with patch("pathlib.Path.exists", return_value=True), patch("pathlib.Path.stat") as mock_stat:
-            mock_stat.return_value.st_size = 1048576
+    with patch(
+        "app.modules.video.video_service.video_downloader_service.download_video"
+    ) as mock_dl:
+        mock_dl.return_value = source
+        response = client.post(
+            "/api/v1/tools/video/download",
+            json={
+                "url": "https://youtube.com/watch?v=123",
+                "format": "mp4",
+                "quality": "720p",
+            },
+        )
 
-            response = client.post(
-                "/api/v1/tools/video/download",
-                json={
-                    "url": "https://youtube.com/watch?v=123",
-                    "format": "mp4",
-                    "quality": "720p",
-                },
-            )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["filename"].startswith("video_test_sample_")
+    assert data["filename"].endswith(".mp4")
+    assert data["size_bytes"] == 76
+    # Relative: absolute http:// URLs are blocked as mixed content on
+    # HTTPS deployments behind a TLS-terminating proxy.
+    assert data["download_url"] == (
+        f"/api/v1/tools/video/download/{data['filename']}"
+    )
+    assert not source.exists()
 
-            assert response.status_code == 200
-            data = response.json()
-            assert data["success"] is True
-            assert "video_test_sample.mp4" in data["filename"]
-            assert data["download_url"].endswith("/api/v1/tools/video/download/video_test_sample.mp4")
-            assert data["download_url"].startswith("http://testserver/")
+    served = client.get(data["download_url"])
+    assert served.status_code == 200
+    assert served.headers["content-type"] == "video/mp4"
+    assert len(served.content) == 76
+    storage.delete(storage.processed_path / data["filename"])
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "file:///etc/passwd",
+        "http://127.0.0.1:8000/secret",
+        "http://169.254.169.254/latest/meta-data/",
+        "http://[::1]/",
+        "http://localhost/video.mp4",
+        "http://10.1.2.3/video.mp4",
+        "ftp://example.com/video.mp4",
+    ],
+)
+def test_video_endpoints_reject_internal_urls(url):
+    with patch("yt_dlp.YoutubeDL") as mock_ytdl:
+        info = client.post("/api/v1/tools/video/info", json={"url": url})
+        download = client.post(
+            "/api/v1/tools/video/download", json={"url": url}
+        )
+        mock_ytdl.assert_not_called()
+    assert info.status_code == 400
+    assert download.status_code == 400
+
+
+def test_select_format_audio_extraction():
+    from app.modules.video.video_utils import select_format
+
+    with_ffmpeg = select_format("mp3", "audio", True)
+    assert with_ffmpeg["postprocessors"][0]["preferredcodec"] == "mp3"
+    without = select_format("mp3", "audio", False)
+    assert "postprocessors" not in without
+    assert without["format"].startswith("bestaudio[ext=mp3]")

@@ -19,6 +19,9 @@ from app.modules.video.video_utils import (
 
 logger = logging.getLogger(__name__)
 
+# Keeps a single download from filling the disk (/tmp is 512 MB on Vercel).
+MAX_VIDEO_BYTES = 400 * 1024 * 1024
+
 
 class VideoDownloaderService:
     """Business logic for querying and downloading online videos."""
@@ -108,45 +111,53 @@ class VideoDownloaderService:
             # 255-byte filename limit or break download headers.
             "restrictfilenames": True,
             "trim_file_name": 80,
+            "max_filesize": MAX_VIDEO_BYTES,
         }
         base_opts.update(select_format(format_choice, quality_choice, ffmpeg_available()))
 
-        selected_formats = [base_opts["format"], "best"]
-        for selected in selected_formats:
-            ydl_opts = {**base_opts, "format": selected}
-            try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    info = ydl.extract_info(url, download=True)
-                    if info is None:
-                        raise ProcessingError("Failed to download video.")
-                    downloaded_path = self._resolve_downloaded_path(
-                        download_dir, job_id, ydl, info
-                    )
-                    tool_logger.info(
-                        "downloaded '%s' (%d bytes, %s) in %.2fs",
-                        url, downloaded_path.stat().st_size, downloaded_path.name,
-                        time.monotonic() - started,
-                    )
-                    return downloaded_path
-            except yt_dlp.utils.DownloadError as exc:
-                if selected == "best":
-                    tool_logger.warning("yt-dlp download error for URL %s: %s", url, str(exc))
-                    if "Requested format is not available" in str(exc) and not ffmpeg_available():
-                        # Sites like YouTube only serve separate audio and
-                        # video streams, which need ffmpeg to merge.
-                        raise ProcessingError(
-                            "This site only offers separate audio and video "
-                            "streams, and ffmpeg is not installed on the server "
-                            "to merge them. Try the MP3 format, or install ffmpeg."
+        try:
+            selected_formats = [base_opts["format"], "best"]
+            for selected in selected_formats:
+                ydl_opts = {**base_opts, "format": selected}
+                try:
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        info = ydl.extract_info(url, download=True)
+                        if info is None:
+                            raise ProcessingError("Failed to download video.")
+                        downloaded_path = self._resolve_downloaded_path(
+                            download_dir, job_id, ydl, info
                         )
-                    raise ProcessingError(f"Video download failed: {exc!s}")
-                tool_logger.info(
-                    "format '%s' failed (%s); retrying with best", selected, exc
-                )
-            except Exception as exc:
-                tool_logger.error("Unexpected error downloading video for URL %s: %s", url, str(exc))
-                raise ProcessingError(f"An error occurred while downloading the video: {exc!s}")
-        raise ProcessingError("Failed to download video.")
+                        tool_logger.info(
+                            "downloaded '%s' (%d bytes, %s) in %.2fs",
+                            url, downloaded_path.stat().st_size, downloaded_path.name,
+                            time.monotonic() - started,
+                        )
+                        return downloaded_path
+                except yt_dlp.utils.DownloadError as exc:
+                    if selected == "best":
+                        tool_logger.warning("yt-dlp download error for URL %s: %s", url, str(exc))
+                        if "Requested format is not available" in str(exc) and not ffmpeg_available():
+                            # Sites like YouTube only serve separate audio and
+                            # video streams, which need ffmpeg to merge.
+                            raise ProcessingError(
+                                "This site only offers separate audio and video "
+                                "streams, and ffmpeg is not installed on the server "
+                                "to merge them. Try the MP3 format, or install ffmpeg."
+                            )
+                        raise ProcessingError(f"Video download failed: {exc!s}")
+                    tool_logger.info(
+                        "format '%s' failed (%s); retrying with best", selected, exc
+                    )
+                except Exception as exc:
+                    tool_logger.error("Unexpected error downloading video for URL %s: %s", url, str(exc))
+                    raise ProcessingError(f"An error occurred while downloading the video: {exc!s}")
+            raise ProcessingError("Failed to download video.")
+        except BaseException:
+            # Never leave partial downloads (.part files, unmerged
+            # streams) behind in the temp dir.
+            for leftover in download_dir.glob(f"video_{job_id}_*"):
+                leftover.unlink(missing_ok=True)
+            raise
 
     @staticmethod
     def _collect_qualities(info: Dict[str, Any]) -> list[str]:
@@ -183,7 +194,11 @@ class VideoDownloaderService:
         ]
         if matches:
             return max(matches, key=lambda path: path.stat().st_mtime)
-        raise ProcessingError("Downloaded file not found after processing.")
+        raise ProcessingError(
+            "The download produced no file. The video may be larger than "
+            f"the {MAX_VIDEO_BYTES // (1024 * 1024)} MB limit; try a lower "
+            "quality or the MP3 format."
+        )
 
 
 video_downloader_service = VideoDownloaderService()

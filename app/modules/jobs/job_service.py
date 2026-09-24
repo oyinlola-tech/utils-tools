@@ -10,6 +10,7 @@ from app.modules.jobs.services.job_file_factory import (
 from app.modules.jobs.services.job_file_status_service import (
     job_file_status_service,
 )
+from app.modules.jobs.services.job_lock import job_metadata_lock
 from app.modules.jobs.services.job_status_service import (
     job_status_service,
 )
@@ -56,12 +57,13 @@ class JobService:
         file_id: str,
         input_filename: str,
     ) -> None:
-        metadata = local_job_storage.read_metadata(job_id)
-        for file in metadata.get("files", []):
-            if file["id"] == file_id:
-                file["input_filename"] = input_filename
-                break
-        local_job_storage.write_metadata(job_id, metadata)
+        with job_metadata_lock:
+            metadata = local_job_storage.read_metadata(job_id)
+            for file in metadata.get("files", []):
+                if file["id"] == file_id:
+                    file["input_filename"] = input_filename
+                    break
+            local_job_storage.write_metadata(job_id, metadata)
 
     def update_status(
         self,

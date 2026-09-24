@@ -1,6 +1,7 @@
 """PDF to images conversion controller."""
 
 from fastapi import HTTPException, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app.infrastructure.archive.zip_adapter import zip_adapter
 from app.modules.pdf.controllers.pdf_controller_helpers import (
@@ -25,7 +26,8 @@ class PdfToImagesController:
     ) -> PdfImagesResponse:
         file_data, filename = await read_pdf(file)
         try:
-            pages = pdf_service.to_images(
+            pages = await run_in_threadpool(
+                pdf_service.to_images,
                 file_data,
                 image_format=image_format,
                 dpi=dpi,

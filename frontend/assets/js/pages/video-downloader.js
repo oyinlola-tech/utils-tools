@@ -1,5 +1,5 @@
 import { initToolPage } from "./tool-kit.js";
-import { apiJsonPost } from "../api.js";
+import { apiJsonPost, isInputError } from "../api.js";
 import { createDownloadCard } from "../components/ui.js";
 
 const kit = await initToolPage("video-downloader");
@@ -59,7 +59,11 @@ async function fetchVideoInfo() {
         }
     } catch (err) {
         kit.setBusy(false);
-        kit.showError(err);
+        if (isInputError(err)) {
+            kit.banner.show(err.message);
+        } else {
+            kit.showError(err);
+        }
     }
 }
 
@@ -104,6 +108,10 @@ runBtn.addEventListener("click", async () => {
         }
     } catch (err) {
         kit.setBusy(false);
-        kit.showError(err);
+        if (isInputError(err)) {
+            kit.banner.show(err.message);
+        } else {
+            kit.showError(err);
+        }
     }
 });

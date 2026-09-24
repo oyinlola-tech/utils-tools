@@ -32,7 +32,7 @@ if (tool) {
         const detail = document.querySelector("#error-detail");
         if (detail) {
             detail.textContent = code;
-            detail.style.display = "block";
+            detail.hidden = false;
         }
     }
     document.title = "Tool error - Utils-tool";

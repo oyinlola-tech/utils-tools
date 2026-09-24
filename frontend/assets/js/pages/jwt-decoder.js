@@ -1,5 +1,5 @@
 import { initToolPage } from "./tool-kit.js";
-import { apiJsonPost } from "../api.js";
+import { apiJsonPost, isInputError } from "../api.js";
 
 const kit = await initToolPage("jwt-decoder");
 
@@ -31,6 +31,10 @@ decodeBtn.addEventListener("click", async () => {
     } catch (err) {
         kit.setBusy(false);
         jwtOutput.classList.add("hidden");
-        kit.showError(err);
+        if (isInputError(err)) {
+            kit.banner.show(err.message);
+        } else {
+            kit.showError(err);
+        }
     }
 });

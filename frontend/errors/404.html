@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="The page you were looking for doesn't exist on Utils-tool." />
-    <title>404 · Page not found - Utils-tool</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="No page lives at this address. The link may be mistyped or out of date. Search for the tool you wanted, or browse the full catalog." />
+    <title>404 · Page not found — Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,28 +21,24 @@
   </head>
   <body>
     <div id="site-header"></div>
-    <main class="error-page">
-      <div class="container error-page-inner">
-        <p class="error-status" aria-hidden="true"><span class="error-status-dot"></span>status: 404 · not_found</p>
-        <div class="error-code" aria-hidden="true">4<span class="error-code-accent">0</span>4</div>
-        <h1 class="error-title">This page doesn't exist.</h1>
-        <p class="error-lead">
-          The address doesn't match a page, tool, or file on Utils-tool.
-          Check the link, then head back to the catalog.
-        </p>
-        <div class="error-actions">
-          <a href="/tools" class="primary-button">Back to tools</a>
-          <a href="/" class="secondary-button">Go home</a>
+    <main class="error-page" data-status="404">
+      <div class="err-wrap">
+        <div class="err-main">
+          <p class="err-status"><span class="err-dot" aria-hidden="true"></span><span>404 · page not found</span></p>
+          <p class="err-code" aria-hidden="true">4<span>0</span>4</p>
+          <h1 class="err-title">No page lives at this address.</h1>
+          <p class="err-lead">The link may be mistyped or out of date. Search for the tool you wanted, or browse the full catalog.</p>
+          <p id="error-detail" class="err-detail" hidden></p>
+          <div class="err-actions">
+            <a href="/tools" class="primary-button">Browse all tools</a>
+            <button type="button" class="secondary-button" data-shell-search>Search tools</button>
+            <a href="/" class="err-home">Go to the home page</a>
+          </div>
         </div>
-        <div id="error-detail" class="error-detail"></div>
-        <div class="error-fix">
-          <h2 class="error-fix-title">What to do next</h2>
-          <ul class="error-fix-list">
-            <li>Check the address for typos.</li>
-            <li>Use the navigation to find the tool you need.</li>
-            <li>Browse the full catalog from the Tools page.</li>
-          </ul>
-        </div>
+        <figure class="err-dump" data-status-slug="not_found">
+          <figcaption><span>hexdump</span> no page matches this address</figcaption>
+          <pre data-error-dump aria-label="The address you requested, shown as bytes"></pre>
+        </figure>
       </div>
     </main>
     <div id="site-footer"></div>

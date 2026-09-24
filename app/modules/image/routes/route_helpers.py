@@ -20,10 +20,21 @@ def validate_quality(quality: int | None) -> None:
 
 
 def is_valid_color(value: str) -> bool:
+    """Whether Pillow can use ``value`` as a fill colour.
+
+    ``_parse_color`` passes unknown strings through unchanged (it never
+    raises), so this used to accept anything and the error only surfaced
+    per file, as a failure inside a 200 response.
+    """
+    from PIL import ImageColor
+
     from app.infrastructure.compression.pillow_adapter import _parse_color
 
+    parsed = _parse_color(value)
+    if isinstance(parsed, tuple):
+        return True
     try:
-        _parse_color(value)
+        ImageColor.getrgb(str(parsed))
         return True
     except (ValueError, OSError):
         return False

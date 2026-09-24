@@ -319,3 +319,73 @@
         gap: var(--space-1);
     }
 }
+
+/* Catalog cards match the home page: colour-coded by file type. */
+.tool-catalog .tool-card {
+    gap: 10px;
+    padding: 20px 20px 18px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--tag, var(--color-border-strong));
+    background: var(--color-surface);
+    box-shadow: none;
+}
+
+.tool-catalog .tool-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-border-strong);
+    border-top-color: var(--tag, var(--color-forest));
+    box-shadow: 0 18px 36px -24px rgba(17, 32, 10, 0.4);
+}
+
+.tool-catalog .tool-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--tag, var(--color-forest)) 12%, white);
+    color: var(--tag, var(--color-forest));
+}
+
+.tool-catalog .tool-card-label {
+    font: 500 0.6875rem/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    color: var(--tag, var(--color-text-muted));
+}
+
+.tool-catalog .tool-card h3 {
+    margin: 6px 0 4px;
+    font-family: var(--font-family);
+    font-stretch: normal;
+    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: 0;
+    color: var(--color-text);
+}
+
+.tool-catalog .tool-card p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+}
+
+.tool-catalog .tool-card-action {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-forest);
+}
+
+.page-hero .eyebrow,
+.section-header .eyebrow {
+    font: 500 0.8125rem/1 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.page-hero .hero-description {
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-relaxed);
+}

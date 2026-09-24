@@ -1,6 +1,7 @@
 """Background replacement controller."""
 
 from fastapi import HTTPException, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app.modules.background.background_schema import (
     BackgroundRemovalResponse,
@@ -28,6 +29,11 @@ class ReplaceBackgroundController:
         background_data = None
         if background_image is not None:
             background_data = await background_image.read()
+        if not 0 <= blur <= 100:
+            raise HTTPException(
+                status_code=400,
+                detail="Blur must be between 0 and 100.",
+            )
         if not color and not background_data and blur <= 0:
             raise HTTPException(
                 status_code=400,
@@ -35,7 +41,8 @@ class ReplaceBackgroundController:
             )
         try:
             processed_image, width, height = (
-                background_service.replace_background(
+                await run_in_threadpool(
+                    background_service.replace_background,
                     file_data=file_data,
                     color=color,
                     image_data=background_data,

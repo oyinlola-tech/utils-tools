@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="You appear to be offline. Utils-tool needs a connection to work." />
-    <title>Offline - Utils-tool</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="You&#x27;re offline. Reconnect to the internet, then reload this page. Tools that run in your browser keep working once their page has loaded." />
+    <title>Offline — Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,27 +21,24 @@
   </head>
   <body>
     <div id="site-header"></div>
-    <main class="error-page">
-      <div class="container error-page-inner">
-        <p class="error-status" aria-hidden="true"><span class="error-status-dot"></span>status: offline</p>
-        <div class="error-code" aria-hidden="true">0<span class="error-code-accent">0</span>0</div>
-        <h1 class="error-title">You're offline.</h1>
-        <p class="error-lead">
-          Utils-tool needs a connection to load tools and process files.
-          Reconnect and try again.
-        </p>
-        <div class="error-actions">
-          <a href="javascript:location.reload()" class="primary-button">Try again</a>
-          <a href="/tools" class="secondary-button">Browse tools</a>
+    <main class="error-page" data-status="offline">
+      <div class="err-wrap">
+        <div class="err-main">
+          <p class="err-status"><span class="err-dot" aria-hidden="true"></span><span>offline</span></p>
+          <p class="err-code" aria-hidden="true">of<span>f</span></p>
+          <h1 class="err-title">You&#x27;re offline.</h1>
+          <p class="err-lead">Reconnect to the internet, then reload this page. Tools that run in your browser keep working once their page has loaded.</p>
+          <p id="error-detail" class="err-detail" hidden></p>
+          <div class="err-actions">
+            <a href="/tools" class="primary-button">Browse all tools</a>
+            <button type="button" class="secondary-button" data-shell-search>Search tools</button>
+            <a href="/" class="err-home">Go to the home page</a>
+          </div>
         </div>
-        <div id="error-detail" class="error-detail"></div>
-        <div class="error-fix">
-          <h2 class="error-fix-title">What to do next</h2>
-          <ul class="error-fix-list">
-            <li>Check your internet connection.</li>
-            <li>Reconnect and refresh the page.</li>
-          </ul>
-        </div>
+        <figure class="err-dump" data-status-slug="offline">
+          <figcaption><span>hexdump</span> no network connection</figcaption>
+          <pre data-error-dump aria-label="The address you requested, shown as bytes"></pre>
+        </figure>
       </div>
     </main>
     <div id="site-footer"></div>

@@ -18,21 +18,21 @@ router = APIRouter(
 
 
 @router.post("/info")
-async def get_video_info(request: VideoInfoRequest):
+def get_video_info(request: VideoInfoRequest):
     """Fetch video metadata, title, duration, thumbnail, and format options."""
     logger.info("get_video_info for URL: %s", request.url)
     return video_downloader_controller.get_info(request)
 
 
 @router.post("/download")
-async def download_video(request: Request, body: VideoDownloadRequest):
+def download_video(request: Request, body: VideoDownloadRequest):
     """Download video/audio file and return download link."""
     logger.info("download_video: url=%s, format=%s, quality=%s", body.url, body.format, body.quality)
     return video_downloader_controller.download(request, body)
 
 
 @router.get("/download/{filename}")
-async def download_video_file(filename: str):
+def download_video_file(filename: str):
     """Serve the downloaded video/audio file."""
     if not is_safe_filename(filename):
         raise HTTPException(status_code=400, detail="Invalid filename")

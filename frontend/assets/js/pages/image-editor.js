@@ -6,6 +6,7 @@ if (!kit.available) {
 } else {
     let source = null;
     let sourceUrl = null;
+    let sourceName = "image";
 
     const frame = document.querySelector("#editor-canvas-frame");
     const canvas = document.createElement("canvas");
@@ -68,10 +69,15 @@ if (!kit.available) {
                 URL.revokeObjectURL(sourceUrl);
             }
             sourceUrl = URL.createObjectURL(file);
+            sourceName = file.name || "image";
             const image = new Image();
             image.onload = () => {
+                kit.banner.hide();
                 source = image;
                 draw();
+            };
+            image.onerror = () => {
+                kit.banner.show("This browser cannot open that image. Try a JPG, PNG or WebP file.");
             };
             image.src = sourceUrl;
         },
@@ -139,8 +145,12 @@ if (!kit.available) {
             const final = applySharpness(outCanvas);
             final.toBlob((blob) => {
                 kit.setBusy(false);
-                const base = source.src.split("/").pop() || "image";
-                const name = `${base.replace(/\.[^.]+$/, "")}-edited.png`;
+                if (!blob) {
+                    kit.banner.show("The image is too large to export in this browser.");
+                    return;
+                }
+                // source.src is a blob: URL, so it cannot supply the name.
+                const name = `${sourceName.replace(/\.[^.]+$/, "")}-edited.png`;
                 triggerDownload(blob, name);
             }, "image/png");
         }, 30);

@@ -21,7 +21,7 @@ def test_capabilities_endpoint_is_public_and_safe():
     body = response.json()
     assert body["app"]["name"] == "Utils-tool"
     assert body["storage_driver"] == "local"
-    assert len(body["tools"]) == 40
+    assert len(body["tools"]) == 52
     serialized = str(body).lower()
     assert "token" not in serialized
 

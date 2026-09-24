@@ -3,26 +3,15 @@
 import time
 from io import BytesIO
 
-from PIL import Image, ImageColor
+from PIL import Image
 
 from app.core.logging import get_tool_logger
+from app.modules.devtools.services.devtools_helpers import normalize_color
 from app.shared.utils.image_util import load_image
 
 MAX_BOX_SIZE = 30
 MAX_BORDER = 16
 SUPPORTED_QR_FORMATS = {"png", "webp", "svg"}
-
-
-def _validate_color(value: str, label: str) -> str:
-    """Accept any colour Pillow understands and return it as #rrggbb.
-
-    Normalising also keeps user input out of the generated SVG markup.
-    """
-    try:
-        red, green, blue = ImageColor.getrgb((value or "").strip())[:3]
-    except ValueError as error:
-        raise ValueError(f"Invalid {label} colour: {value!r}.") from error
-    return f"#{red:02x}{green:02x}{blue:02x}"
 
 
 class QrService:
@@ -51,8 +40,8 @@ class QrService:
             raise ValueError(f"Box size must be between 1 and {MAX_BOX_SIZE}.")
         if not 0 <= border <= MAX_BORDER:
             raise ValueError(f"Border must be between 0 and {MAX_BORDER}.")
-        fill_color = _validate_color(fill_color, "fill")
-        back_color = _validate_color(back_color, "background")
+        fill_color = normalize_color(fill_color, "fill")
+        back_color = normalize_color(back_color, "background")
 
         factory = self._build(qrcode, content, box_size, border)
 

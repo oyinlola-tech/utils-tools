@@ -1,6 +1,7 @@
 import { startImageCompression, cancelJob, getJob } from "./api.js";
 import { hideElement, showElement, formatBytes } from "./utils.js";
 import { registerUse } from "./support-popup.js";
+import { takeFiles } from "./handoff.js";
 
 const show = showElement;
 const hide = hideElement;
@@ -921,4 +922,11 @@ compressAnotherButton.addEventListener("click", () => {
     const failedFilesContainer = document.querySelector("#compression-failed-files");
     if (failedFilesContainer) hideElement(failedFilesContainer);
     show(dropZone);
+});
+
+// Files handed over from the home page's file inspector.
+takeFiles().then((handed) => {
+    if (handed.length) {
+        addFiles(handed);
+    }
 });

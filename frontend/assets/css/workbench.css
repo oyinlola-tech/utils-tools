@@ -294,6 +294,7 @@ h2,
     gap: 8px;
 }
 
+.tool-card .upload-title,
 .upload-title {
     margin: 0;
     font-family: var(--font-display);
@@ -304,6 +305,7 @@ h2,
     color: var(--color-forest);
 }
 
+.tool-card .upload-sub,
 .upload-sub {
     display: flex;
     flex-wrap: wrap;
@@ -339,6 +341,7 @@ h2,
     outline-offset: 3px;
 }
 
+.tool-card .upload-hint,
 .upload-hint {
     margin: 4px 0 0;
     font: 400 0.8125rem/1.4 var(--font-mono);
@@ -634,12 +637,14 @@ h2,
     gap: 2px;
 }
 
+.tool-card .processing-title,
 .processing-title {
     margin: 0;
     font-weight: 700;
     color: var(--color-forest);
 }
 
+.tool-card .processing .processing-message,
 .processing .processing-message {
     margin: 0;
     font-size: var(--font-size-sm);
@@ -663,6 +668,7 @@ h2,
     margin-bottom: var(--space-4);
 }
 
+.tool-card .result-title,
 .result-title {
     display: flex;
     align-items: center;
@@ -741,12 +747,14 @@ h2,
     gap: 8px;
 }
 
+.tool-card .result-name,
 .result-name {
     font-weight: 700;
     font-size: var(--font-size-md);
     word-break: break-all;
 }
 
+.tool-card .result-meta,
 .result-meta {
     font: 400 0.875rem/1.4 var(--font-mono);
     color: var(--color-text-secondary);
@@ -860,4 +868,166 @@ h2,
         width: 44px;
         height: 44px;
     }
+}
+
+/* Result markup built by individual page scripts (converter, resizer,
+   pdf-to-image): same row treatment as the shared result card. */
+
+.tool-page .result-header {
+    margin: 0 0 var(--space-4);
+}
+
+.tool-page .result-header h2,
+.tool-page .result-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    color: var(--color-forest);
+}
+
+.tool-page .result-header h2::before {
+    content: "";
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.5l3 3 6-6.5' fill='none' stroke='%23163300' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px no-repeat,
+        var(--color-lime);
+}
+
+.tool-page .result-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.tool-page .completed-file:has(.completed-file-preview) {
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    grid-template-areas: "preview info download";
+}
+
+.tool-page .completed-file:has(.completed-file-preview) .completed-file-info { grid-area: info; }
+.tool-page .completed-file:has(.completed-file-preview) .completed-file-download { grid-area: download; }
+
+.tool-page .completed-file-preview {
+    grid-area: preview;
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: repeating-conic-gradient(#eef0e8 0 25%, #fff 0 50%) 0 0 / 12px 12px;
+}
+
+.tool-page .completed-file-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tool-page .completed-file-meta > div {
+    display: inline;
+}
+
+.tool-page .completed-file-meta > div + div::before {
+    content: "·";
+    margin: 0 8px 0 0;
+    color: var(--color-border-strong);
+}
+
+.tool-page .failed-files {
+    display: grid;
+    gap: 6px;
+    margin-top: var(--space-4);
+}
+
+.tool-page .failed-file-item {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+}
+
+.tool-page #tool-results > .result-actions {
+    margin-top: var(--space-5);
+}
+
+.tool-page .toggle-label {
+    font-size: 0.9375rem;
+    color: var(--color-text);
+}
+
+/* After files are chosen the drop area shrinks to a slim "add more" strip,
+   and disappears for single-file tools (the tray offers Replace). */
+.upload.has-files .upload-drop {
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+}
+
+.upload.has-files .upload-title {
+    display: none;
+}
+
+.upload.has-files .upload-sub {
+    justify-content: center;
+}
+
+.upload.has-files:not(:has(input[multiple])) .upload-drop {
+    display: none;
+}
+
+@media (max-width: 560px) {
+    .tool-page .completed-file:has(.completed-file-preview) {
+        grid-template-columns: 52px minmax(0, 1fr);
+        grid-template-areas: "preview info" "download download";
+    }
+
+    .tool-page .completed-file-preview {
+        width: 52px;
+        height: 52px;
+    }
+}
+
+/* Several toggles side by side (e.g. regex flags) flow into rows. */
+.tool-page :is(.option-field, .option-row):has(> .toggle ~ .toggle) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 24px;
+}
+
+.tool-page :is(.option-field, .option-row):has(> .toggle ~ .toggle) > :not(.toggle) {
+    flex-basis: 100%;
+}
+
+.tool-page fieldset.option-field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.tool-page fieldset.option-field > legend {
+    margin-bottom: 8px;
+    padding: 0;
+    font: 600 0.875rem/1.2 var(--font-family);
+    color: var(--color-text);
+}
+
+.tool-page .option-field > .toggle,
+.tool-page .option-row > .toggle {
+    margin: 0;
+}
+
+.tool-page mark {
+    padding: 0 1px;
+    border-radius: 3px;
+    background: var(--color-lime);
+    color: var(--color-forest);
 }

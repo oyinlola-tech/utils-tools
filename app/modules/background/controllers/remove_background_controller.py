@@ -1,6 +1,7 @@
 """Background removal controller."""
 
 from fastapi import HTTPException, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app.modules.background.background_schema import (
     BackgroundRemovalResponse,
@@ -24,7 +25,8 @@ class RemoveBackgroundController:
         file_data, filename = await read_image_upload(file)
         try:
             processed_image, width, height = (
-                background_service.remove_background(
+                await run_in_threadpool(
+                    background_service.remove_background,
                     file_data=file_data,
                     original_filename=filename,
                 )

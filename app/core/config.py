@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8000
     max_upload_size_mb: int = 100
+    # Hard cap on any request body, enforced before it is read into
+    # memory (batches may carry several files, hence above the per-file
+    # limits).
+    max_request_body_mb: int = 250
     upload_directory: str = "storage/uploads"
     processed_directory: str = "storage/processed"
     compressed_directory: str = "storage/compressed"
@@ -19,6 +23,8 @@ class Settings(BaseSettings):
     job_directory: str = "storage/jobs"
     download_directory: str = "storage/downloads"
     job_ttl_minutes: int = 30
+    # Public origin used in canonical links, the sitemap and robots.txt.
+    public_site_url: str = "https://tools.oyinlola.site"
 
     max_image_width: int = 8000
     max_image_height: int = 8000

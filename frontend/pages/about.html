@@ -15,9 +15,11 @@
     <meta property="og:title" content="About — Utils-tool" />
     <meta property="og:description" content="Free, local-first file tools built for privacy. Compress, convert, edit, and process files without uploads or accounts." />
     <meta property="og:url" content="https://tools.oyinlola.site/about" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://tools.oyinlola.site/static/assets/img/og-image.png" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://tools.oyinlola.site/static/assets/img/og-image.png" />
     <meta name="twitter:title" content="About — Utils-tool" />
     <meta name="twitter:description" content="Free, local-first file tools built for privacy." />
     <meta name="twitter:site" content="@oyinlola" />
@@ -88,9 +90,9 @@
             <span class="eyebrow">About</span>
             <h1 class="page-title" id="about-title">Built for the work you do, quietly and privately.</h1>
             <p class="hero-description">
-              Utils-tool is a collection of file utilities — image compression, PDF tools,
-              developer assets, and more — that run on your machine. No accounts, no cloud
-              uploads, no tracking. Just fast, precise tools that respect your workflow.
+              Utils-tool is a free, open-source collection of file utilities — image compression,
+              PDF tools, developer helpers and more — behind one calm, consistent interface.
+              No accounts, no ads, no watermarks, and nothing kept longer than it has to be.
             </p>
           </div>
         </div>
@@ -109,28 +111,28 @@
                 an account, upload your files to a server, or cost more than they should.
               </p>
               <p>
-                Utils-tool was built to fill that gap. It is a single application that brings
-                the utilities you use every day behind one calm, consistent interface. You run
-                it locally, your files never leave your machine, and the output is always under
-                your control.
+                Utils-tool was built to fill that gap. It brings the utilities you use every day
+                behind one consistent interface. Many tools run entirely in your browser; the ones
+                that need a server delete your file automatically, and you can run the whole thing
+                on your own machine so nothing leaves it at all.
               </p>
             </div>
             <div class="story-stats">
               <div class="stat-item">
-                <strong>28</strong>
-                <span>Tools</span>
-              </div>
-              <div class="stat-item">
-                <strong>100%</strong>
-                <span>Local processing</span>
+                <strong data-tool-count>52</strong>
+                <span>Free tools</span>
               </div>
               <div class="stat-item">
                 <strong>0</strong>
-                <span>Accounts</span>
+                <span>Accounts needed</span>
               </div>
               <div class="stat-item">
-                <strong>0</strong>
-                <span>Tracking</span>
+                <strong>30 min</strong>
+                <span>Longest a file is kept</span>
+              </div>
+              <div class="stat-item">
+                <strong>MIT</strong>
+                <span>Open source</span>
               </div>
             </div>
           </div>
@@ -151,8 +153,8 @@
               <div class="value-icon" aria-hidden="true"><i class="fa-solid fa-lock"></i></div>
               <h3>Privacy first</h3>
               <p>
-                Nothing leaves your computer unless you tell it to. No uploads, no analytics,
-                no telemetry. Your files stay yours from the first click to the final download.
+                Browser-based tools never upload anything. Server tools keep your file only while
+                they work on it, and output links are random. No accounts, no ads, no selling data.
               </p>
             </div>
             <div class="value-card">
@@ -168,7 +170,7 @@
               <h3>Built to last</h3>
               <p>
                 A consistent interface across all tools, powered by battle-tested libraries.
-                Self-host it, extend it, or run it in your browser — the code stays open and
+                Self-host it, extend it, or just use the hosted site — the code stays open and
                 readable.
               </p>
             </div>
@@ -182,7 +184,7 @@
             <span class="eyebrow">Under the hood</span>
             <h2>Modern tools, minimal footprint.</h2>
             <p class="section-description">
-              The same libraries trusted by developers worldwide, running locally on your machine.
+              The same open-source libraries trusted by developers worldwide.
             </p>
           </div>
           <div class="tech-grid">
@@ -238,25 +240,12 @@
           </div>
         </div>
       </section>
-
-      <section class="final-cta-section">
-        <div class="container">
-          <div class="final-cta">
-            <h2>Ready to get started?</h2>
-            <p class="final-cta-description">
-              No account. No subscriptions. Just fast, private tools in your browser.
-            </p>
-            <div class="final-cta-actions">
-              <a href="/tools" class="primary-button">Explore all tools</a>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
 
     <div id="site-footer"></div>
 
     <script type="module" src="/static/assets/js/app.js"></script>
+    <script type="module" src="/static/assets/js/pages/about.js"></script>
     <script defer src="/static/assets/js/vercel-analytics.js"></script>
   </body>
 </html>

@@ -5,7 +5,8 @@ if (!kit.available) {
     setupUpload({ onFiles: () => {} });
 } else {
     const MAX_PREVIEW = 900;
-    let source = null; 
+    let source = null;
+    let sourceName = "image";
     let rotation = 0;
     let flipH = false;
     let flipV = false;
@@ -48,12 +49,17 @@ if (!kit.available) {
             ctx.scale(1, -1);
         }
         ctx.rotate((rotation * Math.PI) / 180);
+        // Scale to the preview size and draw with the source's own
+        // (unrotated) dimensions: the context rotation already swaps
+        // them. Drawing at full size with swapped w/h showed only the
+        // centre of large images and stretched rotated ones.
+        ctx.scale(scale, scale);
         ctx.drawImage(
             source,
-            -w / 2 * (flipH ? 1 : 1),
-            -h / 2 * (flipV ? 1 : 1),
-            w,
-            h
+            -source.width / 2,
+            -source.height / 2,
+            source.width,
+            source.height
         );
         ctx.restore();
     }
@@ -91,9 +97,13 @@ if (!kit.available) {
             return;
         }
         ctx.save();
+        // Dim everything outside the crop. clearRect() used to erase the
+        // image inside the crop box, leaving it blank.
         ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.clearRect(crop.x, crop.y, crop.w, crop.h);
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width, canvas.height);
+        ctx.rect(crop.x, crop.y, crop.w, crop.h);
+        ctx.fill("evenodd");
         ctx.strokeStyle = "#9fe870";
         ctx.lineWidth = 2;
         ctx.strokeRect(crop.x, crop.y, crop.w, crop.h);
@@ -228,8 +238,14 @@ if (!kit.available) {
             const file = files[0];
             const url = URL.createObjectURL(file);
             const image = new Image();
+            image.onerror = () => {
+                URL.revokeObjectURL(url);
+                kit.banner.show("This browser cannot open that image. Try a JPG, PNG or WebP file.");
+            };
             image.onload = () => {
                 URL.revokeObjectURL(url);
+                kit.banner.hide();
+                sourceName = file.name || "image";
                 source = image;
                 rotation = 0;
                 flipH = false;
@@ -262,11 +278,21 @@ if (!kit.available) {
             outCtx.scale(1, -1);
         }
         outCtx.rotate((rotation * Math.PI) / 180);
-        outCtx.drawImage(source, -w / 2, -h / 2, w, h);
+        outCtx.drawImage(
+            source,
+            -source.width / 2,
+            -source.height / 2,
+            source.width,
+            source.height
+        );
         outCtx.restore();
         outCanvas.toBlob((blob) => {
-            const base = (source.currentSrc || source.src || "image").split("/").pop() || "image";
-            const name = `${base.replace(/\.[^.]+$/, "")}-cropped.png`;
+            if (!blob) {
+                kit.banner.show("The image is too large to export in this browser.");
+                return;
+            }
+            // source.src is a blob: URL, so use the uploaded file's name.
+            const name = `${sourceName.replace(/\.[^.]+$/, "")}-cropped.png`;
             triggerDownload(blob, name);
         }, "image/png");
     });

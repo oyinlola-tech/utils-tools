@@ -28,6 +28,7 @@ class FaviconController:
         return {
             "success": True,
             "sizes": result["sizes"],
+            "png_size": result["png_size"],
             "ico": result["ico"],
             "png": result["png"],
         }

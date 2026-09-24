@@ -13,7 +13,15 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Utils-tool" />
     <meta property="og:url" content="https://tools.oyinlola.site/tools/text-to-speech" />
+    <meta property="og:image" content="https://tools.oyinlola.site/static/assets/img/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Text-to-Speech Generator - Utils-tool" />
+    <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Text-to-Speech Generator - Utils-tool" />
+    <meta name="twitter:description" content="Convert any text to natural MP3 speech and download it. Multiple languages supported." />
+    <meta name="twitter:image" content="https://tools.oyinlola.site/static/assets/img/og-image.png" />
     <title>Text-to-Speech Generator - Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
@@ -31,6 +39,63 @@
     <link rel="stylesheet" href="/static/assets/css/workbench.css" />
     <link rel="stylesheet" href="/static/assets/css/pages.css" />
     <link rel="stylesheet" href="/static/assets/css/responsive.css" />
+    <script type="application/ld+json">
+{
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://tools.oyinlola.site/tools/text-to-speech#app",
+          "name": "Text-to-Speech",
+          "url": "https://tools.oyinlola.site/tools/text-to-speech",
+          "description": "Convert text input into downloadable MP3 audio speech.",
+          "applicationCategory": "UtilitiesApplication",
+          "operatingSystem": "Any",
+          "browserRequirements": "Requires JavaScript and a modern web browser.",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "isPartOf": {
+            "@type": "WebSite",
+            "@id": "https://tools.oyinlola.site/#website",
+            "name": "Utils-tool",
+            "url": "https://tools.oyinlola.site/"
+          },
+          "publisher": {
+            "@type": "Person",
+            "name": "Oluwayemi Oyinlola",
+            "url": "https://oyinlola.site/"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://tools.oyinlola.site/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Text tools",
+              "item": "https://tools.oyinlola.site/tools#text"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Text-to-Speech",
+              "item": "https://tools.oyinlola.site/tools/text-to-speech"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
 
@@ -47,7 +112,7 @@
             <div id="tool-unavailable" class="hidden" role="alert"></div>
 
             <div class="tool-options" id="tool-options">
-              <textarea id="text-input" class="text-area-box" placeholder="Type text here to convert into spoken audio..."></textarea>
+              <textarea id="text-input" class="text-area-box" maxlength="5000" placeholder="Type text here to convert into spoken audio..."></textarea>
               <div class="option-row">
                 <div class="option-field">
                   <label for="tts-lang">Language</label>

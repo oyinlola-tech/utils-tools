@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="The file you tried to upload is larger than Utils-tool allows." />
-    <title>413 · File too large - Utils-tool</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="That file is too large for this server. Try a smaller file or compress it first. Running Utils-tool on your own machine raises the limit to 100 MB." />
+    <title>413 · File too large — Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,28 +21,24 @@
   </head>
   <body>
     <div id="site-header"></div>
-    <main class="error-page">
-      <div class="container error-page-inner">
-        <p class="error-status" aria-hidden="true"><span class="error-status-dot"></span>status: 413 · file_too_large</p>
-        <div class="error-code" aria-hidden="true">4<span class="error-code-accent">1</span>3</div>
-        <h1 class="error-title">That file is too large.</h1>
-        <p class="error-lead">
-          The file is bigger than the upload limit for this tool. Choose
-          a smaller file, or reduce its size first.
-        </p>
-        <div class="error-actions">
-          <a href="javascript:history.back()" class="primary-button">Back to the tool</a>
-          <a href="/tools" class="secondary-button">Browse tools</a>
+    <main class="error-page" data-status="413">
+      <div class="err-wrap">
+        <div class="err-main">
+          <p class="err-status"><span class="err-dot" aria-hidden="true"></span><span>413 · file too large</span></p>
+          <p class="err-code" aria-hidden="true">4<span>1</span>3</p>
+          <h1 class="err-title">That file is too large for this server.</h1>
+          <p class="err-lead">Try a smaller file or compress it first. Running Utils-tool on your own machine raises the limit to 100 MB.</p>
+          <p id="error-detail" class="err-detail" hidden></p>
+          <div class="err-actions">
+            <a href="/tools" class="primary-button">Browse all tools</a>
+            <button type="button" class="secondary-button" data-shell-search>Search tools</button>
+            <a href="/" class="err-home">Go to the home page</a>
+          </div>
         </div>
-        <div id="error-detail" class="error-detail"></div>
-        <div class="error-fix">
-          <h2 class="error-fix-title">What to do next</h2>
-          <ul class="error-fix-list">
-            <li>Check the tool's upload limit — usually 25–50 MB per file.</li>
-            <li>Compress the file first with the Image or PDF Compressor.</li>
-            <li>Convert to a lighter format before uploading.</li>
-          </ul>
-        </div>
+        <figure class="err-dump" data-status-slug="file_too_large">
+          <figcaption><span>hexdump</span> more bytes than this server accepts</figcaption>
+          <pre data-error-dump aria-label="The address you requested, shown as bytes"></pre>
+        </figure>
       </div>
     </main>
     <div id="site-footer"></div>

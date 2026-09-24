@@ -8,9 +8,9 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict
 
-from app.core.config import settings
 from app.core.exceptions import ProcessingError
 from app.core.logging import get_tool_logger
+from app.infrastructure.storage import storage
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +128,9 @@ class TextService:
         try:
             gTTS = _get_gtts()
             tts = gTTS(text=text, lang=language, slow=False)
-            download_dir = Path(settings.temp_directory)
+            # storage.temp_path is writable on every driver (/tmp on
+            # Vercel); settings.temp_directory is read-only there.
+            download_dir = Path(storage.temp_path)
             download_dir.mkdir(parents=True, exist_ok=True)
             job_id = uuid.uuid4().hex[:8]
             output_file = download_dir / f"speech_{job_id}.mp3"

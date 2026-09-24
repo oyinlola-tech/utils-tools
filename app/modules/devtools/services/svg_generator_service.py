@@ -3,6 +3,7 @@
 import time
 
 from app.core.logging import get_tool_logger
+from app.modules.devtools.services.devtools_helpers import normalize_color
 from app.shared.utils.image_util import load_image
 
 
@@ -27,6 +28,12 @@ class SvgGeneratorService:
         import numpy as np
         import potrace
 
+        if not 0 <= threshold <= 255:
+            raise ValueError("Threshold must be between 0 and 255.")
+        background_color = normalize_color(
+            background_color, "background", allow_transparent=True
+        )
+        foreground_color = normalize_color(foreground_color, "foreground")
         source = load_image(image_data)
         grayscale = source.convert("L")
         bw = grayscale.point(lambda x: 0 if x < threshold else 255, mode="1")
@@ -39,7 +46,7 @@ class SvgGeneratorService:
             f' width="{w}" height="{h}"',
             f' viewBox="0 0 {w} {h}">',
         ]
-        if background_color.lower() != "transparent":
+        if background_color != "transparent":
             parts.append(
                 f'<rect width="{w}" height="{h}" fill="{background_color}"/>'
             )

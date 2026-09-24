@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="Utils-tool couldn't validate the input you provided." />
-    <title>422 · Validation failed - Utils-tool</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="Some settings weren&#x27;t valid. A value was missing or out of range. Go back, check your settings, then try again." />
+    <title>422 · Invalid settings — Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,28 +21,24 @@
   </head>
   <body>
     <div id="site-header"></div>
-    <main class="error-page">
-      <div class="container error-page-inner">
-        <p class="error-status" aria-hidden="true"><span class="error-status-dot"></span>status: 422 · unprocessable_content</p>
-        <div class="error-code" aria-hidden="true">4<span class="error-code-accent">2</span>2</div>
-        <h1 class="error-title">We couldn't validate your input.</h1>
-        <p class="error-lead">
-          The request was received, but one of the values didn't pass
-          validation. Adjust the input and try again.
-        </p>
-        <div class="error-actions">
-          <a href="javascript:history.back()" class="primary-button">Go back</a>
-          <a href="/tools" class="secondary-button">Browse tools</a>
+    <main class="error-page" data-status="422">
+      <div class="err-wrap">
+        <div class="err-main">
+          <p class="err-status"><span class="err-dot" aria-hidden="true"></span><span>422 · invalid settings</span></p>
+          <p class="err-code" aria-hidden="true">4<span>2</span>2</p>
+          <h1 class="err-title">Some settings weren&#x27;t valid.</h1>
+          <p class="err-lead">A value was missing or out of range. Go back, check your settings, then try again.</p>
+          <p id="error-detail" class="err-detail" hidden></p>
+          <div class="err-actions">
+            <a href="/tools" class="primary-button">Browse all tools</a>
+            <button type="button" class="secondary-button" data-shell-search>Search tools</button>
+            <a href="/" class="err-home">Go to the home page</a>
+          </div>
         </div>
-        <div id="error-detail" class="error-detail"></div>
-        <div class="error-fix">
-          <h2 class="error-fix-title">What to do next</h2>
-          <ul class="error-fix-list">
-            <li>Review the fields and their allowed values.</li>
-            <li>Check dimensions, quality, or format settings.</li>
-            <li>Submit the form again.</li>
-          </ul>
-        </div>
+        <figure class="err-dump" data-status-slug="unprocessable_content">
+          <figcaption><span>hexdump</span> a value outside the allowed range</figcaption>
+          <pre data-error-dump aria-label="The address you requested, shown as bytes"></pre>
+        </figure>
       </div>
     </main>
     <div id="site-footer"></div>

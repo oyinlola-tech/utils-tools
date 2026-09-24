@@ -1,6 +1,7 @@
 """HTTP-facing logic for the svg-optimizer and svg-generator tools."""
 
 from fastapi import UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app.modules.devtools.controllers.devtools_controller_helpers import (
     as_http_error,
@@ -41,7 +42,8 @@ class SvgController:
     ) -> tuple[bytes, str]:
         image_data = await read_upload(image, "image")
         try:
-            svg_text = svg_generator_service.generate_svg(
+            svg_text = await run_in_threadpool(
+                svg_generator_service.generate_svg,
                 image_data,
                 threshold=threshold,
                 background_color=background_color,

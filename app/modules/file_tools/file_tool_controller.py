@@ -11,7 +11,6 @@ from app.modules.file_tools.file_tool_schema import (
 from app.modules.file_tools.file_tool_service import (
     file_tools_service,
 )
-from app.shared.utils.file_util import generate_filename
 
 
 class FileToolsController:
@@ -83,12 +82,11 @@ class FileToolsController:
             ) from error
         first_name = sources[0][0]
         base_name = first_name.rsplit(".", 1)[0]
+        # _save() already makes the name unique; generate_filename()
+        # here added a second 32-char token to every archive name.
         return self._save(
             data,
-            generate_filename(
-                f"{base_name}-archive",
-                extension="zip",
-            ),
+            f"{base_name}-archive.zip",
             {"file_count": len(sources)},
         )
 

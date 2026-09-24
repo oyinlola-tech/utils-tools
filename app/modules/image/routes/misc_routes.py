@@ -25,11 +25,11 @@ async def remove_metadata(file: UploadFile = File(...)):
 @misc_router.post("/watermark", response_model=ImageToolResult)
 async def add_watermark(
     file: UploadFile = File(...),
-    text: str | None = Form(None),
+    text: str | None = Form(None, max_length=200),
     logo: UploadFile | None = File(None),
     position: str = Form("bottom-right"),
     opacity: float = Form(0.7, gt=0, le=1),
-    size_ratio: float = Form(0.1),
+    size_ratio: float = Form(0.1, gt=0, le=1),
     rotation: int = Form(0),
 ):
     logger.info(

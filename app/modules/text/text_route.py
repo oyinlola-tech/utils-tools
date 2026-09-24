@@ -23,7 +23,7 @@ router = APIRouter(
 
 
 @router.post("/diff")
-async def text_diff(request: TextDiffRequest):
+def text_diff(request: TextDiffRequest):
     return text_controller.diff(request)
 
 
@@ -38,12 +38,12 @@ async def word_counter(request: WordCounterRequest):
 
 
 @router.post("/text-to-speech")
-async def text_to_speech(request: TextToSpeechRequest):
+def text_to_speech(request: TextToSpeechRequest):
     return text_controller.text_to_speech(request)
 
 
 @router.get("/download/{filename}")
-async def download_speech_file(filename: str):
+def download_speech_file(filename: str):
     if not is_safe_filename(filename):
         raise HTTPException(status_code=400, detail="Invalid filename")
     return text_controller.serve_file(filename)

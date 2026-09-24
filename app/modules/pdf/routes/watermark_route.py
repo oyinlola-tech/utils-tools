@@ -18,7 +18,7 @@ def create_watermark_router() -> APIRouter:
     @router.post("/watermark", response_model=PdfToolResponse)
     async def watermark_pdf(
         file: UploadFile = File(...),
-        text: str = Form("CONFIDENTIAL"),
+        text: str = Form("CONFIDENTIAL", max_length=200),
     ):
         return await pdf_controller.watermark(file, text=text)
 

@@ -16,6 +16,8 @@ class PaletteExtractorService:
     ) -> list[dict]:
         tool_logger = get_tool_logger("palette-extractor")
         started = time.monotonic()
+        if not 1 <= num_colors <= 32:
+            raise ValueError("Number of colours must be between 1 and 32.")
         img = load_image(image_data)
         img = img.convert("RGB")
         img.thumbnail((150, 150))

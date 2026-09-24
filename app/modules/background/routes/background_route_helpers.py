@@ -9,6 +9,10 @@ from app.core.capabilities import capability_registry
 
 logger = logging.getLogger(__name__)
 
+# In-memory and per-instance: /result/{job_id} only works on the
+# instance that ran the job (the page uses the inline result instead).
+# Bounded so it cannot grow for the life of the process.
+MAX_RECORDED_JOBS = 200
 background_jobs: dict[str, dict] = {}
 
 
@@ -32,6 +36,8 @@ def validate_output_format(output_format: str) -> str:
 
 def record_job(result: dict) -> dict:
     job_id = uuid.uuid4().hex
+    while len(background_jobs) >= MAX_RECORDED_JOBS:
+        background_jobs.pop(next(iter(background_jobs)))
     background_jobs[job_id] = {
         "job_id": job_id,
         "status": "completed",

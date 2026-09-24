@@ -7,6 +7,15 @@ import fitz
 
 from app.core.logging import get_tool_logger
 
+_POSITIONS = {
+    "bottom-right",
+    "bottom-center",
+    "bottom-left",
+    "top-right",
+    "top-center",
+    "top-left",
+}
+
 
 class PdfPageNumberService:
 
@@ -17,6 +26,10 @@ class PdfPageNumberService:
     ) -> tuple[bytes, int]:
         tool_logger = get_tool_logger("pdf-page-number")
         started = time.monotonic()
+        if position not in _POSITIONS:
+            raise ValueError(
+                "Position must be one of: " + ", ".join(sorted(_POSITIONS)) + "."
+            )
 
         doc = fitz.open(stream=file_data, filetype="pdf")
         total_pages = len(doc)

@@ -4,6 +4,12 @@ from app.infrastructure.compression.ghostscript_utils import (
     get_pymupdf,
 )
 
+# Every rendered page is held in memory until the response is built.
+MAX_RENDER_PAGES = 200
+# A page with a huge MediaBox at high DPI could otherwise ask MuPDF for
+# a multi-GB pixmap and take the process down.
+MAX_PAGE_PIXELS = 100_000_000
+
 
 def render_pages(
     file_data: bytes,
@@ -26,11 +32,28 @@ def render_pages(
             f"Unable to open PDF: {error}"
         ) from error
     try:
+        if document.needs_pass:
+            raise ValueError(
+                "This PDF is password-protected. Remove the password and try again."
+            )
+        if document.page_count > MAX_RENDER_PAGES:
+            raise ValueError(
+                f"This PDF has {document.page_count} pages; at most "
+                f"{MAX_RENDER_PAGES} pages can be converted at once. "
+                "Split it first."
+            )
         pages: list[tuple[str, bytes]] = []
         for index, page in enumerate(
             document,
             start=1,
         ):
+            scale = dpi / 72
+            pixels = (page.rect.width * scale) * (page.rect.height * scale)
+            if pixels > MAX_PAGE_PIXELS:
+                raise ValueError(
+                    f"Page {index} is too large to render at {dpi} DPI; "
+                    "choose a lower DPI."
+                )
             pixmap = page.get_pixmap(
                 dpi=dpi,
                 colorspace=pymupdf.csRGB,

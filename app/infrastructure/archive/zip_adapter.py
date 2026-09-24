@@ -5,6 +5,24 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from app.shared.utils.file_util import is_safe_filename
 
 
+def _dedupe(name: str, used: set[str]) -> str:
+    """Give repeated entry names a " (n)" suffix.
+
+    Two uploads called ``image.png`` produced duplicate ZIP entries, and
+    extracting the archive silently kept only one of them.
+    """
+    candidate = name
+    stem, dot, suffix = name.rpartition(".")
+    if not dot:
+        stem, suffix = name, ""
+    counter = 2
+    while candidate.lower() in used:
+        candidate = f"{stem} ({counter}){dot}{suffix}"
+        counter += 1
+    used.add(candidate.lower())
+    return candidate
+
+
 class ZipAdapter:
     def create_archive(
         self,
@@ -17,12 +35,15 @@ class ZipAdapter:
             compression=ZIP_DEFLATED,
             compresslevel=9,
         ) as archive:
+            used: set[str] = set()
             for filename, file_data in files:
-                safe_name = Path(filename).name
+                # Windows clients may send backslash-separated paths.
+                safe_name = Path(filename.replace("\\", "/")).name
                 if not is_safe_filename(safe_name):
                     raise ValueError(
                         f"Invalid archive entry: {filename}"
                     )
+                safe_name = _dedupe(safe_name, used)
                 archive.writestr(
                     safe_name,
                     file_data,

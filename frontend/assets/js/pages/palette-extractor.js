@@ -1,5 +1,5 @@
 import { initToolPage, setupUpload } from "./tool-kit.js";
-import { apiUpload } from "../api.js";
+import { apiUpload, isInputError } from "../api.js";
 
 const kit = await initToolPage("palette-extractor");
 let currentFile = null;
@@ -39,6 +39,10 @@ document.querySelector("#tool-run").addEventListener("click", async () => {
         }
     } catch (err) {
         kit.setBusy(false);
-        kit.showError(err);
+        if (isInputError(err)) {
+            kit.banner.show(err.message);
+        } else {
+            kit.showError(err);
+        }
     }
 });

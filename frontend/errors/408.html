@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="The request timed out while reaching Utils-tool." />
-    <title>408 · Request timeout - Utils-tool</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="The request took too long to arrive. The connection was too slow to send everything in time. Try again on a steadier connection, or with a smaller file." />
+    <title>408 · Request timeout — Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,27 +21,24 @@
   </head>
   <body>
     <div id="site-header"></div>
-    <main class="error-page">
-      <div class="container error-page-inner">
-        <p class="error-status" aria-hidden="true"><span class="error-status-dot"></span>status: 408 · request_timeout</p>
-        <div class="error-code" aria-hidden="true">4<span class="error-code-accent">0</span>8</div>
-        <h1 class="error-title">The request took too long.</h1>
-        <p class="error-lead">
-          The server waited for the request and gave up. This is usually
-          a slow connection — try once more.
-        </p>
-        <div class="error-actions">
-          <a href="javascript:location.reload()" class="primary-button">Try again</a>
-          <a href="/tools" class="secondary-button">Browse tools</a>
+    <main class="error-page" data-status="408">
+      <div class="err-wrap">
+        <div class="err-main">
+          <p class="err-status"><span class="err-dot" aria-hidden="true"></span><span>408 · request timeout</span></p>
+          <p class="err-code" aria-hidden="true">4<span>0</span>8</p>
+          <h1 class="err-title">The request took too long to arrive.</h1>
+          <p class="err-lead">The connection was too slow to send everything in time. Try again on a steadier connection, or with a smaller file.</p>
+          <p id="error-detail" class="err-detail" hidden></p>
+          <div class="err-actions">
+            <a href="/tools" class="primary-button">Browse all tools</a>
+            <button type="button" class="secondary-button" data-shell-search>Search tools</button>
+            <a href="/" class="err-home">Go to the home page</a>
+          </div>
         </div>
-        <div id="error-detail" class="error-detail"></div>
-        <div class="error-fix">
-          <h2 class="error-fix-title">What to do next</h2>
-          <ul class="error-fix-list">
-            <li>Refresh the page and try again.</li>
-            <li>Check your internet connection.</li>
-          </ul>
-        </div>
+        <figure class="err-dump" data-status-slug="request_timeout">
+          <figcaption><span>hexdump</span> request stopped arriving</figcaption>
+          <pre data-error-dump aria-label="The address you requested, shown as bytes"></pre>
+        </figure>
       </div>
     </main>
     <div id="site-footer"></div>

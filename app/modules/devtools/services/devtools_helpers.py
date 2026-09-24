@@ -1,6 +1,26 @@
 """Shared helpers for the devtools services."""
 
-from PIL import Image
+from PIL import Image, ImageColor
+
+
+def normalize_color(
+    value: str,
+    label: str,
+    allow_transparent: bool = False,
+) -> str:
+    """Validate a user colour and return it as ``#rrggbb``.
+
+    Colours are interpolated into SVG markup, so anything Pillow cannot
+    parse (including quote/tag injection) is rejected.
+    """
+    cleaned = (value or "").strip()
+    if allow_transparent and cleaned.lower() in {"transparent", "none", ""}:
+        return "transparent"
+    try:
+        red, green, blue = ImageColor.getrgb(cleaned)[:3]
+    except ValueError as error:
+        raise ValueError(f"Invalid {label} colour: {value!r}.") from error
+    return f"#{red:02x}{green:02x}{blue:02x}"
 
 
 def favicon_sizes(image: Image.Image, size: int) -> Image.Image:

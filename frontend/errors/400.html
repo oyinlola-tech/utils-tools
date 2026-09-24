@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content="Utils-tool couldn't read the request you sent." />
-    <title>400 · Bad request - Utils-tool</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="That request didn&#x27;t make sense to the server. Something in it was missing or malformed. Go back, check the file and your settings, then try again." />
+    <title>400 · Bad request — Utils-tool</title>
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,28 +21,24 @@
   </head>
   <body>
     <div id="site-header"></div>
-    <main class="error-page">
-      <div class="container error-page-inner">
-        <p class="error-status" aria-hidden="true"><span class="error-status-dot"></span>status: 400 · bad_request</p>
-        <div class="error-code" aria-hidden="true">4<span class="error-code-accent">0</span>0</div>
-        <h1 class="error-title">We couldn't read that request.</h1>
-        <p class="error-lead">
-          The request was missing something or was malformed. Go back,
-          check your input, and try again.
-        </p>
-        <div class="error-actions">
-          <a href="javascript:history.back()" class="primary-button">Go back</a>
-          <a href="/tools" class="secondary-button">Browse tools</a>
+    <main class="error-page" data-status="400">
+      <div class="err-wrap">
+        <div class="err-main">
+          <p class="err-status"><span class="err-dot" aria-hidden="true"></span><span>400 · bad request</span></p>
+          <p class="err-code" aria-hidden="true">4<span>0</span>0</p>
+          <h1 class="err-title">That request didn&#x27;t make sense to the server.</h1>
+          <p class="err-lead">Something in it was missing or malformed. Go back, check the file and your settings, then try again.</p>
+          <p id="error-detail" class="err-detail" hidden></p>
+          <div class="err-actions">
+            <a href="/tools" class="primary-button">Browse all tools</a>
+            <button type="button" class="secondary-button" data-shell-search>Search tools</button>
+            <a href="/" class="err-home">Go to the home page</a>
+          </div>
         </div>
-        <div id="error-detail" class="error-detail"></div>
-        <div class="error-fix">
-          <h2 class="error-fix-title">What to do next</h2>
-          <ul class="error-fix-list">
-            <li>Go back to the previous page and review the form.</li>
-            <li>Make sure every required field is filled in.</li>
-            <li>Run the action again.</li>
-          </ul>
-        </div>
+        <figure class="err-dump" data-status-slug="bad_request">
+          <figcaption><span>hexdump</span> request bytes the server could not parse</figcaption>
+          <pre data-error-dump aria-label="The address you requested, shown as bytes"></pre>
+        </figure>
       </div>
     </main>
     <div id="site-footer"></div>

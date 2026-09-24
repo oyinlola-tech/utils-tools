@@ -5,26 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#f4f6f0" />
-    <meta name="description" content="Utils-tool - free, local-first file utilities. Compress, convert, edit PDFs, download videos, generate speech, extract color palettes, decode JWT and much more. 40 tools. No accounts, no cloud uploads." />
+    <meta name="description" content="Free online file tools: compress and convert images, merge and split PDFs, format JSON, generate QR codes and more. No account, no watermark." />
     <meta name="keywords" content="image tools, pdf tools, file tools, background remover, image compressor, image converter, pdf compressor, developer tools, free file utilities, video downloader, text to speech, jwt decoder, color palette extractor, json formatter, text diff" />
     <meta name="author" content="Oluwayemi Oyinlola" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://tools.oyinlola.site/" />
 
     <meta property="og:site_name" content="Utils-tool" />
-    <meta property="og:title" content="Utils-tool - Simple tools for better files" />
-    <meta property="og:description" content="Compress, convert, edit, remove backgrounds, process PDFs and analyze files. Private by default." />
+    <meta property="og:title" content="Utils-tool — Drop a file. Pick a tool. Done." />
+    <meta property="og:description" content="Free image, PDF and developer file tools. No account, no watermark, open source." />
     <meta property="og:url" content="https://tools.oyinlola.site/" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://tools.oyinlola.site/static/assets/img/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Utils-tool - Simple tools for better files" />
-    <meta name="twitter:description" content="Compress, convert, edit, remove backgrounds, process PDFs and analyze files. Private by default." />
+    <meta name="twitter:image" content="https://tools.oyinlola.site/static/assets/img/og-image.png" />
+    <meta name="twitter:title" content="Utils-tool — Drop a file. Pick a tool. Done." />
+    <meta name="twitter:description" content="Free image, PDF and developer file tools. No account, no watermark, open source." />
     <meta name="twitter:site" content="@oyinlola" />
 
-    <title>Utils-tool - Simple tools for better files</title>
+    <title>Utils-tool — Free image, PDF &amp; developer file tools</title>
 
     <link rel="icon" type="image/svg+xml" href="/static/assets/brand/favicon.svg" />
     <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/brand/favicon-16x16.png" />
@@ -35,10 +37,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-    <link rel="preconnect" href="https://kit.fontawesome.com" />
-    <link rel="preconnect" href="https://www.google.com" />
-    <link rel="dns-prefetch" href="https://kit.fontawesome.com" />
-    <link rel="dns-prefetch" href="https://www.google.com" />
 
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
 
@@ -62,7 +60,7 @@
           "@id": "https://tools.oyinlola.site/#website",
           "url": "https://tools.oyinlola.site/",
           "name": "Utils-tool",
-          "description": "Free, local-first file utilities for images, PDFs, files and developers.",
+          "description": "Free, open-source file tools for images, PDFs, text and developers.",
           "inLanguage": "en"
         },
         {
@@ -102,6 +100,16 @@
             "@type": "Person",
             "name": "Oluwayemi Oyinlola"
           }
+                },
+        {
+          "@type": "FAQPage",
+          "@id": "https://tools.oyinlola.site/#faq",
+          "mainEntity": [
+            {"@type": "Question", "name": "Is Utils-tool really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There are no paid tiers, no watermarks and no account."}},
+            {"@type": "Question", "name": "Are my files uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "Only for tools that need the server, such as compression and PDF processing. Those files are deleted automatically within about 30 minutes. Browser-based tools never upload anything."}},
+            {"@type": "Question", "name": "How large can my files be?", "acceptedAnswer": {"@type": "Answer", "text": "The hosted site accepts files up to about 4 MB per request; run Utils-tool on your own machine for files up to 100 MB."}},
+            {"@type": "Question", "name": "Can I run it myself?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source: clone the repository, install the requirements and start it with ./start.sh."}}
+          ]
         }
       ]
     }
@@ -109,438 +117,150 @@
   </head>
   <body>
     <div id="site-header"></div>
-
-    <main id="main">
-      <section class="hero-section" id="hero" aria-labelledby="hero-title">
-        <div class="container">
-          <div class="hero-grid">
-            <div class="hero-text">
-              <span class="hero-eyebrow">Private by default</span>
-              <h1 class="hero-title" id="hero-title">Simple tools for <em>your files</em>.</h1>
-              <p class="hero-description">
-                Compress, convert, edit, remove backgrounds, process PDFs,
-                download videos, generate speech, decode JWT, extract color palettes
-                and more — 40 tools in one calm, fast app. No accounts. No cloud
-                uploads. Your files stay yours.
-              </p>
-              <div class="hero-actions">
-                <a href="/tools" class="primary-button">Explore all tools</a>
-                <a href="/about" class="secondary-button">How it works</a>
-              </div>
-              <div class="hero-trust">
-                <span>No account</span>
-                <span>No cloud uploads</span>
-                <span>Open source</span>
-              </div>
-            </div>
-            <div class="hero-visual" aria-hidden="true">
-              <div class="hero-stack">
-                <div class="hero-mini-card">
-                  <span class="hero-mini-icon"><i class="fa-solid fa-compress"></i></span>
-                  <div>
-                    <span class="hero-mini-name">Image Compressor</span>
-                    <div class="hero-mini-meta">sunset.jpg · 4.8 MB → 1.2 MB</div>
-                  </div>
-                  <span class="hero-mini-status">Saved 75%</span>
-                </div>
-                <div class="hero-mini-card">
-                  <span class="hero-mini-icon"><i class="fa-solid fa-video"></i></span>
-                  <div>
-                    <span class="hero-mini-name">Video Downloader</span>
-                    <div class="hero-mini-meta">YouTube · TikTok · Facebook</div>
-                  </div>
-                  <span class="hero-mini-status">No watermark</span>
-                </div>
-                <div class="hero-mini-card">
-                  <span class="hero-mini-icon"><i class="fa-solid fa-file-pdf"></i></span>
-                  <div>
-                    <span class="hero-mini-name">PDF Encrypt</span>
-                    <div class="hero-mini-meta">contract.pdf · AES-256</div>
-                  </div>
-                  <span class="hero-mini-status">Protected</span>
-                </div>
-                <div class="hero-mini-card">
-                  <span class="hero-mini-icon"><i class="fa-solid fa-volume-high"></i></span>
-                  <div>
-                    <span class="hero-mini-name">Text-to-Speech</span>
-                    <div class="hero-mini-meta">hello.txt → speech.mp3</div>
-                  </div>
-                  <span class="hero-mini-status">Done</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="stats-strip" aria-label="Utils-tool at a glance">
-        <div class="container">
-          <div class="stats-grid">
-            <div class="stat">
-              <strong>40</strong>
-              <span>File &amp; media tools</span>
-            </div>
-            <div class="stat">
-              <strong>0</strong>
-              <span>Accounts needed</span>
-            </div>
-            <div class="stat">
-              <strong>100%</strong>
-              <span>Local processing</span>
-            </div>
-            <div class="stat">
-              <strong>0</strong>
-              <span>Cloud uploads</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="categories-section" id="categories">
-        <div class="container">
-          <div class="section-header centered">
-            <span class="eyebrow">Categories</span>
-            <h2>Everything, organised by what you are doing.</h2>
-            <p class="section-description">
-              Each category wraps a set of tools that solve one kind of job.
+    <main>
+      <section class="lp-hero" aria-labelledby="hero-title">
+        <div class="lp-wrap lp-hero-grid">
+          <div class="lp-hero-copy">
+            <p class="lp-kicker"><span data-tool-count>50+</span> free file tools · open source · no account</p>
+            <h1 class="lp-hero-title" id="hero-title">
+              <span>Drop a file.</span>
+              <span>Pick a tool.</span>
+              <span class="lp-hero-done">Done.</span>
+            </h1>
+            <p class="lp-hero-lead">
+              Compress, convert, crop, merge, split, watermark and inspect images, PDFs and developer files — without installing anything or making an account.
             </p>
-          </div>
-          <div class="category-bento">
-            <a href="/tools#category-image" class="category-bento-card is-featured">
-              <span class="category-bento-icon"><i class="fa-solid fa-image"></i></span>
-              <h3>Image tools</h3>
-              <p>Compress, convert, crop, resize, remove backgrounds, edit photos and extract color palettes — the largest part of the kit.</p>
-              <span class="category-bento-link">Browse image tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-            </a>
-            <a href="/tools#category-pdf" class="category-bento-card">
-              <span class="category-bento-icon"><i class="fa-solid fa-file-pdf"></i></span>
-              <h3>PDF tools</h3>
-              <p>Compress, merge, split, rotate, encrypt with password, add page numbers and overlay watermarks on PDF documents.</p>
-              <span class="category-bento-link">Browse PDF tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-            </a>
-            <a href="/tools#category-video" class="category-bento-card">
-              <span class="category-bento-icon"><i class="fa-solid fa-video"></i></span>
-              <h3>Video tools</h3>
-              <p>Download videos without watermarks from YouTube, TikTok, Facebook, Instagram and hundreds of other sites.</p>
-              <span class="category-bento-link">Browse video tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-            </a>
-            <a href="/tools#category-developer" class="category-bento-card">
-              <span class="category-bento-icon"><i class="fa-solid fa-code"></i></span>
-              <h3>Developer tools</h3>
-              <p>Favicons, SVG, Base64, QR codes, JSON formatter, CSV converter, JWT decoder and more.</p>
-              <span class="category-bento-link">Browse developer tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-            </a>
-            <a href="/tools#category-text" class="category-bento-card">
-              <span class="category-bento-icon"><i class="fa-solid fa-font"></i></span>
-              <h3>Text &amp; Audio tools</h3>
-              <p>Diff text, convert case, count words and characters, and generate downloadable MP3 speech from any text.</p>
-              <span class="category-bento-link">Browse text tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-            </a>
-            <a href="/tools#category-file" class="category-bento-card">
-              <span class="category-bento-icon"><i class="fa-solid fa-folder"></i></span>
-              <h3>File tools</h3>
-              <p>Analyze files, package archives and find duplicates.</p>
-              <span class="category-bento-link">Browse file tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-            </a>
-            <a href="/tools#category-utility" class="category-bento-card">
-              <span class="category-bento-icon"><i class="fa-solid fa-palette"></i></span>
-              <h3>Design tools</h3>
-              <p>Social media presets and screenshot beautification.</p>
-              <span class="category-bento-link">Browse design tools <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section class="featured-section" id="featured">
-        <div class="container">
-          <div class="section-header centered">
-            <span class="eyebrow">Featured tools</span>
-            <h2>Start with a popular tool.</h2>
-            <p class="section-description">
-              The most-used utilities, ready to open directly.
-            </p>
-          </div>
-          <div id="featured-tools" class="tool-grid featured-grid" aria-live="polite">
-            <p class="catalog-loading">Loading tools…</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════ NEW TOOLS SECTION ═══════════════════ -->
-      <section class="new-tools-section" id="new-tools" aria-labelledby="new-tools-title">
-        <div class="container">
-          <div class="section-header centered">
-            <span class="eyebrow">What&apos;s new</span>
-            <h2 id="new-tools-title">12 powerful tools, freshly added.</h2>
-            <p class="section-description">
-              From video downloading to PDF encryption, text-to-speech to color palette extraction — everything you asked for, now built in.
-            </p>
-          </div>
-
-          <!-- ── Video ─────────────────────────────────── -->
-          <div class="new-tools-group" id="new-tools-video">
-            <h3 class="new-tools-group-title"><i class="fa-solid fa-video" aria-hidden="true"></i> Video</h3>
-            <div class="tool-grid">
-              <a href="/tools/video-downloader" class="tool-card" id="new-card-video-downloader">
-                <span class="tool-card-icon"><i class="fa-solid fa-circle-down"></i></span>
-                <div class="tool-card-body">
-                  <h4>Video Downloader</h4>
-                  <p>Download videos from YouTube, TikTok, Facebook, Instagram and 1000+ other sites — completely watermark-free. Paste a URL, pick a quality, get your file.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
+            <div class="lp-hero-actions">
+              <a href="/tools" class="primary-button">Browse all tools</a>
+              <button type="button" class="secondary-button" data-shell-search>Search tools <kbd>Ctrl K</kbd></button>
             </div>
           </div>
 
-          <!-- ── PDF ──────────────────────────────────── -->
-          <div class="new-tools-group" id="new-tools-pdf">
-            <h3 class="new-tools-group-title"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> PDF — 3 new tools</h3>
-            <div class="tool-grid">
-              <a href="/tools/pdf-encrypt" class="tool-card" id="new-card-pdf-encrypt">
-                <span class="tool-card-icon"><i class="fa-solid fa-lock"></i></span>
-                <div class="tool-card-body">
-                  <h4>PDF Password Protect</h4>
-                  <p>Encrypt any PDF with a user-read password and an owner-admin password using 256-bit AES encryption. Sensitive documents stay private.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-              <a href="/tools/pdf-page-number" class="tool-card" id="new-card-pdf-page-number">
-                <span class="tool-card-icon"><i class="fa-solid fa-list-ol"></i></span>
-                <div class="tool-card-body">
-                  <h4>PDF Page Numberer</h4>
-                  <p>Automatically stamp <em>Page X of Y</em> on every page of your PDF. Choose your font size, position and starting number.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-              <a href="/tools/pdf-watermark" class="tool-card" id="new-card-pdf-watermark">
-                <span class="tool-card-icon"><i class="fa-solid fa-droplet"></i></span>
-                <div class="tool-card-body">
-                  <h4>PDF Text Watermark</h4>
-                  <p>Overlay a diagonal text watermark (e.g. <em>CONFIDENTIAL</em>, <em>DRAFT</em>) across every page of your PDF document.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
+          <div class="lp-inspector" data-inspector>
+            <div class="lp-inspector-bar" aria-hidden="true">
+              <span></span><span></span><span></span>
+              <p>file inspector</p>
             </div>
-          </div>
-
-          <!-- ── Developer & Data ────────────────────── -->
-          <div class="new-tools-group" id="new-tools-dev">
-            <h3 class="new-tools-group-title"><i class="fa-solid fa-code" aria-hidden="true"></i> Developer &amp; Data — 3 new tools</h3>
-            <div class="tool-grid">
-              <a href="/tools/json-csv-converter" class="tool-card" id="new-card-json-csv">
-                <span class="tool-card-icon"><i class="fa-solid fa-table"></i></span>
-                <div class="tool-card-body">
-                  <h4>JSON ↔ CSV Converter</h4>
-                  <p>Convert JSON arrays to CSV spreadsheets for Excel, Sheets and data pipelines — or convert CSV rows back into a JSON array instantly.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-              <a href="/tools/json-formatter" class="tool-card" id="new-card-json-formatter">
-                <span class="tool-card-icon"><i class="fa-solid fa-brackets-curly"></i></span>
-                <div class="tool-card-body">
-                  <h4>JSON Formatter &amp; Minifier</h4>
-                  <p>Prettify messy JSON with indented formatting, or minify it for network payloads. Validates your JSON and highlights syntax errors.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-              <a href="/tools/jwt-decoder" class="tool-card" id="new-card-jwt-decoder">
-                <span class="tool-card-icon"><i class="fa-solid fa-key"></i></span>
-                <div class="tool-card-body">
-                  <h4>JWT Decoder</h4>
-                  <p>Paste any JSON Web Token and instantly decode its header and payload. Useful for debugging auth flows — no secrets are ever sent anywhere.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-            </div>
-          </div>
-
-          <!-- ── Text & Audio ────────────────────────── -->
-          <div class="new-tools-group" id="new-tools-text">
-            <h3 class="new-tools-group-title"><i class="fa-solid fa-font" aria-hidden="true"></i> Text &amp; Audio — 4 new tools</h3>
-            <div class="tool-grid">
-              <a href="/tools/text-diff" class="tool-card" id="new-card-text-diff">
-                <span class="tool-card-icon"><i class="fa-solid fa-code-compare"></i></span>
-                <div class="tool-card-body">
-                  <h4>Text Diff Tool</h4>
-                  <p>Paste two blocks of text and see exactly what changed — added, removed and unchanged lines highlighted in a clear unified diff view.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-              <a href="/tools/case-converter" class="tool-card" id="new-card-case-converter">
-                <span class="tool-card-icon"><i class="fa-solid fa-text-height"></i></span>
-                <div class="tool-card-body">
-                  <h4>Text Case Converter</h4>
-                  <p>Instantly convert text between <code>camelCase</code>, <code>snake_case</code>, <code>kebab-case</code>, <code>Title Case</code>, <code>UPPER</code> and <code>lower</code> — perfect for code, APIs and copywriting.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-              <a href="/tools/word-counter" class="tool-card" id="new-card-word-counter">
-                <span class="tool-card-icon"><i class="fa-solid fa-calculator"></i></span>
-                <div class="tool-card-body">
-                  <h4>Word &amp; Character Counter</h4>
-                  <p>Real-time word count, character count, sentence count, line count and estimated reading time. Great for blog posts, essays and social captions.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-              <a href="/tools/text-to-speech" class="tool-card" id="new-card-tts">
-                <span class="tool-card-icon"><i class="fa-solid fa-volume-high"></i></span>
-                <div class="tool-card-body">
-                  <h4>Text-to-Speech</h4>
-                  <p>Convert any text to natural-sounding spoken audio and download it as an MP3 file. Choose from multiple languages. Ideal for accessibility, voiceovers and podcasts.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-            </div>
-          </div>
-
-          <!-- ── Image (new) ─────────────────────────── -->
-          <div class="new-tools-group" id="new-tools-image-ext">
-            <h3 class="new-tools-group-title"><i class="fa-solid fa-image" aria-hidden="true"></i> Image — 1 new tool</h3>
-            <div class="tool-grid">
-              <a href="/tools/palette-extractor" class="tool-card" id="new-card-palette">
-                <span class="tool-card-icon"><i class="fa-solid fa-palette"></i></span>
-                <div class="tool-card-body">
-                  <h4>Color Palette Extractor</h4>
-                  <p>Upload any photo and extract its dominant HEX color codes with percentage weights. Perfect for designers matching brand colors or building themes from real-world photography.</p>
-                </div>
-                <span class="tool-card-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-              </a>
-            </div>
-          </div>
-
-        </div>
-      </section>
-      <!-- ═══════════════════ /NEW TOOLS SECTION ══════════════════ -->
-
-      <section class="how-it-works-section" id="how-it-works">
-        <div class="container">
-          <div class="section-header centered">
-            <span class="eyebrow">How it works</span>
-            <h2>Upload, adjust, download.</h2>
-            <p class="section-description">
-              Every tool follows the same simple flow, from file to finished result.
-            </p>
-          </div>
-          <ol class="steps">
-            <li class="step">
-              <span class="step-number" aria-hidden="true">1</span>
-              <div class="step-body">
-                <h3>Choose a tool</h3>
-                <p>Pick the utility that matches your task from the catalog.</p>
+            <div class="lp-drop" data-inspector-drop>
+              <input type="file" id="inspector-input" class="visually-hidden" />
+              <div class="lp-drop-empty" data-inspector-empty>
+                <p class="lp-drop-title">What's in your file?</p>
+                <p class="lp-drop-sub">
+                  Drop it here, <label for="inspector-input" class="upload-browse">browse</label>, or paste. We read its signature bytes and show every tool that can work with it.
+                </p>
+                <ul class="lp-signatures" aria-label="Examples of file signatures we recognise">
+                  <li><code>FF D8 FF</code> <span>JPEG</span></li>
+                  <li><code>89 50 4E 47</code> <span>PNG</span></li>
+                  <li><code>25 50 44 46</code> <span>PDF</span></li>
+                  <li><code>52 49 46 46</code> <span>WebP</span></li>
+                  <li><code>3C 73 76 67</code> <span>SVG</span></li>
+                  <li><code>50 4B 03 04</code> <span>ZIP</span></li>
+                </ul>
+                <p class="lp-drop-note">Inspection happens in your browser. Nothing is uploaded until you open a tool and run it.</p>
               </div>
+              <div class="lp-report hidden" data-inspector-report aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section lp-catalog" id="tools" aria-labelledby="catalog-title">
+        <div class="lp-wrap">
+          <header class="lp-section-head">
+            <h2 id="catalog-title">Every tool, sorted by the file in front of you.</h2>
+            <a href="/tools" class="lp-link">See the full catalog →</a>
+          </header>
+          <div class="lp-tabs" role="tablist" aria-label="Tool categories" data-catalog-tabs></div>
+          <div class="lp-tab-panel" role="tabpanel" data-catalog-panel tabindex="0">
+            <p class="lp-muted">Loading tools…</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section lp-steps-section" id="how-it-works" aria-labelledby="steps-title">
+        <div class="lp-wrap">
+          <header class="lp-section-head">
+            <h2 id="steps-title">Three steps, every time.</h2>
+          </header>
+          <ol class="lp-steps">
+            <li>
+              <span class="lp-step-num" aria-hidden="true">1</span>
+              <h3>Add your file</h3>
+              <p>Drop it, browse for it, or paste a screenshot straight from the clipboard. You see each file, its size and a preview before anything happens.</p>
             </li>
-            <li class="step">
-              <span class="step-number" aria-hidden="true">2</span>
-              <div class="step-body">
-                <h3>Upload and adjust</h3>
-                <p>Drop a file, then fine-tune quality, format and dimensions.</p>
-              </div>
+            <li>
+              <span class="lp-step-num" aria-hidden="true">2</span>
+              <h3>Set it up</h3>
+              <p>Pick the format, quality, size or pages. Sensible defaults are already filled in, so most jobs are one click.</p>
             </li>
-            <li class="step">
-              <span class="step-number" aria-hidden="true">3</span>
-              <div class="step-body">
-                <h3>Download the result</h3>
-                <p>Inspect the output and save the file. Nothing is stored after the job.</p>
-              </div>
+            <li>
+              <span class="lp-step-num" aria-hidden="true">3</span>
+              <h3>Download the result</h3>
+              <p>Check the preview and how much smaller it got, then save it. Start over with the same settings whenever you like.</p>
             </li>
           </ol>
         </div>
       </section>
 
-      <section class="privacy-section" id="local">
-        <div class="container">
-          <div class="privacy-content">
-            <span class="eyebrow">Local processing</span>
-            <h2>Your files never leave your machine.</h2>
-            <p>
-              Utils-tool runs on your computer. Files are processed by the local
-              server, stored only in a temporary directory, and cleaned up
-              automatically after each job. No uploads, no tracking.
-            </p>
-            <div class="privacy-points">
-              <div class="privacy-point">
-                <strong>No account</strong>
-                <span>Nothing to sign up for. Just open the app and work.</span>
-              </div>
-              <div class="privacy-point">
-                <strong>No database</strong>
-                <span>Temporary state lives on disk, then disappears.</span>
-              </div>
-              <div class="privacy-point">
-                <strong>No cloud upload</strong>
-                <span>All processing happens on your machine.</span>
-              </div>
-            </div>
+      <section class="lp-section lp-privacy" id="privacy" aria-labelledby="privacy-title">
+        <div class="lp-wrap lp-privacy-grid">
+          <div>
+            <h2 id="privacy-title">Where your files go.</h2>
+            <p class="lp-privacy-lead">Straight answers, not a slogan.</p>
           </div>
-        </div>
-      </section>
-
-      <section class="faq-section" id="faq">
-        <div class="container">
-          <div class="section-header centered">
-            <span class="eyebrow">Questions</span>
-            <h2>Frequently asked questions.</h2>
-          </div>
-          <dl class="faq">
-            <div class="faq-item">
-              <dt>What is Utils-tool?</dt>
-              <dd>A free, local-first collection of file utilities. Compress, convert, edit, remove backgrounds, process PDFs and analyze files.</dd>
+          <dl class="lp-facts">
+            <div>
+              <dt>In your browser</dt>
+              <dd>Editors, croppers, encoders, generators and the text tools run entirely on your device. Those files never leave it.</dd>
             </div>
-            <div class="faq-item">
-              <dt>Does Utils-tool work offline?</dt>
-              <dd>Yes. When started locally, all processing and storage happen on your computer — no internet connection is required.</dd>
+            <div>
+              <dt>On the server</dt>
+              <dd>Compression, conversion and PDF work are sent to this site's server, processed, and deleted automatically within about 30 minutes. Output links are random and unguessable.</dd>
             </div>
-            <div class="faq-item">
-              <dt>Where are my files stored?</dt>
-              <dd>Uploaded files are written to a temporary local directory while being processed and are cleaned up automatically.</dd>
-            </div>
-            <div class="faq-item">
-              <dt>What file formats are supported?</dt>
-              <dd>Images (JPG, PNG, WebP, AVIF), PDFs, SVG, ZIP and other common types. The Video Downloader supports YouTube, TikTok, Facebook, Instagram and 1000+ sites. Each tool lists the exact formats it accepts.</dd>
-            </div>
-            <div class="faq-item">
-              <dt>Can I download videos without watermarks?</dt>
-              <dd>Yes. The Video Downloader tool uses yt-dlp under the hood to fetch the highest-quality source stream — no watermark, no re-encoding. Paste a URL and choose the format you want.</dd>
-            </div>
-            <div class="faq-item">
-              <dt>How does Text-to-Speech work?</dt>
-              <dd>Type or paste your text, choose a language, and the tool generates an MP3 audio file using Google TTS. The file is downloaded straight to your device — nothing is stored on the server.</dd>
-            </div>
-            <div class="faq-item">
-              <dt>Can I process multiple files at once?</dt>
-              <dd>Yes — most tools support batch processing. The per-tool page shows the exact limit.</dd>
-            </div>
-            <div class="faq-item">
-              <dt>Is Utils-tool free?</dt>
-              <dd>Yes. There are no paid tiers and no account is required.</dd>
+            <div>
+              <dt>Never</dt>
+              <dd>No accounts, no ads, no selling data, no keeping your files. The code is open source, so you can check — or run it on your own machine.</dd>
             </div>
           </dl>
         </div>
       </section>
 
-      <section class="final-cta-section">
-        <div class="container">
-          <div class="final-cta">
-            <h2>Ready to get started?</h2>
-            <p class="final-cta-description">
-              No account. No subscriptions. Just fast, private tools in your browser.
-            </p>
-            <div class="final-cta-actions">
-              <a href="/tools" class="primary-button">Explore all tools</a>
-              <a href="https://github.com/oyinlola-tech/utils-tools" target="_blank" rel="noopener noreferrer" class="secondary-button github-button">
-                <i class="fa-solid fa-star" aria-hidden="true"></i>
-                Star us on GitHub
-              </a>
-            </div>
+      <section class="lp-section lp-faq" id="faq" aria-labelledby="faq-title">
+        <div class="lp-wrap lp-faq-grid">
+          <header>
+            <h2 id="faq-title">Questions.</h2>
+            <p class="lp-muted">Something missing? <a href="https://github.com/oyinlola-tech/utils-tools/issues" target="_blank" rel="noopener noreferrer" class="lp-link">Open an issue on GitHub</a>.</p>
+          </header>
+          <div class="lp-faq-list">
+            <details>
+              <summary>Is Utils-tool really free?</summary>
+              <p>Yes. There are no paid tiers, no watermarks on your files and no account. If it saves you time, you can support the project with the heart button.</p>
+            </details>
+            <details>
+              <summary>Are my files uploaded?</summary>
+              <p>Only for tools that need the server, such as compression and PDF processing. Those files are deleted automatically within about 30 minutes. Browser-based tools never upload anything.</p>
+            </details>
+            <details>
+              <summary>How large can my files be?</summary>
+              <p>Each tool shows its limit on the upload box. The hosted site accepts files up to about 4 MB per request because of the hosting platform; run Utils-tool on your own machine for files up to 100 MB.</p>
+            </details>
+            <details>
+              <summary>Which file formats work?</summary>
+              <p>Images (JPG, PNG, WebP, AVIF), PDF, SVG, JSON, CSV, ZIP and plain text, depending on the tool. Drop a file in the inspector above to see which tools accept it.</p>
+            </details>
+            <details>
+              <summary>Can I process several files at once?</summary>
+              <p>Yes. Most image and PDF tools take a batch — add files, reorder them where order matters (like merging PDFs), and download everything together.</p>
+            </details>
+            <details>
+              <summary>Can I run it myself?</summary>
+              <p>Yes. It's open source: clone the repository, install the requirements and start it with <code>./start.sh</code>. Locally every tool is available, including background removal and video downloads.</p>
+            </details>
           </div>
         </div>
       </section>
     </main>
-
     <div id="site-footer"></div>
-
-    <script type="module" src="/static/assets/js/app.js"></script>
     <script type="module" src="/static/assets/js/landing.js"></script>
     <script defer src="/static/assets/js/vercel-analytics.js"></script>
   </body>

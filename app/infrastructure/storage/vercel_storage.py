@@ -31,6 +31,8 @@ from app.infrastructure.storage.base import StorageInterface
 logger = logging.getLogger(__name__)
 
 _LOCAL_ROOT = Path(tempfile.gettempdir()) / "vercel_storage"
+# URL cache entries kept per instance (it previously grew forever).
+_MAX_CACHED_URLS = 1000
 
 
 class VercelStorage(StorageInterface):
@@ -57,6 +59,11 @@ class VercelStorage(StorageInterface):
         ):
             directory.mkdir(parents=True, exist_ok=True)
 
+    def _remember_url(self, blob_path: str, url: str) -> None:
+        if len(self._urls) >= _MAX_CACHED_URLS:
+            self._urls.pop(next(iter(self._urls)))
+        self._urls[blob_path] = url
+
     def _blob_key(self, file_path: Path) -> str:
         try:
             return file_path.relative_to(_LOCAL_ROOT).as_posix()
@@ -74,7 +81,7 @@ class VercelStorage(StorageInterface):
             access=self._access,
             overwrite=True,
         )
-        self._urls[blob_path] = result.url
+        self._remember_url(blob_path, result.url)
 
     def save(
         self,
@@ -138,7 +145,7 @@ class VercelStorage(StorageInterface):
                 url = head(blob_path).url
             except BlobNotFoundError:
                 return ""
-            self._urls[blob_path] = url
+            self._remember_url(blob_path, url)
         if self._access == "private":
             return get_download_url(url)
         return url

@@ -17,6 +17,7 @@ function renderToolCard(tool) {
         card.className = "tool-card";
         card.href = `/tools/${tool.id}`;
         card.dataset.toolId = tool.id;
+        card.dataset.category = tool.category;
         card.innerHTML = `
             <div class="tool-card-top">
                 <span class="tool-card-icon" aria-hidden="true">${icon}</span>
@@ -34,6 +35,7 @@ function renderToolCard(tool) {
     const card = document.createElement("div");
     card.className = "tool-card tool-card-planned";
     card.dataset.toolId = tool.id;
+    card.dataset.category = tool.category;
     const actionLabel =
         tool.status === "planned"
             ? "Coming soon"
@@ -68,6 +70,9 @@ function updateCount() {
     }
     const visible = allTools.filter(matches).length;
     host.textContent = `${visible} of ${allTools.length} tools`;
+    document.querySelectorAll("[data-tool-count]").forEach((el) => {
+        el.textContent = String(allTools.filter((tool) => tool.status === "available").length);
+    });
 }
 
 function applyFilter() {

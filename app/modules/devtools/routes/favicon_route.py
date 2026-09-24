@@ -39,7 +39,9 @@ async def generate_favicon(
         for item, data in [
             ("favicon.ico", result["ico"]),
             (
-                f"favicon-{result['sizes'][-1]}x{result['sizes'][-1]}.png",
+                # Named after the PNG's real size; sizes[-1] is the
+                # largest ICO frame (48 when a 16/32 px PNG was chosen).
+                f"favicon-{result['png_size']}x{result['png_size']}.png",
                 result["png"],
             ),
         ]:

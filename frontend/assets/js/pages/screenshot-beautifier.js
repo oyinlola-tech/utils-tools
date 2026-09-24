@@ -6,6 +6,7 @@ if (!kit.available) {
 } else {
     let source = null;
     let sourceUrl = null;
+    let sourceName = "screenshot";
 
     const frame = document.querySelector("#shot-canvas-frame");
     const canvas = document.createElement("canvas");
@@ -81,10 +82,15 @@ if (!kit.available) {
                 URL.revokeObjectURL(sourceUrl);
             }
             sourceUrl = URL.createObjectURL(file);
+            sourceName = file.name || "screenshot";
             const image = new Image();
             image.onload = () => {
+                kit.banner.hide();
                 source = image;
                 draw();
+            };
+            image.onerror = () => {
+                kit.banner.show("This browser cannot open that image. Try a JPG, PNG or WebP file.");
             };
             image.src = sourceUrl;
         },
@@ -125,8 +131,12 @@ if (!kit.available) {
         outCtx.drawImage(source, padding, padding);
         outCtx.restore();
         outCanvas.toBlob((blob) => {
-            const base = source.src.split("/").pop() || "screenshot";
-            const name = `${base.replace(/\.[^.]+$/, "")}-framed.png`;
+            if (!blob) {
+                kit.banner.show("The image is too large to export in this browser.");
+                return;
+            }
+            // source.src is a blob: URL, so use the uploaded file's name.
+            const name = `${sourceName.replace(/\.[^.]+$/, "")}-framed.png`;
             triggerDownload(blob, name);
         }, "image/png");
     });

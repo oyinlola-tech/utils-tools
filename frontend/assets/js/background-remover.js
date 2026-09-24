@@ -1,6 +1,7 @@
 import { startBackgroundRemoval } from "./api.js";
 import { hideElement, showElement, formatBytes } from "./utils.js";
 import { registerUse } from "./support-popup.js";
+import { takeFiles } from "./handoff.js";
 
 const dropZone = document.querySelector("#bg-drop-zone");
 const fileInput = document.querySelector("#bg-file-input");
@@ -223,5 +224,12 @@ window.addEventListener("beforeunload", () => {
             URL.revokeObjectURL(originalObjectUrl);
         } catch (e) {}
         originalObjectUrl = null;
+    }
+});
+
+// A file handed over from the home page's file inspector.
+takeFiles().then((handed) => {
+    if (handed.length) {
+        processFile(handed[0]);
     }
 });

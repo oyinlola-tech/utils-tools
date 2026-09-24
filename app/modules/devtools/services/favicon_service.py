@@ -71,6 +71,7 @@ class FaviconService:
             "ico": ico_buffer.getvalue(),
             "png": png_buffer.getvalue(),
             "sizes": sizes,
+            "png_size": size,
         }
 
 

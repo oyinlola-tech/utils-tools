@@ -1,4 +1,3 @@
-import asyncio
 import re
 from pathlib import Path
 
@@ -12,9 +11,11 @@ from app.core.capabilities import capability_registry
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import (
+    BodySizeLimitMiddleware,
     RateLimitMiddleware,
     RequestIDMiddleware,
     StaticCacheMiddleware,
+    schedule_cleanup_sweep,
 )
 from app.modules.background.background_route import (
     router as background_router,
@@ -40,11 +41,11 @@ from app.modules.image.image_tools_route import (
 from app.modules.image.image_tools_route import (
     router as image_tools_router,
 )
-from app.modules.jobs.job_cleanup_service import (
-    job_cleanup_service,
-)
 from app.modules.jobs.job_route import router as job_router
 from app.modules.pdf.pdf_route import router as pdf_router
+from app.modules.seo.seo_route import (
+    router as seo_router,
+)
 from app.modules.text.text_route import router as text_router
 from app.modules.video.video_route import router as video_router
 
@@ -78,6 +79,9 @@ app.add_middleware(
     RateLimitMiddleware,
 )
 app.add_middleware(
+    BodySizeLimitMiddleware,
+)
+app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
     allow_credentials=True,
@@ -102,10 +106,12 @@ app.include_router(file_tool_router)
 app.include_router(dev_tools_router)
 app.include_router(video_router)
 app.include_router(text_router)
+app.include_router(seo_router)
 
 @app.on_event("startup")
 async def startup_cleanup():
-    await asyncio.to_thread(job_cleanup_service.cleanup_all)
+    # Sweep in the background so a cold start is not delayed by it.
+    schedule_cleanup_sweep()
     capability_registry.log_dependency_diagnostics()
 @app.get("/")
 async def home():

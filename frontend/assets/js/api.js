@@ -22,6 +22,16 @@ function extractErrorMessage(data, fallback) {
     return fallback;
 }
 
+/**
+ * True for errors caused by the user's input (bad JSON, wrong file type,
+ * encrypted PDF...). Those should be shown inline next to the form, not
+ * by navigating away to a full-page error screen that loses the input.
+ */
+export function isInputError(error) {
+    const status = Number(error && error.status);
+    return status >= 400 && status < 500 && status !== 408 && status !== 429;
+}
+
 function apiError(response, data, fallback) {
     const error = new Error(extractErrorMessage(data, fallback));
     error.status = response.status;

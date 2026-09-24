@@ -9,6 +9,9 @@ from app.infrastructure.jobs import local_job_storage
 from app.modules.compression.batch_compression_service import (
     batch_compression_service,
 )
+from app.modules.compression.image_compression.image_compression_settings import (
+    PRESETS,
+)
 from app.modules.jobs.job_service import (
     job_service,
 )
@@ -18,6 +21,45 @@ from app.shared.utils.file_util import (
 )
 
 logger = logging.getLogger(__name__)
+
+_OUTPUT_FORMATS = {"auto": "auto", "webp": "webp", "png": "png", "jpeg": "jpeg", "jpg": "jpeg"}
+
+
+def _validate_options(
+    image_output_format: str,
+    compression_preset: str,
+    max_dimension: int | None,
+    target_size_kb: int | None,
+) -> tuple[str, str]:
+    """Reject bad options before a job is created.
+
+    Previously they were accepted with a 200 and every file then failed
+    inside the background job (or, for "jpg", the encoder rejected the
+    alias it did not know).
+    """
+    output_format = _OUTPUT_FORMATS.get((image_output_format or "").lower())
+    if output_format is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Output format must be auto, webp, jpeg or png.",
+        )
+    preset = (compression_preset or "").lower()
+    if preset not in PRESETS:
+        raise HTTPException(
+            status_code=400,
+            detail="Compression preset must be best_quality, balanced or smallest.",
+        )
+    if max_dimension is not None and not 16 <= max_dimension <= 20000:
+        raise HTTPException(
+            status_code=400,
+            detail="Maximum dimension must be between 16 and 20000 pixels.",
+        )
+    if target_size_kb is not None and target_size_kb < 1:
+        raise HTTPException(
+            status_code=400,
+            detail="Target size must be at least 1 KB.",
+        )
+    return output_format, preset
 
 
 async def start_compression(
@@ -31,6 +73,13 @@ async def start_compression(
     quality: int | None = None,
     tool_id: str = "unknown",
 ) -> dict:
+    image_output_format, compression_preset = _validate_options(
+        image_output_format,
+        compression_preset,
+        max_dimension,
+        target_size_kb,
+    )
+
     if not files:
         logger.warning("Compression request rejected: no files uploaded")
         raise HTTPException(
