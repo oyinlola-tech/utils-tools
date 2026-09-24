@@ -59,22 +59,69 @@ class SvgOptimizerService:
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         cleaned = cleaned.replace(" />", "/>")
         if precision is not None and precision >= 0:
-            cleaned = re.sub(
-                r"(?<![\w#])(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)",
-                lambda m: SvgOptimizerService._round(m, precision),
+            cleaned = _ATTRIBUTE.sub(
+                lambda m: SvgOptimizerService._round_attribute(m, precision),
                 cleaned,
             )
         return cleaned
 
     @staticmethod
-    def _round(match: re.Match, precision: int) -> str:
-        try:
-            value = float(match.group(0))
-        except ValueError:
+    def _round_attribute(match: re.Match, precision: int) -> str:
+        """Round decimals only inside geometric attribute values.
+
+        Rounding every number in the document corrupted the XML
+        declaration (``version="1.0"`` -> ``"1"``, which browsers
+        reject), base64 data URIs, ids and URLs.
+        """
+        name = match.group("name")
+        if name.split(":")[-1] not in _NUMERIC_ATTRIBUTES:
             return match.group(0)
+        value = _DECIMAL.sub(
+            lambda m: SvgOptimizerService._round(m, precision),
+            match.group("value"),
+        )
+        quote = match.group("quote")
+        return f"{match.group('lead')}{name}={quote}{value}{quote}"
+
+    @staticmethod
+    def _round(match: re.Match, precision: int) -> str:
+        text = match.group(0)
+        try:
+            value = round(float(text), precision)
+        except (ValueError, OverflowError):
+            return text
         if value == int(value):
-            return str(int(value))
-        return format(value, f".{precision}f").rstrip("0").rstrip(".")
+            rounded = str(int(value))
+        else:
+            rounded = format(value, f".{precision}f").rstrip("0").rstrip(".")
+        if rounded == "-0":
+            rounded = "0"
+        following = match.string[match.end():match.end() + 1]
+        if "." not in rounded and following == ".":
+            # "1.5.5" is two numbers; keep them apart once the first
+            # loses its decimal point.
+            rounded += " "
+        return rounded
+
+
+# Attributes whose values are purely numbers, lengths or path data.
+_NUMERIC_ATTRIBUTES = {
+    "d", "points", "transform", "gradientTransform", "patternTransform",
+    "viewBox", "x", "y", "x1", "y1", "x2", "y2", "cx", "cy", "r", "rx",
+    "ry", "fx", "fy", "width", "height", "stroke-width", "stroke-dasharray",
+    "stroke-dashoffset", "stroke-miterlimit", "opacity", "fill-opacity",
+    "stroke-opacity", "stop-opacity", "offset", "dx", "dy", "font-size",
+    "letter-spacing", "stdDeviation", "refX", "refY", "markerWidth",
+    "markerHeight", "k1", "k2", "k3", "k4", "scale", "radius",
+}
+_ATTRIBUTE = re.compile(
+    r"(?P<lead>\s)(?P<name>[\w:.-]+)\s*=\s*(?P<quote>[\"'])"
+    r"(?P<value>.*?)(?P=quote)",
+    flags=re.DOTALL,
+)
+# Only numbers with a fractional part need rounding; integers are left
+# untouched so nothing like leading zeros or exponents is rewritten.
+_DECIMAL = re.compile(r"-?(?:\d+\.\d*|\.\d+)(?:[eE][-+]?\d+)?")
 
 
 svg_optimizer_service = SvgOptimizerService()

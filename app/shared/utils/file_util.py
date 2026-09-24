@@ -1,3 +1,5 @@
+import re
+import unicodedata
 from pathlib import Path
 from uuid import uuid4
 
@@ -46,19 +48,46 @@ def generate_filename(
     return filename
 
 
+_UNSAFE_NAME_CHARS = re.compile(r"[^A-Za-z0-9._-]+")
+_MAX_OUTPUT_STEM = 120
+
+
+def sanitize_filename(filename: str, fallback: str = "file") -> str:
+    """Reduce a user-supplied name to a safe ASCII basename.
+
+    Upload names are attacker-controlled: they may carry directory
+    separators, quotes, HTML, control characters or non-Latin-1 text
+    that breaks ``Content-Disposition`` headers. Only the final path
+    component is kept, accents are transliterated and every other
+    character outside ``[A-Za-z0-9._-]`` becomes ``_``.
+    """
+    name = (filename or "").replace("\\", "/").rsplit("/", 1)[-1]
+    name = (
+        unicodedata.normalize("NFKD", name)
+        .encode("ascii", "ignore")
+        .decode("ascii")
+    )
+    suffix = ""
+    if "." in name.strip("."):
+        name, suffix = name.rsplit(".", 1)
+        suffix = _UNSAFE_NAME_CHARS.sub("", suffix)[:16]
+    stem = _UNSAFE_NAME_CHARS.sub("_", name).strip("._")[:_MAX_OUTPUT_STEM]
+    if not stem:
+        stem = fallback
+    return f"{stem}.{suffix}" if suffix else stem
+
+
 def unique_filename(filename: str) -> str:
     """Keep the readable name but make it unguessable and collision-free.
 
     Outputs share one directory (and one Blob namespace on Vercel), so two
     users uploading ``image.png`` would otherwise overwrite and download
-    each other's results.
+    each other's results. The name is sanitized first because it is
+    usually derived from the upload's (untrusted) filename.
     """
-    if not is_safe_filename(filename):
-        raise ValueError("Invalid filename")
-    path = Path(filename)
+    path = Path(sanitize_filename(filename))
     token = generate_file_id()[:12]
-    max_stem = MAX_FILENAME_LENGTH - len(path.suffix) - len(token) - 1
-    return f"{path.stem[:max_stem]}_{token}{path.suffix}"
+    return f"{path.stem}_{token}{path.suffix}"
 
 
 def is_safe_filename(filename: str) -> bool:

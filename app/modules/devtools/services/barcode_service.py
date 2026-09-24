@@ -20,6 +20,11 @@ class BarcodeService:
         started = time.monotonic()
         if not content.strip():
             raise ValueError("Barcode content cannot be empty.")
+        if len(content) > 200:
+            raise ValueError("Barcode content must be 200 characters or fewer.")
+        output_format = (output_format or "png").lower()
+        if output_format not in {"png", "webp", "svg"}:
+            raise ValueError("Output format must be png, webp or svg.")
         cls = barcode_factory(code_type)
         writer_options = {
             "module_width": 0.4,
