@@ -119,7 +119,11 @@ function renderFooter() {
     </div>
   </div>
   <p class="shell-footer-wordmark" aria-hidden="true">Utils-tool</p>
-</footer>`;
+</footer>
+<button type="button" class="shell-fab" data-shell-support aria-label="Support this project">
+  ${iconHtml("heart")}
+  <span class="shell-fab-label">Support</span>
+</button>`;
 }
 
 function currentPath() {

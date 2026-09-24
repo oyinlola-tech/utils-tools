@@ -572,7 +572,7 @@ kbd {
 
 /* The oversized wordmark sits on the bottom edge, cropped by it. */
 .shell-footer-wordmark {
-    margin: var(--space-8) 0 -0.2em;
+    margin: var(--space-8) 0 -0.1em;
     padding: 0;
     text-align: center;
     font-family: var(--font-display);
@@ -683,5 +683,68 @@ kbd {
 
     .shell-footer-columns {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ---------- Floating support button ---------- */
+
+.shell-fab {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 90;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    height: 52px;
+    padding: 0 17px;
+    border-radius: var(--radius-full);
+    background: var(--color-forest);
+    color: var(--color-lime);
+    font: 600 0.9375rem/1 var(--font-family);
+    box-shadow: 0 12px 30px rgba(17, 32, 10, 0.28);
+    cursor: pointer;
+    transition: gap var(--transition-normal), background var(--transition-fast), transform var(--transition-fast);
+}
+
+.shell-fab .fa-solid {
+    font-size: 1.125rem;
+    animation: shell-beat 2.8s ease-in-out 2s 3;
+}
+
+.shell-fab-label {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #fff;
+    transition: max-width var(--transition-normal);
+}
+
+.shell-fab:hover,
+.shell-fab:focus-visible {
+    gap: 10px;
+    background: var(--color-forest-2);
+}
+
+.shell-fab:hover .shell-fab-label,
+.shell-fab:focus-visible .shell-fab-label {
+    max-width: 6em;
+}
+
+.shell-fab:active {
+    transform: scale(0.96);
+}
+
+@keyframes shell-beat {
+    0%, 30%, 60%, 100% { transform: scale(1); }
+    15%, 45% { transform: scale(1.22); }
+}
+
+@media (max-width: 520px) {
+    .shell-fab {
+        right: 14px;
+        bottom: 14px;
+        height: 48px;
+        padding: 0 15px;
     }
 }
