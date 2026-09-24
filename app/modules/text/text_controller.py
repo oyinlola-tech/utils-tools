@@ -1,14 +1,13 @@
 """Controller for text & speech tool HTTP operations."""
 
 import logging
-from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
-from app.core.config import settings
 from app.core.exceptions import ProcessingError
+from app.modules.text.text_repository import text_repository
 from app.modules.text.text_schema import (
     CaseConverterRequest,
     TextDiffRequest,
@@ -44,22 +43,25 @@ class TextController:
 
     def text_to_speech(self, request: TextToSpeechRequest) -> Dict[str, Any]:
         try:
-            output_path = text_service.text_to_speech(request.text, request.language)
-            file_size = output_path.stat().st_size if output_path.exists() else 0
+            temp_path = text_service.text_to_speech(request.text, request.language)
+            data = temp_path.read_bytes()
+            temp_path.unlink(missing_ok=True)
+            # Persist through storage so the download works on any
+            # serverless instance, not just the one that generated it.
+            output_path = text_repository.save_output_file(data, temp_path.name)
             filename = output_path.name
             return {
                 "success": True,
                 "filename": filename,
-                "size_bytes": file_size,
+                "size_bytes": len(data),
                 "download_url": f"/api/v1/tools/text/download/{filename}",
             }
         except ProcessingError as err:
             raise HTTPException(status_code=400, detail=str(err))
 
     def serve_file(self, filename: str) -> FileResponse:
-        download_dir = Path(settings.temp_directory)
-        file_path = download_dir / filename
-        if not file_path.exists() or not file_path.is_file():
+        file_path = text_repository.get_output_file(filename)
+        if not file_path.is_file():
             raise HTTPException(status_code=404, detail="File not found or expired.")
         return FileResponse(path=file_path, filename=filename, media_type="audio/mpeg")
 
