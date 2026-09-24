@@ -23,12 +23,17 @@ class SvgOptimizerService:
         """
         tool_logger = get_tool_logger("svg-optimizer")
         started = time.monotonic()
-        text = svg_data.decode("utf-8")
+        try:
+            text = svg_data.decode("utf-8-sig")
+        except UnicodeDecodeError as error:
+            raise ValueError("SVG files must be UTF-8 encoded.") from error
 
         try:
-            ElementTree.fromstring(svg_data)
+            root = ElementTree.fromstring(svg_data)
         except ElementTree.ParseError as error:
             raise ValueError(f"Invalid SVG file: {error}") from error
+        if root.tag.rsplit("}", 1)[-1].lower() != "svg":
+            raise ValueError("The file is XML but not an SVG image.")
 
         minified = self._minify(text, precision)
         try:
@@ -80,6 +85,7 @@ class SvgOptimizerService:
             lambda m: SvgOptimizerService._round(m, precision),
             match.group("value"),
         )
+        value = re.sub(r" {2,}", " ", value)
         quote = match.group("quote")
         return f"{match.group('lead')}{name}={quote}{value}{quote}"
 
@@ -94,9 +100,16 @@ class SvgOptimizerService:
             rounded = str(int(value))
         else:
             rounded = format(value, f".{precision}f").rstrip("0").rstrip(".")
+            # "0.5" -> ".5" keeps path data compact.
+            rounded = re.sub(r"^(-?)0\.", r"\1.", rounded)
         if rounded == "-0":
             rounded = "0"
-        following = match.string[match.end():match.end() + 1]
+        source = match.string
+        previous = source[match.start() - 1:match.start()]
+        following = source[match.end():match.end() + 1]
+        if rounded[0].isdigit() and (previous.isdigit() or previous == "."):
+            # ".9" -> "1" right after another number would merge them.
+            rounded = " " + rounded
         if "." not in rounded and following == ".":
             # "1.5.5" is two numbers; keep them apart once the first
             # loses its decimal point.

@@ -30,7 +30,7 @@ runBtn.addEventListener("click", async () => {
             resultsHost.innerHTML = "";
             const card = createDownloadCard({
                 filename: res.filename,
-                sizeBytes: res.size_bytes,
+                resultSize: res.size_bytes,
                 downloadUrl: res.download_url,
             });
             resultsHost.appendChild(card);

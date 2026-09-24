@@ -68,10 +68,30 @@ export const CATEGORY_META = {
         title: "Developer tools",
         description: "Favicons, SVG optimization, SVG generation, Base64, QR codes and barcodes.",
     },
+    text: {
+        title: "Text tools",
+        description: "Count words, compare text, change case and turn text into speech.",
+    },
     utility: {
         title: "Utility tools",
         description: "Social media presets and screenshot beautification.",
     },
 };
 
-export const CATEGORY_ORDER = ["image", "pdf", "file", "developer", "utility"];
+export const CATEGORY_ORDER = ["image", "pdf", "file", "developer", "text", "utility"];
+
+// Short file-type labels. The tag colour (--tag-<category>) encodes what
+// kind of file a tool works on, everywhere a tool is listed.
+export const CATEGORY_TAG = {
+    image: "IMG",
+    pdf: "PDF",
+    file: "FILE",
+    developer: "DEV",
+    text: "TXT",
+    utility: "UTIL",
+};
+
+export function tagHtml(category) {
+    const label = CATEGORY_TAG[category] || "TOOL";
+    return `<span class="file-tag" data-category="${category}">${label}</span>`;
+}

@@ -1,51 +1,64 @@
 :root {
-    --color-background: #fbfbf7;
+    /* Brand: forest ink + lime, from the logo. Lime is reserved for moments
+       that matter (active drop, success, primary action). */
+    --color-forest: #163300;
+    --color-forest-2: #214a08;
+    --color-lime: #9fe870;
+
+    --color-background: #f4f6f0;
     --color-surface: #ffffff;
-    --color-surface-muted: #f1f3eb;
-    --color-surface-strong: #e8ebdd;
+    --color-surface-muted: #eceee6;
+    --color-surface-strong: #e1e5d8;
 
-    --color-text: #15230d;
-    --color-text-secondary: #4d5a47;
-    --color-text-muted: #79836f;
+    --color-text: #11200a;
+    --color-text-secondary: #45523e;
+    --color-text-muted: #6c7765;
 
-    --color-primary: #a3e872;
-    --color-primary-hover: #93d864;
-    --color-primary-soft: #ecf8e2;
+    --color-primary: #9fe870;
+    --color-primary-hover: #8cdb59;
+    --color-primary-soft: #e8f6db;
     --color-accent: var(--color-primary);
 
-    --color-border: #e5e6db;
-    --color-border-strong: #ccd0bd;
+    --color-border: #dde2d3;
+    --color-border-strong: #bfc6b1;
 
-    --color-success: #3d7a3c;
-    --color-success-soft: #e7f4e6;
-    --color-warning: #936900;
-    --color-warning-soft: #fcf3dc;
+    --color-success: #2f6e1f;
+    --color-success-soft: #e5f4dc;
+    --color-warning: #8a5a00;
+    --color-warning-soft: #fcf0d6;
     --color-danger: #b3261e;
-    --color-danger-soft: #fff0f0;
+    --color-danger-soft: #fdeeed;
+
+    /* File-type tags: colour encodes what kind of file a tool works on. */
+    --tag-image: #e0662f;
+    --tag-pdf: #d23b3b;
+    --tag-file: #1c8f7e;
+    --tag-developer: #5b4fd1;
+    --tag-text: #b07d00;
+    --tag-utility: #2f6fbf;
 
     --font-display:
-        "Space Grotesk",
-        "Inter",
+        "Archivo",
+        "Geist",
         ui-sans-serif,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
+        system-ui,
         sans-serif;
+    --font-stretch-display: 118%;
 
     --font-family:
-        "Inter",
+        "Geist",
         ui-sans-serif,
+        system-ui,
         -apple-system,
-        BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
 
     --font-mono:
+        "Geist Mono",
         ui-monospace,
         "SFMono-Regular",
         Menlo,
         Consolas,
-        "Liberation Mono",
         monospace;
 
     --font-size-xs: 0.8125rem;
@@ -93,9 +106,9 @@
 
     --radius-xs: 6px;
     --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 20px;
-    --radius-xl: 28px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
     --radius-full: 999px;
 
     --border-width-thin: 1px;
@@ -117,12 +130,12 @@
     --max-content-width: 1200px;
     --content-max-width: 680px;
 
-    --header-height: 4rem;
+    --header-height: 5rem;
     --header-height-sm: 3.5rem;
     --footer-padding-top: clamp(2rem, 4vw, 3rem);
     --footer-padding-bottom: clamp(1.25rem, 3vw, 2rem);
 
-    --color-focus-ring: #7ecb4c;
+    --color-focus-ring: #4f9a1f;
 
     --ease-out-quad: cubic-bezier(0.645, 0.045, 0.355, 1);
     --ease-in-out-quad: cubic-bezier(0.455, 0.005, 0.55, 0.99);

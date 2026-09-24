@@ -45,13 +45,26 @@ if (!kit.available) {
                 const row = document.createElement("tr");
                 const dims = item.width ? `${item.width}×${item.height}px` : "—";
                 const pages = item.page_count != null ? item.page_count : "—";
-                row.innerHTML = `
-                    <td>${item.filename}</td>
-                    <td>${item.category} (${item.mime_type})</td>
-                    <td>${formatBytes(item.size_bytes)}</td>
-                    <td>${dims}</td>
-                    <td>${pages}</td>
-                    <td><code title="${item.sha256}">${item.sha256.slice(0, 16)}…</code></td>`;
+                // Build cells with textContent: filenames are user-controlled
+                // and must never be parsed as HTML.
+                const cells = [
+                    item.filename,
+                    `${item.category} (${item.mime_type})`,
+                    formatBytes(item.size_bytes),
+                    dims,
+                    String(pages),
+                ];
+                for (const text of cells) {
+                    const cell = document.createElement("td");
+                    cell.textContent = text;
+                    row.appendChild(cell);
+                }
+                const hashCell = document.createElement("td");
+                const code = document.createElement("code");
+                code.title = item.sha256;
+                code.textContent = `${item.sha256.slice(0, 16)}…`;
+                hashCell.appendChild(code);
+                row.appendChild(hashCell);
                 body.appendChild(row);
             }
             table.appendChild(body);

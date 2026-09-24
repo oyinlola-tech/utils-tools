@@ -36,6 +36,7 @@ const CATEGORY_ICONS = {
     pdf: "file-pdf",
     file: "folder",
     developer: "code",
+    text: "font",
     utility: "palette",
 };
 

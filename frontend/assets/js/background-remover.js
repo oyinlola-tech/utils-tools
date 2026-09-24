@@ -93,12 +93,21 @@ function showResult(data) {
     variantGrid.innerHTML = "";
     const card = document.createElement("div");
     card.className = "variant";
-    card.innerHTML = `
-        <h3>${String(info.format).toUpperCase()}</h3>
-        <div class="variant-size">${formatBytes(Number(info.size_bytes || 0))}</div>
-        <p class="variant-description">Transparent background, original resolution.</p>
-        <a class="primary-button" href="${info.download_url}" download="${info.filename}">Download ${String(info.format).toUpperCase()}</a>
-    `;
+    const formatLabel = String(info.format).toUpperCase();
+    const heading = document.createElement("h3");
+    heading.textContent = formatLabel;
+    const sizeLabel = document.createElement("div");
+    sizeLabel.className = "variant-size";
+    sizeLabel.textContent = formatBytes(Number(info.size_bytes || 0));
+    const description = document.createElement("p");
+    description.className = "variant-description";
+    description.textContent = "Transparent background, original resolution.";
+    const downloadLink = document.createElement("a");
+    downloadLink.className = "primary-button";
+    downloadLink.href = info.download_url;
+    downloadLink.download = info.filename;
+    downloadLink.textContent = `Download ${formatLabel}`;
+    card.append(heading, sizeLabel, description, downloadLink);
 
     if (originalFileSize > 0 && info.size_bytes) {
         const savings = (1 - Number(info.size_bytes) / originalFileSize) * 100;

@@ -6,6 +6,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile
 
 from app.core.capabilities import capability_registry
 from app.modules.devtools.dev_tools_controller import dev_tools_controller
+from app.shared.utils.file_util import sanitize_filename
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +22,22 @@ def _check_svg_capability() -> None:
 
 
 @svg_router.post("/svg-optimize")
-async def optimize_svg(file: UploadFile = File(...)):
-    logger.info("optimize_svg: file=%s", file.filename)
-    result = await dev_tools_controller.optimize_svg(file)
-    headers = {"Content-Disposition": "attachment; filename=optimized.svg"}
+async def optimize_svg(
+    file: UploadFile = File(...),
+    precision: int = Form(2),
+):
+    logger.info("optimize_svg: file=%s precision=%d", file.filename, precision)
+    if not -1 <= precision <= 8:
+        raise HTTPException(
+            status_code=400,
+            detail="Precision must be between 0 and 8, or -1 to keep numbers as-is.",
+        )
+    result = await dev_tools_controller.optimize_svg(file, precision=precision)
+    stem = sanitize_filename(file.filename or "", fallback="optimized")
+    stem = stem.rsplit(".", 1)[0] if stem.lower().endswith(".svg") else stem
+    headers = {
+        "Content-Disposition": f'attachment; filename="{stem}.min.svg"'
+    }
     return Response(
         content=result["data"],
         media_type="image/svg+xml",
