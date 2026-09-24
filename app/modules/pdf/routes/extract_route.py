@@ -22,7 +22,7 @@ def create_extract_router() -> APIRouter:
     @router.post("/extract", response_model=PdfToolResponse)
     async def extract_pdf_pages(
         file: UploadFile = File(...),
-        pages: str = Form(...),
+        pages: str = Form("all"),
     ):
         logger.info("extract_pdf_pages: file=%s pages=%s", file.filename, pages)
         return await pdf_controller.extract_pages(
