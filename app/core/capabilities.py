@@ -54,6 +54,8 @@ class Tool:
     requires_module: str | None = None
     # whether the tool is surfaced on the landing page as a featured entry
     featured: bool = False
+    # runs entirely in the browser; files never reach the server
+    client_only: bool = False
 
 
 def _module_available(module_name: str) -> bool:
@@ -146,6 +148,7 @@ class CapabilityRegistry:
             ),
             Tool(
                 id="image-cropper",
+                client_only=True,
                 name="Image Cropper",
                 category=CATEGORY_IMAGE,
                 description=(
@@ -160,6 +163,7 @@ class CapabilityRegistry:
             ),
             Tool(
                 id="image-editor",
+                client_only=True,
                 name="Image Editor",
                 category=CATEGORY_IMAGE,
                 description=(
@@ -364,6 +368,7 @@ class CapabilityRegistry:
             ),
             Tool(
                 id="image-to-base64",
+                client_only=True,
                 name="Image to Base64",
                 category=CATEGORY_DEVELOPER,
                 description=(
@@ -376,6 +381,7 @@ class CapabilityRegistry:
             ),
             Tool(
                 id="base64-to-image",
+                client_only=True,
                 name="Base64 to Image",
                 category=CATEGORY_DEVELOPER,
                 description=(
@@ -427,6 +433,7 @@ class CapabilityRegistry:
             ),
             Tool(
                 id="screenshot-beautifier",
+                client_only=True,
                 name="Screenshot Beautifier",
                 category=CATEGORY_UTILITY,
                 description=(
@@ -608,9 +615,12 @@ class CapabilityRegistry:
                     "category": tool.category,
                     "description": tool.description,
                     "status": status_label,
-                    "max_upload_mb": self.upload_limit_mb(
-                        tool.max_upload_mb
-                        or settings.max_upload_size_mb
+                    "max_upload_mb": (
+                        tool.max_upload_mb or settings.max_upload_size_mb
+                        if tool.client_only
+                        else self.upload_limit_mb(
+                            tool.max_upload_mb or settings.max_upload_size_mb
+                        )
                     ),
                     "max_files": tool.max_files,
                     "notes": tool.notes if available else "",

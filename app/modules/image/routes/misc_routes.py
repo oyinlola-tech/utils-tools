@@ -28,7 +28,7 @@ async def add_watermark(
     text: str | None = Form(None),
     logo: UploadFile | None = File(None),
     position: str = Form("bottom-right"),
-    opacity: float = Form(0.7),
+    opacity: float = Form(0.7, gt=0, le=1),
     size_ratio: float = Form(0.1),
     rotation: int = Form(0),
 ):

@@ -30,25 +30,16 @@ def select_format(
     if format_choice in ("mp3", "m4a"):
         return {"format": "bestaudio/best"}
 
-    if ffmpeg:
-        quality_formats = {
-            "1080p": "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best",
-            "720p": "bestvideo[height<=720]+bestaudio/best[height<=720]/best",
-            "480p": "bestvideo[height<=480]+bestaudio/best[height<=480]/best",
-        }
+    height = quality_choice[:-1] if quality_choice.endswith("p") else ""
+    if height.isdigit():
+        if ffmpeg:
+            selector = f"bestvideo[height<={height}]+bestaudio/best[height<={height}]/best"
+        else:
+            selector = f"best[height<={height}]/bestvideo[height<={height}]+bestaudio/best"
     else:
-        quality_formats = {
-            "1080p": "best[height<=1080]/bestvideo[height<=1080]+bestaudio/best",
-            "720p": "best[height<=720]/bestvideo[height<=720]+bestaudio/best",
-            "480p": "best[height<=480]/bestvideo[height<=480]+bestaudio/best",
-        }
+        selector = "best/bestvideo+bestaudio"
 
-    options: Dict[str, Any] = {
-        "format": quality_formats.get(
-            quality_choice,
-            "best/bestvideo+bestaudio",
-        )
-    }
+    options: Dict[str, Any] = {"format": selector}
     if format_choice in ("mp4", "webm"):
         options["merge_output_format"] = format_choice
     return options

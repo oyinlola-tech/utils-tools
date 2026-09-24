@@ -139,7 +139,7 @@ class VideoDownloaderService:
             if fmt.get("height") and isinstance(fmt.get("height"), int) and fmt["height"] >= 144
         }
         if not heights:
-            return ["best", "720p", "480p", "360p"]
+            return ["720p", "480p", "360p"]
         return [f"{h}p" for h in sorted(heights, reverse=True)]
 
     @staticmethod

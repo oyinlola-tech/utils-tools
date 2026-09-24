@@ -25,13 +25,14 @@ class PdfWatermarkService:
         total_pages = len(doc)
         for page in doc:
             rect = page.rect
-            point = fitz.Point(rect.width / 4, rect.height / 2)
+            point = fitz.Point(rect.width * 0.2, rect.height * 0.65)
             page.insert_text(
                 point,
                 text,
                 fontsize=36,
                 color=(0.6, 0.6, 0.6),
-                rotate=45,
+                # rotate= only accepts multiples of 90; morph gives a diagonal.
+                morph=(point, fitz.Matrix(45)),
             )
         output_buffer = BytesIO()
         doc.save(output_buffer)

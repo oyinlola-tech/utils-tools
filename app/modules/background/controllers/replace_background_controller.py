@@ -28,10 +28,10 @@ class ReplaceBackgroundController:
         background_data = None
         if background_image is not None:
             background_data = await background_image.read()
-        if not color and not background_data:
+        if not color and not background_data and blur <= 0:
             raise HTTPException(
                 status_code=400,
-                detail="Provide a background color or image.",
+                detail="Provide a background color, image or blur amount.",
             )
         try:
             processed_image, width, height = (

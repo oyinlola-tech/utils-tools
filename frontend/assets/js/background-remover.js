@@ -79,29 +79,29 @@ function showResult(data) {
     hideElement(processing);
     hideElement(errorMessage);
 
-    const result = data.result || data;
-    const originalLabel = result.original_filename || originalFileName;
+    const info = data.result || data;
+    const originalLabel = info.original_filename || originalFileName;
     resultMeta.textContent = [
         originalLabel,
-        `${result.width} × ${result.height}`,
-        String(result.format || "").toUpperCase(),
-        formatBytes(Number(result.size_bytes || 0)),
+        `${info.width} × ${info.height}`,
+        String(info.format || "").toUpperCase(),
+        formatBytes(Number(info.size_bytes || 0)),
     ].filter(Boolean).join(" · ");
-    processedPreview.src = result.download_url;
-    processedPreview.alt = `Processed image (${result.format})`;
+    processedPreview.src = info.download_url;
+    processedPreview.alt = `Processed image (${info.format})`;
 
     variantGrid.innerHTML = "";
     const card = document.createElement("div");
     card.className = "variant";
     card.innerHTML = `
-        <h3>${String(result.format).toUpperCase()}</h3>
-        <div class="variant-size">${formatBytes(Number(result.size_bytes || 0))}</div>
+        <h3>${String(info.format).toUpperCase()}</h3>
+        <div class="variant-size">${formatBytes(Number(info.size_bytes || 0))}</div>
         <p class="variant-description">Transparent background, original resolution.</p>
-        <a class="primary-button" href="${result.download_url}" download="${result.filename}">Download ${String(result.format).toUpperCase()}</a>
+        <a class="primary-button" href="${info.download_url}" download="${info.filename}">Download ${String(info.format).toUpperCase()}</a>
     `;
 
-    if (originalFileSize > 0 && result.size_bytes) {
-        const savings = (1 - Number(result.size_bytes) / originalFileSize) * 100;
+    if (originalFileSize > 0 && info.size_bytes) {
+        const savings = (1 - Number(info.size_bytes) / originalFileSize) * 100;
         const chip = document.createElement("span");
         chip.className = "variant-savings";
         chip.textContent = savings > 0
@@ -163,7 +163,7 @@ async function processFile(file) {
         const data = await startBackgroundRemoval(file, selectedOutputFormat);
         
         updateBackgroundProgress("Encoding result...");
-        showResult(data.result);
+        showResult(data);
         setOutputOptionsDisabled(false);
         
         updateBackgroundProgress("Complete");

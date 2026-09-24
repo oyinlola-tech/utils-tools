@@ -18,6 +18,9 @@ class VideoDownloadRequest(BaseModel):
     format: Literal["mp4", "mp3", "webm", "m4a"] = Field(
         default="mp4", description="Output format (mp4 for video, mp3 for audio)"
     )
-    quality: Literal["best", "1080p", "720p", "480p", "audio"] = Field(
-        default="best", description="Resolution or quality preference"
+    # Must accept every height /info can report (e.g. "240p", "1440p").
+    quality: str = Field(
+        default="best",
+        pattern=r"^(best|audio|\d{3,4}p)$",
+        description="Resolution or quality preference",
     )

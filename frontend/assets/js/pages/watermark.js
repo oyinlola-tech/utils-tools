@@ -56,7 +56,7 @@ if (!kit.available) {
         kit.banner.hide();
         const fields = {
             position: document.querySelector("#watermark-position").value,
-            opacity: document.querySelector("#watermark-opacity").value,
+            opacity: document.querySelector("#watermark-opacity").value / 100,
             size_ratio: document.querySelector("#watermark-size").value / 100,
             rotation: document.querySelector("#watermark-rotation").value,
         };

@@ -42,12 +42,26 @@ let selectedTargetSize = null;
 
 
 
+const ACCEPTED_EXTENSIONS = {
+    "image/jpeg": [".jpg", ".jpeg"],
+    "image/jpg": [".jpg", ".jpeg"],
+    "image/png": [".png"],
+    "image/webp": [".webp"],
+    "application/pdf": [".pdf"],
+};
+
+// This script serves both the image and PDF compressor pages, so the
+// allowed types come from the page's own file input.
 function isSupportedFile(file) {
-    return (
-        file.type.startsWith("image/") &&
-        [".jpg", ".jpeg", ".png", ".webp"].includes(
-            "." + file.name.split(".").pop().toLowerCase()
-        )
+    const extension = "." + file.name.split(".").pop().toLowerCase();
+    const accepted = (fileInput?.accept || "image/jpeg,image/png,image/webp")
+        .split(",")
+        .map((token) => token.trim().toLowerCase())
+        .filter(Boolean);
+    return accepted.some((token) =>
+        token.startsWith(".")
+            ? token === extension
+            : (ACCEPTED_EXTENSIONS[token] || []).includes(extension)
     );
 }
 
@@ -670,13 +684,27 @@ clearFilesButton.addEventListener("click", clearFiles);
 async function waitForJob(jobId, signal) {
     const maxWaitMs = 10 * 60 * 1000;
     const startTime = Date.now();
+    let pollFailures = 0;
 
     while (!signal?.aborted) {
         if (Date.now() - startTime > maxWaitMs) {
             throw new Error("Compression timed out. Please try again with smaller files.");
         }
 
-        const job = await getJob(jobId);
+        let job;
+        try {
+            job = await getJob(jobId);
+            pollFailures = 0;
+        } catch (error) {
+            // A single failed poll (cold start, network blip) should not
+            // abandon a job that is still running on the server.
+            pollFailures += 1;
+            if (pollFailures >= 4 || error.status === 404) {
+                throw error;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 1000 * pollFailures));
+            continue;
+        }
 
         syncJobToFiles(job);
 

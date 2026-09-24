@@ -1,6 +1,7 @@
 """Local job metadata persistence."""
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -27,10 +28,14 @@ def write_metadata(
     metadata: dict,
 ) -> None:
     metadata_path = get_metadata_path(root_path, job_id)
-    metadata_path.write_text(
+    # Write-then-rename so a concurrent poll never reads a half-written
+    # (empty) file while the background task updates status.
+    temp_path = metadata_path.with_name(f"{metadata_path.name}.{uuid4().hex}.tmp")
+    temp_path.write_text(
         json.dumps(metadata, indent=2),
         encoding="utf-8",
     )
+    os.replace(temp_path, metadata_path)
 
 
 def read_metadata(

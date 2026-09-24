@@ -10,6 +10,8 @@ import { showElement, hideElement, formatBytes } from "../utils.js";
 
 const ERROR_PAGES = [400, 404, 408, 413, 415, 422, 429, 500, 502, 503, 504];
 
+let currentCapability = null;
+
 
 export async function initToolPage(toolId) {
     renderShell();
@@ -24,6 +26,7 @@ export async function initToolPage(toolId) {
     try {
         await loadCapabilities();
         capability = getTool(toolId);
+        currentCapability = capability;
     } catch {
         capability = null;
     }
@@ -112,13 +115,19 @@ export function setupUpload({ onFiles, extraAccept = "" }) {
     const accept = (host.dataset.accept || "") + (extraAccept ? "," + extraAccept : "");
     const multiple = host.dataset.multiple === "true";
     const maxFiles = Number(host.dataset.maxFiles || 1);
-    const hint = host.dataset.hint || "";
+    const maxSizeMb = (currentCapability && currentCapability.max_upload_mb) || 100;
+    // Page hints hardcode the local limits ("up to 25 MB"); show the real one.
+    const hint = (host.dataset.hint || "").replace(
+        /(\d+)\s*MB/g,
+        (text, mb) => (Number(mb) > maxSizeMb ? `${maxSizeMb} MB` : text)
+    );
     return new UploadZone(host, {
         accept,
         multiple,
         maxFiles,
         hint,
-        maxSizeMb: 100,
+        // The server's limit, which is far lower on Vercel (4 MB request cap).
+        maxSizeMb,
         onFiles,
     });
 }
