@@ -42,7 +42,6 @@
     line-height: var(--line-height-relaxed);
 }
 
-
 .story-section {
     padding: var(--space-16) 0;
 }
@@ -104,7 +103,6 @@
     font-weight: var(--font-weight-semibold);
 }
 
-
 .values-section {
     padding: var(--space-16) 0;
     background: var(--color-surface);
@@ -159,7 +157,6 @@
     line-height: var(--line-height-relaxed);
 }
 
-
 .tech-section {
     padding: var(--space-16) 0;
 }
@@ -194,7 +191,6 @@
     font-size: var(--font-size-sm);
     line-height: var(--line-height-relaxed);
 }
-
 
 .team-section {
     padding: var(--space-16) 0;
@@ -231,7 +227,6 @@
     flex-direction: column;
     gap: var(--space-3);
 }
-
 
 .final-cta-section {
     padding: 0 0 var(--space-24);

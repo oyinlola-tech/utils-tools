@@ -44,10 +44,14 @@ kbd {
 
 /* ---------- Header ---------- */
 
-.shell-header {
+#site-header {
     position: sticky;
     top: 0;
     z-index: 100;
+}
+
+.shell-header {
+    position: relative;
     padding: 12px 0 0;
     width: min(calc(100% - 24px), var(--container-width));
     margin-inline: auto;

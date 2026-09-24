@@ -22,21 +22,6 @@
 }
 
 @media (max-width: 700px) {
-    .header-inner {
-        min-height: 64px;
-    }
-
-    .header-nav {
-        display: none;
-    }
-
-    .header-star-button span {
-        display: none;
-    }
-
-    .header-menu-toggle {
-        display: grid;
-    }
 
     .tool-grid {
         margin-top: 24px;

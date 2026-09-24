@@ -8,6 +8,7 @@ from app.shared.constants.file_constants import (
     EXPECTED_EXTENSION_BY_MIME,
     MAX_FILES_PER_BATCH,
 )
+from app.shared.utils.image_util import ImageTooLargeError, check_pixel_limit
 
 Image.MAX_IMAGE_PIXELS = 50_000_000
 
@@ -87,15 +88,24 @@ def validate_image(
 ) -> Image.Image:
     try:
         image = Image.open(BytesIO(file_data))
+        # Reject by header dimensions before decoding anything: Pillow
+        # only warns (rather than raising) up to 2x MAX_IMAGE_PIXELS.
+        check_pixel_limit(image)
         image.verify()
         image = Image.open(BytesIO(file_data))
         image.load()
         return image
+    except ImageTooLargeError:
+        raise
+    except Image.DecompressionBombError as error:
+        raise ImageTooLargeError(
+            "Image dimensions are too large to process."
+        ) from error
     except (
         UnidentifiedImageError,
         OSError,
         ValueError,
-        Image.DecompressionBombError,
+        SyntaxError,
     ) as error:
         raise ValueError(
             "The uploaded file is not a valid image."
@@ -129,6 +139,11 @@ def inspect_and_validate(
         validate_file_size(file_data, MAX_IMAGE_SIZE)
         try:
             validate_image(file_data)
+        except ImageTooLargeError as error:
+            raise HTTPException(
+                status_code=413,
+                detail=str(error),
+            ) from error
         except ValueError as error:
             raise HTTPException(
                 status_code=400,

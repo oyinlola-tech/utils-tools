@@ -44,7 +44,6 @@
     color: var(--color-text-secondary);
 }
 
-
 .hero-section {
     padding: clamp(3rem, 7vw, 5.5rem) 0;
     overflow: hidden;
@@ -122,7 +121,6 @@
     align-items: center;
     gap: 8px;
 }
-
 
 .hero-visual {
     position: relative;
@@ -208,7 +206,6 @@
     }
 }
 
-
 .stats-strip {
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
@@ -245,7 +242,6 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
 }
-
 
 .categories-section {
     padding: var(--space-16) 0;
@@ -330,7 +326,6 @@
 .category-bento-card:hover .category-bento-link {
     color: var(--color-text);
 }
-
 
 .featured-section {
     padding: var(--space-16) 0;
@@ -449,7 +444,6 @@
     color: var(--color-text);
 }
 
-
 .how-it-works-section {
     padding: var(--space-16) 0;
 }
@@ -502,7 +496,6 @@
     font-size: var(--font-size-md);
     line-height: var(--line-height-relaxed);
 }
-
 
 .privacy-section {
     padding: var(--space-16) 0;
@@ -574,7 +567,6 @@
     line-height: var(--line-height-relaxed);
 }
 
-
 .faq-section {
     padding: var(--space-16) 0;
 }
@@ -614,7 +606,6 @@
     font-size: 0.85em;
 }
 
-
 .final-cta-section {
     padding: 0 0 var(--space-24);
 }
@@ -648,7 +639,6 @@
     gap: var(--space-3);
     margin-top: var(--space-8);
 }
-
 
 .primary-button {
     min-height: 50px;
@@ -695,7 +685,6 @@
     font-size: 1.1em;
     flex-shrink: 0;
 }
-
 
 @media (max-width: 1024px) {
     .hero-grid {
