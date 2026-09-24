@@ -22,6 +22,9 @@ logger = logging.getLogger(__name__)
 
 LOCAL_DRIVER = "local"
 VERCEL_DRIVER = "vercel"
+# Vercel Functions reject request bodies over 4.5 MB before the app sees
+# them; 4 MB leaves room for multipart overhead.
+VERCEL_MAX_UPLOAD_MB = 4
 
 CATEGORY_IMAGE = "image"
 CATEGORY_PDF = "pdf"
@@ -559,8 +562,15 @@ class CapabilityRegistry:
             "background_removal": background_removal,
             "pdf_compression": pdf_compression,
             "zip_support": True,
-            "max_upload_size_mb": settings.max_upload_size_mb,
+            "max_upload_size_mb": self.upload_limit_mb(
+                settings.max_upload_size_mb
+            ),
         }
+
+    def upload_limit_mb(self, limit_mb: int) -> int:
+        if self.driver == VERCEL_DRIVER:
+            return min(limit_mb, VERCEL_MAX_UPLOAD_MB)
+        return limit_mb
 
     def dependencies_satisfied(self, tool: Tool) -> bool:
         if tool.requires_binary and not _binary_available(
@@ -598,7 +608,7 @@ class CapabilityRegistry:
                     "category": tool.category,
                     "description": tool.description,
                     "status": status_label,
-                    "max_upload_mb": (
+                    "max_upload_mb": self.upload_limit_mb(
                         tool.max_upload_mb
                         or settings.max_upload_size_mb
                     ),
