@@ -15,6 +15,7 @@ from app.modules.text.text_schema import (
     WordCounterRequest,
 )
 from app.modules.text.text_service import text_service
+from app.shared.utils.download_util import download_response
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class TextController:
         file_path = text_repository.get_output_file(filename)
         if not file_path.is_file():
             raise HTTPException(status_code=404, detail="File not found or expired.")
-        return FileResponse(path=file_path, filename=filename, media_type="audio/mpeg")
+        return download_response(file_path, "audio/mpeg", filename)
 
 
 text_controller = TextController()

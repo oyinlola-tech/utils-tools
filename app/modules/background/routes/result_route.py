@@ -1,7 +1,6 @@
 """Background job result and download endpoints."""
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
 
 from app.api import API_PREFIX
 from app.modules.background.background_repository import (
@@ -10,6 +9,7 @@ from app.modules.background.background_repository import (
 from app.modules.background.routes.background_route_helpers import (
     background_jobs,
 )
+from app.shared.utils.download_util import download_response
 from app.shared.utils.file_util import is_safe_filename
 
 CONTENT_TYPE_MAP = {
@@ -56,11 +56,7 @@ def create_result_router() -> APIRouter:
             "application/octet-stream",
         )
         try:
-            return FileResponse(
-                path=file_path,
-                media_type=media_type,
-                filename=file_path.name,
-            )
+            return download_response(file_path, media_type)
         except FileNotFoundError as error:
             raise HTTPException(
                 status_code=404,

@@ -4,11 +4,11 @@ palette-extractor, presets and processed-file downloads."""
 import logging
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
 
 from app.modules.image.image_repository import image_repository
 from app.modules.image.image_schema import ImageToolResult
 from app.modules.image.image_tools_controller import image_tools_controller
+from app.shared.utils.download_util import download_response
 from app.shared.utils.file_util import is_safe_filename
 
 logger = logging.getLogger(__name__)
@@ -87,8 +87,4 @@ async def download_processed_file(filename: str):
         file_path.suffix.lower(),
         "application/octet-stream",
     )
-    return FileResponse(
-        path=file_path,
-        media_type=media_type,
-        filename=file_path.name,
-    )
+    return download_response(file_path, media_type)

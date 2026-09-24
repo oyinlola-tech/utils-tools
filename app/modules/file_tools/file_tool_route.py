@@ -1,7 +1,6 @@
 import logging
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
 
 from app.api import API_PREFIX
 from app.modules.file_tools.file_tool_controller import (
@@ -15,6 +14,7 @@ from app.modules.file_tools.file_tool_schema import (
     FileAnalysisResponse,
     FileToolResponse,
 )
+from app.shared.utils.download_util import download_response
 from app.shared.utils.file_util import is_safe_filename
 
 logger = logging.getLogger(__name__)
@@ -72,8 +72,4 @@ async def download_output_file(
         file_path.suffix.lower(),
         "application/octet-stream",
     )
-    return FileResponse(
-        path=file_path,
-        media_type=media_type,
-        filename=file_path.name,
-    )
+    return download_response(file_path, media_type)

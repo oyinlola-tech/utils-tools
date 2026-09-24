@@ -20,7 +20,7 @@ VERCEL_RESPONSE_LIMIT_BYTES = 4 * 1024 * 1024
 def _blob_download_url(file_path: Path) -> str:
     try:
         url = storage.get_url(file_path)
-    except Exception:  # noqa: BLE001 - fall back to streaming
+    except Exception:
         return ""
     if url and settings.blob_access_mode == "public" and "download=" not in url:
         # Ask Blob to send Content-Disposition: attachment, since the
