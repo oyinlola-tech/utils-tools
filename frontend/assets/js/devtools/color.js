@@ -16,6 +16,9 @@ function parseAlpha(token) {
 }
 
 function parseHue(token) {
+    if (token === "none") {
+        return 0;
+    }
     const value = parseFloat(token);
     if (Number.isNaN(value)) {
         throw new Error("Invalid hue.");
@@ -27,6 +30,9 @@ function parseHue(token) {
 }
 
 function parsePercent(token, scale = 1) {
+    if (token === "none") {
+        return 0;
+    }
     const value = parseFloat(token);
     if (Number.isNaN(value)) {
         throw new Error("Invalid number in color.");

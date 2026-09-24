@@ -1,5 +1,8 @@
 """Shared PDF controller helpers."""
 
+from io import BytesIO
+
+import pikepdf
 from fastapi import HTTPException, UploadFile
 
 from app.modules.pdf.pdf_repository import pdf_repository
@@ -31,7 +34,33 @@ async def read_pdf(
             status_code=415,
             detail="Only PDF files are supported",
         )
+    ensure_pdf_readable(file_data, file.filename)
     return file_data, file.filename
+
+
+def ensure_pdf_readable(file_data: bytes, filename: str) -> None:
+    """Reject password-protected or unparseable PDFs with a clear 400.
+
+    pikepdf raises ``PasswordError``/``PdfError`` (not ValueError), which
+    previously escaped every PDF controller as a 500. PDFs that only
+    carry an owner password (no password needed to open) still pass.
+    """
+    try:
+        with pikepdf.open(BytesIO(file_data)):
+            pass
+    except pikepdf.PasswordError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"{filename} is password-protected. "
+                "Remove the password and try again."
+            ),
+        ) from error
+    except (pikepdf.PdfError, ValueError, OSError) as error:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{filename} is damaged or is not a valid PDF.",
+        ) from error
 
 
 def save_output(

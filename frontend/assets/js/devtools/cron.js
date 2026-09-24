@@ -184,8 +184,14 @@ function describeTime(s) {
         text = `At minutes ${describeParts(s.minute, "minute")}`;
     }
     if (s.hasSeconds && s.second.raw !== "0") {
-        const secondText = s.second.raw === "*" ? "every second" : `at second ${describeParts(s.second, "second")}`;
-        text = `${title(secondText)}, ${text.charAt(0).toLowerCase()}${text.slice(1)}`;
+        const secondText = s.second.raw === "*"
+            ? "every second"
+            : /^\*\//.test(s.second.raw)
+              ? describeParts(s.second, "second")
+              : `at second ${describeParts(s.second, "second")}`;
+        text = s.minute.raw === "*"
+            ? title(secondText)
+            : `${title(secondText)}, ${text.charAt(0).toLowerCase()}${text.slice(1)}`;
     }
     if (s.hour.raw === "*") {
         return s.minute.raw === "*" || /^\*\//.test(s.minute.raw) ? text : `${text} past every hour`;

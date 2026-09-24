@@ -237,6 +237,8 @@ def register_exception_handlers(app) -> None:
             message,
         )
 
+    _register_library_error_handlers(app)
+
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(
         request: Request,
@@ -253,3 +255,65 @@ def register_exception_handlers(app) -> None:
             "INTERNAL_ERROR",
             "An unexpected error occurred. Please try again.",
         )
+
+
+def _register_library_error_handlers(app) -> None:
+    """Map well-known third-party input errors to 4xx responses.
+
+    These are raised by Pillow/pikepdf on bad user input and are not
+    ``ValueError`` subclasses, so tool controllers that only catch
+    ``ValueError``/``OSError`` let them through as 500s. This is a
+    safety net; controllers should still validate up front.
+    """
+    from PIL import Image, UnidentifiedImageError
+
+    from app.shared.utils.image_util import ImageTooLargeError
+
+    async def image_too_large(request: Request, exc: Exception):
+        message = (
+            str(exc)
+            if isinstance(exc, ImageTooLargeError)
+            else "Image dimensions are too large to process."
+        )
+        return _error_page_response(
+            request,
+            status.HTTP_413_CONTENT_TOO_LARGE,
+            "FILE_TOO_LARGE",
+            message,
+        )
+
+    async def bad_image(request: Request, exc: Exception):
+        return _error_page_response(
+            request,
+            status.HTTP_400_BAD_REQUEST,
+            "INVALID_REQUEST",
+            "The uploaded file is not a valid image.",
+        )
+
+    app.add_exception_handler(ImageTooLargeError, image_too_large)
+    app.add_exception_handler(Image.DecompressionBombError, image_too_large)
+    app.add_exception_handler(UnidentifiedImageError, bad_image)
+
+    try:
+        import pikepdf
+    except ImportError:  # pragma: no cover - optional dependency
+        return
+
+    async def pdf_password(request: Request, exc: Exception):
+        return _error_page_response(
+            request,
+            status.HTTP_400_BAD_REQUEST,
+            "INVALID_REQUEST",
+            "This PDF is password-protected. Remove the password and try again.",
+        )
+
+    async def pdf_damaged(request: Request, exc: Exception):
+        return _error_page_response(
+            request,
+            status.HTTP_400_BAD_REQUEST,
+            "INVALID_REQUEST",
+            "The PDF is damaged or is not a valid PDF.",
+        )
+
+    app.add_exception_handler(pikepdf.PasswordError, pdf_password)
+    app.add_exception_handler(pikepdf.PdfError, pdf_damaged)
