@@ -1,0 +1,863 @@
+/* Tool pages: heading, workbench card, upload tray, options, results.
+   Loaded after shell.css; scoped to .tool-page where it could collide
+   with the catalog's .tool-card. */
+
+/* ---------- Type ---------- */
+
+h1,
+h2,
+.hero h1 {
+    font-family: var(--font-display);
+    font-stretch: var(--font-stretch-display);
+}
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: var(--radius-full);
+    font: 600 0.9375rem/1 var(--font-family);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.primary-button {
+    background: var(--color-forest);
+    color: #fff;
+    border: 1px solid var(--color-forest);
+    box-shadow: none;
+}
+
+.primary-button:hover {
+    background: var(--color-forest-2);
+    transform: none;
+}
+
+.primary-button:active {
+    transform: scale(0.98);
+}
+
+.primary-button:disabled {
+    background: var(--color-surface-strong);
+    border-color: var(--color-surface-strong);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+}
+
+.secondary-button {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-strong);
+}
+
+.secondary-button:hover {
+    border-color: var(--color-text);
+    background: var(--color-surface);
+}
+
+/* ---------- Tool page heading ---------- */
+
+.tool-page .hero {
+    padding: clamp(40px, 6vw, 72px) 0 var(--space-12);
+}
+
+.tool-page .hero-content {
+    max-width: 780px;
+    margin-bottom: var(--space-10);
+}
+
+.tool-page .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: var(--space-5);
+    padding: 0;
+    background: none;
+    border: 0;
+    font: 500 0.8125rem/1 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+}
+
+.tool-page .eyebrow::before {
+    content: "";
+    width: 18px;
+    height: 2px;
+    background: var(--color-forest);
+}
+
+.tool-page .hero h1 {
+    margin: 0 0 var(--space-5);
+    font-weight: 800;
+    font-size: clamp(2.25rem, 5.2vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--color-forest);
+    text-wrap: balance;
+}
+
+.tool-page .hero-description {
+    max-width: 60ch;
+    margin: 0;
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text-secondary);
+}
+
+/* ---------- Workbench card ---------- */
+
+.tool-page section.tool-card {
+    display: block;
+    padding: clamp(18px, 3vw, 32px);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 0 rgba(17, 32, 10, 0.03), 0 24px 60px -30px rgba(17, 32, 10, 0.18);
+    transform: none;
+}
+
+.tool-page section.tool-card:hover {
+    transform: none;
+    box-shadow: 0 1px 0 rgba(17, 32, 10, 0.03), 0 24px 60px -30px rgba(17, 32, 10, 0.18);
+    border-color: var(--color-border);
+}
+
+/* Two columns when the tool takes files: the file on the left, the
+   settings and the action on the right. */
+@media (min-width: 960px) {
+    .tool-page section.tool-card:has(> #tool-upload.upload) {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        grid-template-areas:
+            "notice notice"
+            "upload options"
+            "upload run"
+            "status status"
+            "error error"
+            "results results";
+        grid-template-rows: auto auto 1fr auto auto auto;
+        column-gap: clamp(20px, 3vw, 40px);
+        align-items: start;
+    }
+
+    .tool-card:has(> #tool-upload.upload) > * {
+        grid-column: 1 / -1;
+    }
+
+    .tool-card:has(> #tool-upload.upload) > #tool-unavailable { grid-area: notice; }
+    .tool-card:has(> #tool-upload.upload) > #tool-upload { grid-area: upload; }
+    .tool-card:has(> #tool-upload.upload) > #tool-options { grid-area: options; }
+    .tool-card:has(> #tool-upload.upload) > #tool-run { grid-area: run; align-self: start; }
+    .tool-card:has(> #tool-upload.upload) > #tool-processing { grid-area: status; }
+    .tool-card:has(> #tool-upload.upload) > #tool-error { grid-area: error; }
+    .tool-card:has(> #tool-upload.upload) > #tool-results { grid-area: results; }
+
+    .tool-card:has(> #tool-upload.upload) > #tool-options {
+        margin-top: 0;
+        padding: 0;
+        border: 0;
+    }
+}
+
+.tool-page #tool-run {
+    width: 100%;
+    min-height: 54px;
+    margin-top: var(--space-6);
+    font-size: 1rem;
+}
+
+.tool-page #tool-run.is-busy {
+    cursor: progress;
+}
+
+#tool-unavailable:not(.hidden) {
+    display: block;
+    margin-bottom: var(--space-6);
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+    border: 1px solid color-mix(in srgb, var(--color-warning) 25%, transparent);
+    font-size: var(--font-size-sm);
+}
+
+/* ---------- Upload ---------- */
+
+.upload {
+    position: relative;
+    display: grid;
+    gap: var(--space-4);
+}
+
+.upload-drop {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-6);
+    min-height: 300px;
+    padding: var(--space-10) var(--space-6);
+    border-radius: var(--radius-lg);
+    border: 1.5px dashed var(--color-border-strong);
+    background:
+        radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--color-forest) 13%, transparent) 1px, transparent 0) 0 0 / 18px 18px,
+        var(--color-background);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.upload-drop:hover {
+    border-color: var(--color-forest);
+}
+
+.upload.is-dragging .upload-drop {
+    border-style: solid;
+    border-color: var(--color-forest);
+    background-color: var(--color-primary-soft);
+}
+
+.upload.has-files .upload-drop {
+    min-height: 0;
+    flex-direction: row;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    text-align: left;
+}
+
+.upload.has-files .upload-sheets,
+.upload.has-files .upload-hint {
+    display: none;
+}
+
+.upload.has-files .upload-title {
+    font-size: 1rem;
+}
+
+/* A little stack of file sheets, labelled with the formats this tool takes. */
+.upload-sheets {
+    position: relative;
+    width: 96px;
+    height: 112px;
+}
+
+.upload-sheet {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 14px;
+    border-radius: 8px 22px 8px 8px;
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-forest);
+    font: 700 0.8125rem/1 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--color-forest);
+    transform: translateX(calc((var(--i) - 1) * 16px)) rotate(calc((var(--i) - 1) * 7deg));
+    transition: transform var(--transition-normal);
+    box-shadow: 0 6px 16px -8px rgba(17, 32, 10, 0.35);
+}
+
+.upload-sheet:last-child {
+    background: var(--color-lime);
+}
+
+.upload-sheet::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    left: 14px;
+    right: 26px;
+    height: 34px;
+    background:
+        linear-gradient(currentColor, currentColor) 0 0 / 70% 3px no-repeat,
+        linear-gradient(currentColor, currentColor) 0 11px / 100% 3px no-repeat,
+        linear-gradient(currentColor, currentColor) 0 22px / 55% 3px no-repeat;
+    opacity: 0.25;
+}
+
+.upload-drop:hover .upload-sheet,
+.upload.is-dragging .upload-sheet {
+    transform: translateX(calc((var(--i) - 1) * 26px)) translateY(-6px) rotate(calc((var(--i) - 1) * 11deg));
+}
+
+.upload-copy {
+    display: grid;
+    gap: 8px;
+}
+
+.upload-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: var(--font-stretch-display);
+    font-weight: 800;
+    font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+    letter-spacing: -0.02em;
+    color: var(--color-forest);
+}
+
+.upload-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 12px;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.upload.has-files .upload-sub {
+    justify-content: flex-start;
+}
+
+.upload-browse {
+    font-weight: 600;
+    color: var(--color-forest);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-lime);
+    text-underline-offset: 4px;
+    cursor: pointer;
+}
+
+.upload-browse:hover {
+    text-decoration-color: var(--color-forest);
+}
+
+.upload input[type="file"]:focus-visible + *,
+.upload:has(input[type="file"]:focus-visible) .upload-drop {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 3px;
+}
+
+.upload-hint {
+    margin: 4px 0 0;
+    font: 400 0.8125rem/1.4 var(--font-mono);
+    color: var(--color-text-muted);
+}
+
+.upload.is-disabled {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.upload.is-nudged .upload-drop {
+    animation: upload-nudge 420ms ease;
+    border-color: var(--color-danger);
+}
+
+@keyframes upload-nudge {
+    0%, 100% { transform: none; }
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-3px); }
+}
+
+/* Tray of chosen files */
+
+.upload-tray {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.upload-list {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 360px;
+    overflow: auto;
+}
+
+.upload-item {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 8px 8px 8px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    animation: upload-in 200ms var(--ease-out-quad);
+}
+
+@keyframes upload-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+
+.upload-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    background:
+        repeating-conic-gradient(#e7eadf 0 25%, #fff 0 50%) 0 0 / 12px 12px;
+}
+
+.upload-thumb-ext,
+.result-thumb-ext {
+    display: grid;
+    place-items: center;
+    background: var(--color-primary-soft);
+    color: var(--color-forest);
+    font: 700 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.04em;
+}
+
+.upload-item-text {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.upload-item-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.upload-item-meta {
+    font: 400 0.8125rem/1 var(--font-mono);
+    color: var(--color-text-muted);
+}
+
+.upload-item-actions {
+    display: flex;
+    gap: 2px;
+}
+
+.upload-icon-button {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: none;
+    color: var(--color-text-secondary);
+    font-size: 0.9375rem;
+    cursor: pointer;
+}
+
+.upload-icon-button:hover:not(:disabled) {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+}
+
+.upload-icon-button[data-action="remove"]:hover {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+
+.upload-icon-button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.upload-tray-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding: 0 4px;
+}
+
+.upload-total {
+    font: 400 0.8125rem/1 var(--font-mono);
+    color: var(--color-text-muted);
+}
+
+.upload-tray-actions {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.upload-action {
+    padding: 0;
+    background: none;
+    font: 600 0.875rem/1 var(--font-family);
+    color: var(--color-forest);
+    cursor: pointer;
+}
+
+.upload-action:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.upload-error:not(.hidden),
+.error-message:not(.hidden) {
+    display: block;
+    padding: 12px 14px 12px 40px;
+    border-radius: var(--radius-md);
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='9' fill='%23b3261e'/%3E%3Cpath d='M10 5v6' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='14.5' r='1.2' fill='white'/%3E%3C/svg%3E") 14px 13px / 16px 16px no-repeat,
+        var(--color-danger-soft);
+    color: var(--color-danger);
+    border: 1px solid color-mix(in srgb, var(--color-danger) 22%, transparent);
+    font-size: var(--font-size-sm);
+    line-height: 1.45;
+}
+
+.tool-page #tool-error:not(.hidden) {
+    margin-top: var(--space-4);
+}
+
+/* ---------- Options ---------- */
+
+.tool-page .tool-options {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+}
+
+.tool-page .option-row {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+}
+
+.tool-page .option-field {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+}
+
+.tool-page .option-field > label:first-child,
+.tool-page .option-field > .option-label {
+    font: 600 0.875rem/1.2 var(--font-family);
+    color: var(--color-text);
+}
+
+.tool-page .option-field small,
+.tool-page .file-hint {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+}
+
+.tool-page .select-input,
+.tool-page input[type="text"],
+.tool-page input[type="number"],
+.tool-page input[type="url"],
+.tool-page input[type="password"],
+.tool-page input[type="search"],
+.tool-page textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-strong);
+    background-color: var(--color-surface);
+    font: 400 0.9375rem/1.4 var(--font-family);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.tool-page textarea,
+.tool-page .code-output {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+}
+
+.tool-page .select-input:hover,
+.tool-page input:hover,
+.tool-page textarea:hover {
+    border-color: var(--color-text-muted);
+}
+
+.tool-page .select-input:focus,
+.tool-page input:focus,
+.tool-page textarea:focus {
+    outline: none;
+    border-color: var(--color-forest);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-lime) 55%, transparent);
+}
+
+.tool-page input[type="range"] {
+    accent-color: var(--color-forest);
+}
+
+.toggle input:checked + .toggle-track {
+    background: var(--color-forest);
+}
+
+/* ---------- Processing ---------- */
+
+.tool-page #tool-processing:not(.hidden) {
+    margin-top: var(--space-5);
+}
+
+.processing {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: 16px 18px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-soft);
+    border: 1px solid color-mix(in srgb, var(--color-forest) 16%, transparent);
+    min-height: 0;
+    text-align: left;
+}
+
+.processing-bar {
+    position: relative;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid color-mix(in srgb, var(--color-forest) 18%, transparent);
+    border-top-color: var(--color-forest);
+    animation: processing-spin 800ms linear infinite;
+}
+
+@keyframes processing-spin {
+    to { transform: rotate(360deg); }
+}
+
+.processing-text {
+    display: grid;
+    gap: 2px;
+}
+
+.processing-title {
+    margin: 0;
+    font-weight: 700;
+    color: var(--color-forest);
+}
+
+.processing .processing-message {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ---------- Results ---------- */
+
+.tool-page #tool-results.is-ready:not(:empty) {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+    animation: upload-in 260ms var(--ease-out-quad);
+}
+
+.result-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.result-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: var(--font-stretch-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    color: var(--color-forest);
+}
+
+.result-title::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.5 11.5l3 3 6-6.5' fill='none' stroke='%23163300' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px no-repeat,
+        var(--color-lime);
+}
+
+.result-reset {
+    padding: 0;
+    background: none;
+    font: 600 0.875rem/1 var(--font-family);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.result-reset:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.result-preview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+}
+
+@media (min-width: 760px) {
+    .result-preview {
+        grid-template-columns: minmax(0, 1.3fr) minmax(240px, 1fr);
+        align-items: center;
+    }
+}
+
+.result-frame {
+    display: grid;
+    place-items: center;
+    min-height: 220px;
+    max-height: 460px;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: repeating-conic-gradient(#eef0e8 0 25%, #fff 0 50%) 0 0 / 20px 20px;
+    overflow: hidden;
+}
+
+.result-frame img {
+    max-width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.result-body {
+    display: grid;
+    gap: 8px;
+}
+
+.result-name {
+    font-weight: 700;
+    font-size: var(--font-size-md);
+    word-break: break-all;
+}
+
+.result-meta {
+    font: 400 0.875rem/1.4 var(--font-mono);
+    color: var(--color-text-secondary);
+}
+
+.result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.completed-file.result-card,
+.tool-page .completed-file {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 10px 10px 10px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: none;
+    transform: none;
+}
+
+.tool-page .completed-file + .completed-file {
+    margin-top: 8px;
+}
+
+.result-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.completed-file-info {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.completed-file-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+
+.completed-file-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font: 400 0.8125rem/1.3 var(--font-mono);
+    color: var(--color-text-muted);
+}
+
+.result-badge {
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-muted);
+    color: var(--color-text-secondary);
+    font: 600 0.75rem/1.4 var(--font-mono);
+}
+
+.result-badge[data-tone="good"] {
+    background: var(--color-lime);
+    color: var(--color-forest);
+}
+
+.completed-file-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: var(--radius-full);
+    background: var(--color-forest);
+    color: #fff;
+    font: 600 0.875rem/1 var(--font-family);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.completed-file-download:hover {
+    background: var(--color-forest-2);
+}
+
+@media (max-width: 560px) {
+    .upload-drop {
+        min-height: 240px;
+        padding: var(--space-8) var(--space-4);
+    }
+
+    .upload-or {
+        display: none;
+    }
+
+    .completed-file.result-card,
+    .tool-page .completed-file {
+        grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    .completed-file-download {
+        grid-column: 1 / -1;
+    }
+
+    .result-thumb {
+        width: 44px;
+        height: 44px;
+    }
+}

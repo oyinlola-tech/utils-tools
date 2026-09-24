@@ -79,3 +79,36 @@ export function runRegex({ pattern, flags, text, replacement = null, limit = 100
     }
     return { ...found, replaced };
 }
+
+/** Names of capture groups by position (null for unnamed), read from the pattern source. */
+export function captureGroupNames(pattern) {
+    const names = [];
+    let inClass = false;
+    for (let i = 0; i < pattern.length; i += 1) {
+        const char = pattern[i];
+        if (char === "\\") {
+            i += 1;
+            continue;
+        }
+        if (inClass) {
+            if (char === "]") inClass = false;
+            continue;
+        }
+        if (char === "[") {
+            inClass = true;
+            continue;
+        }
+        if (char !== "(") {
+            continue;
+        }
+        if (pattern[i + 1] !== "?") {
+            names.push(null);
+            continue;
+        }
+        if (pattern[i + 2] === "<" && pattern[i + 3] !== "=" && pattern[i + 3] !== "!") {
+            const end = pattern.indexOf(">", i + 3);
+            names.push(end > 0 ? pattern.slice(i + 3, end) : null);
+        }
+    }
+    return names;
+}

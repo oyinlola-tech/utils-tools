@@ -1,7 +1,60 @@
 """Helpers for the video downloader tool (yt-dlp access, formatting)."""
 
+import ipaddress
 import shutil
+import socket
 from typing import Any, Dict
+from urllib.parse import urlsplit
+
+from app.core.exceptions import ProcessingError
+
+_BLOCKED_HOSTNAMES = {"localhost", "localhost.localdomain", "ip6-localhost"}
+
+
+def validate_public_url(url: str) -> str:
+    """Reject URLs that would make the server fetch internal resources.
+
+    yt-dlp's generic extractor downloads whatever a URL points to, so
+    without this check ``file://``, ``http://127.0.0.1:...`` or cloud
+    metadata endpoints (169.254.169.254) could be fetched and handed back
+    to the requester. Only http(s) URLs whose host resolves exclusively
+    to public addresses are allowed. (Redirects performed by yt-dlp are
+    not re-checked; this blocks the direct cases.)
+    """
+    url = (url or "").strip()
+    try:
+        parts = urlsplit(url)
+    except ValueError as error:
+        raise ProcessingError("Enter a valid http(s) video link.") from error
+    if parts.scheme.lower() not in {"http", "https"} or not parts.hostname:
+        raise ProcessingError("Enter a valid http(s) video link.")
+    host = parts.hostname.strip("[]").lower().rstrip(".")
+    if host in _BLOCKED_HOSTNAMES or host.endswith(".localhost"):
+        raise ProcessingError("Links to local or private addresses are not allowed.")
+    try:
+        literal = ipaddress.ip_address(host)
+    except ValueError:
+        literal = None
+    if literal is not None:
+        addresses = [literal]
+    else:
+        try:
+            infos = socket.getaddrinfo(host, parts.port or None, proto=socket.IPPROTO_TCP)
+        except (socket.gaierror, UnicodeError, OSError):
+            # Unresolvable here means yt-dlp cannot reach it either; let
+            # it produce its own "could not resolve" error.
+            return url
+        addresses = []
+        for info in infos:
+            try:
+                addresses.append(ipaddress.ip_address(info[4][0].split("%", 1)[0]))
+            except ValueError:
+                continue
+    for address in addresses:
+        mapped = getattr(address, "ipv4_mapped", None) or address
+        if not mapped.is_global or mapped.is_multicast:
+            raise ProcessingError("Links to local or private addresses are not allowed.")
+    return url
 
 
 def _get_yt_dlp():
