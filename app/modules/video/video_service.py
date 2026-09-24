@@ -122,6 +122,14 @@ class VideoDownloaderService:
             except yt_dlp.utils.DownloadError as exc:
                 if selected == "best":
                     tool_logger.warning("yt-dlp download error for URL %s: %s", url, str(exc))
+                    if "Requested format is not available" in str(exc) and not ffmpeg_available():
+                        # Sites like YouTube only serve separate audio and
+                        # video streams, which need ffmpeg to merge.
+                        raise ProcessingError(
+                            "This site only offers separate audio and video "
+                            "streams, and ffmpeg is not installed on the server "
+                            "to merge them. Try the MP3 format, or install ffmpeg."
+                        )
                     raise ProcessingError(f"Video download failed: {exc!s}")
                 tool_logger.info(
                     "format '%s' failed (%s); retrying with best", selected, exc
