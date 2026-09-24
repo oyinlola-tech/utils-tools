@@ -310,6 +310,374 @@ kbd {
     color: var(--color-text-muted);
 }
 
+/* ---------- Nav: gliding indicator, count badge, home state ---------- */
+
+.shell-nav {
+    position: relative;
+}
+
+.shell-nav-link {
+    position: relative;
+    z-index: 1;
+    height: 36px;
+    padding: 0 14px;
+}
+
+.shell-nav-indicator {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 0;
+    height: 36px;
+    margin-top: -18px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-muted);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform 280ms cubic-bezier(0.3, 0.7, 0.2, 1),
+        width 280ms cubic-bezier(0.3, 0.7, 0.2, 1),
+        opacity 160ms ease,
+        background-color 160ms ease;
+}
+
+.shell-nav-indicator.is-current {
+    background: var(--color-primary-soft);
+}
+
+.shell-nav.has-indicator .shell-nav-link,
+.shell-nav.has-indicator .shell-nav-link:hover,
+.shell-nav.has-indicator .shell-nav-link[aria-expanded="true"],
+.shell-nav.has-indicator .shell-nav-link[aria-current="page"],
+.shell-nav.has-indicator .shell-nav-link.is-current {
+    background: transparent;
+}
+
+.shell-nav.has-indicator .shell-nav-link:hover,
+.shell-nav.has-indicator .shell-nav-link[aria-expanded="true"] {
+    color: var(--color-text);
+}
+
+.shell-tools-count {
+    padding: 3px 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-forest);
+    color: var(--color-lime);
+    font: 600 0.6875rem/1 var(--font-mono);
+}
+
+.shell-tools-count:empty {
+    display: none;
+}
+
+/* On the home page the bar sits on the hero until you scroll or open it. */
+.shell-header.is-home:not(.is-scrolled):not(.is-open) .shell-bar {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Invisible bridge over the gap between bar and menu, so moving the
+   pointer down never closes a hover-opened menu. */
+.shell-header.is-open::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 12px;
+}
+
+/* ---------- Mega menu: category rail, tool panel, promo ---------- */
+
+.shell-mega-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) 250px;
+    height: min(500px, calc(100vh - 190px));
+    margin: calc(var(--space-6) * -1) calc(var(--space-6) * -1) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.shell-mega:has(.shell-mega-layout) {
+    overflow: hidden;
+}
+
+.shell-mega-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 16px 12px;
+    border-right: 1px solid var(--color-border);
+    background: var(--color-background);
+    overflow-y: auto;
+}
+
+.shell-mega-rail [role="tab"] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font: 600 0.9375rem/1.2 var(--font-family);
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.shell-mega-rail [role="tab"]:hover {
+    color: var(--color-text);
+    background: var(--color-surface-muted);
+}
+
+.shell-mega-rail [role="tab"][aria-selected="true"] {
+    color: var(--color-forest);
+    background: var(--color-surface);
+    box-shadow: 0 1px 2px rgba(17, 32, 10, 0.08), inset 0 0 0 1px var(--color-border);
+}
+
+.shell-mega-rail-name {
+    flex: 1;
+}
+
+.shell-mega-rail-count {
+    font: 500 0.75rem/1 var(--font-mono);
+    color: var(--color-text-muted);
+}
+
+.shell-mega-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 18px 20px 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.shell-mega-panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: 12px;
+    padding: 0 10px 12px;
+    border-bottom: 2px solid var(--tag, var(--color-border));
+}
+
+.shell-mega-panel-head p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.shell-mega-panel-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    font: 600 0.8125rem/1 var(--font-family);
+    color: var(--color-forest);
+    text-decoration: none;
+}
+
+.shell-mega-panel-all:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.shell-mega-panel-all .fa-solid {
+    font-size: 0.75em;
+}
+
+.shell-mega-items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    animation: shell-panel-in 180ms ease;
+}
+
+@keyframes shell-panel-in {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: none; }
+}
+
+.shell-mega-item {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+    border-radius: var(--radius-md);
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+}
+
+.shell-mega-item:hover,
+.shell-mega-item:focus-visible {
+    background: var(--color-surface-muted);
+}
+
+.shell-mega-item[aria-current="page"] {
+    background: var(--color-primary-soft);
+}
+
+.shell-mega-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--tag, var(--color-forest)) 11%, white);
+    color: var(--tag, var(--color-forest));
+    font-size: 0.9375rem;
+    transition: transform var(--transition-fast);
+}
+
+.shell-mega-item:hover .shell-mega-icon {
+    transform: scale(1.06);
+}
+
+.shell-mega-text {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.shell-mega-name {
+    font: 600 0.9375rem/1.25 var(--font-family);
+    color: var(--color-text);
+}
+
+.shell-mega-desc {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--color-text-muted);
+}
+
+.shell-mega-promo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 12px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    background: var(--color-forest);
+    color: #dce8cf;
+    overflow-y: auto;
+}
+
+.shell-mega-promo-kicker {
+    margin: 0;
+    font: 500 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+}
+
+.shell-mega-promo-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: var(--font-stretch-display);
+    font-weight: 800;
+    font-size: 1.125rem;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: #fff;
+}
+
+.shell-mega-promo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    padding: 8px 14px;
+    border-radius: var(--radius-full);
+    background: var(--color-lime);
+    color: var(--color-forest);
+    font: 600 0.8125rem/1 var(--font-family);
+    text-decoration: none;
+}
+
+.shell-mega-promo-link:hover {
+    background: #b6f08f;
+}
+
+.shell-mega-popular {
+    display: grid;
+    gap: 2px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(220, 232, 207, 0.16);
+}
+
+.shell-mega-popular p {
+    margin: 0 0 6px;
+    font: 500 0.6875rem/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #a9bb97;
+}
+
+.shell-mega-popular a {
+    padding: 4px 0;
+    font-size: 0.875rem;
+    color: #dce8cf;
+    text-decoration: none;
+}
+
+.shell-mega-popular a:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.shell-mega-promo :focus-visible {
+    outline-color: var(--color-lime);
+}
+
+@media (min-width: 861px) {
+    .shell-mega-grid {
+        display: none;
+    }
+
+    .shell-mega-foot {
+        margin-top: 0;
+        padding-top: 14px;
+        border-top: 0;
+    }
+}
+
+@media (max-width: 1100px) and (min-width: 861px) {
+    .shell-mega-layout {
+        grid-template-columns: 200px minmax(0, 1fr);
+    }
+
+    .shell-mega-promo {
+        display: none;
+    }
+}
+
+@media (max-width: 860px) {
+    .shell-mega-layout {
+        display: none;
+    }
+
+    .shell-header.is-open::after {
+        display: none;
+    }
+}
+
 /* ---------- Search palette ---------- */
 
 .shell-palette {
