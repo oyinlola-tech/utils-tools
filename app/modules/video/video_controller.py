@@ -6,14 +6,40 @@ from typing import Any, Dict
 from urllib.parse import quote
 
 from fastapi import HTTPException, Request
-from fastapi.responses import FileResponse
 
-from app.core.config import settings
 from app.core.exceptions import ProcessingError
+from app.infrastructure.storage import storage
 from app.modules.video.video_schema import VideoDownloadRequest, VideoInfoRequest
 from app.modules.video.video_service import video_downloader_service
+from app.shared.utils.download_util import download_response
+from app.shared.utils.file_util import resolve_safe_path, unique_filename
 
 logger = logging.getLogger(__name__)
+
+_MEDIA_TYPES = {
+    ".mp4": "video/mp4",
+    ".webm": "video/webm",
+    ".mkv": "video/x-matroska",
+    ".mp3": "audio/mpeg",
+    ".m4a": "audio/mp4",
+}
+
+
+def _persist_download(file_path: Path) -> Path:
+    """Move a finished download from temp into shared output storage.
+
+    Files left in the temp dir were only reachable from the instance
+    that downloaded them and were never cleaned up.
+    """
+    output_path = resolve_safe_path(
+        storage.processed_path,
+        unique_filename(file_path.name),
+    )
+    try:
+        storage.save(file_path, output_path)
+    finally:
+        file_path.unlink(missing_ok=True)
+    return output_path
 
 
 class VideoDownloaderController:
@@ -48,18 +74,18 @@ class VideoDownloaderController:
                 quality_choice=body.quality,
             )
 
-            file_size = file_path.stat().st_size if file_path.exists() else 0
-            filename = file_path.name
+            output_path = _persist_download(file_path)
+            filename = output_path.name
 
             return {
                 "success": True,
                 "filename": filename,
-                "size_bytes": file_size,
-                "download_url": str(
-                    request.url_for(
-                        "download_video_file",
-                        filename=quote(filename, safe=""),
-                    )
+                "size_bytes": output_path.stat().st_size,
+                # Relative, like every other tool: an absolute URL built
+                # from the request uses http:// behind Vercel's TLS proxy,
+                # which browsers block as mixed content.
+                "download_url": (
+                    f"/api/v1/tools/video/download/{quote(filename, safe='')}"
                 ),
             }
         except ProcessingError as exc:
@@ -68,18 +94,18 @@ class VideoDownloaderController:
             logger.error("Controller error in download: %s", str(exc))
             raise HTTPException(status_code=500, detail="Failed to process video download.")
 
-    def serve_file(self, filename: str) -> FileResponse:
+    def serve_file(self, filename: str):
         """Serve downloaded video or audio file for client download."""
-        download_dir = Path(settings.temp_directory)
-        file_path = download_dir / filename
+        file_path = storage.materialize(
+            resolve_safe_path(storage.processed_path, filename)
+        )
 
-        if not file_path.exists() or not file_path.is_file():
+        if not file_path.is_file():
             raise HTTPException(status_code=404, detail="File not found or expired.")
 
-        return FileResponse(
-            path=file_path,
-            filename=filename,
-            media_type="application/octet-stream",
+        return download_response(
+            file_path,
+            _MEDIA_TYPES.get(file_path.suffix.lower(), "application/octet-stream"),
         )
 
 

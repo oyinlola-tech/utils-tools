@@ -81,7 +81,26 @@ def select_format(
     when ffmpeg is present.
     """
     if format_choice in ("mp3", "m4a"):
-        return {"format": "bestaudio/best"}
+        # Without a postprocessor "mp3" silently produced .webm/.m4a
+        # audio. Convert when ffmpeg is available; otherwise prefer a
+        # native file of the requested type.
+        if ffmpeg:
+            return {
+                "format": "bestaudio/best",
+                "postprocessors": [
+                    {
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": format_choice,
+                        "preferredquality": "192",
+                    }
+                ],
+            }
+        return {
+            "format": (
+                f"bestaudio[ext={format_choice}]/bestaudio[ext=m4a]"
+                "/bestaudio/best"
+            )
+        }
 
     height = quality_choice[:-1] if quality_choice.endswith("p") else ""
     if height.isdigit():

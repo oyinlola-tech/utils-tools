@@ -6,8 +6,8 @@ from app.core.capabilities import (
 )
 
 
-def test_registry_contains_all_40_tools():
-    assert len(capability_registry.tools) == 40
+def test_registry_contains_all_52_tools():
+    assert len(capability_registry.tools) == 52
 
 
 def test_all_tools_have_unique_ids():
@@ -92,3 +92,47 @@ def test_system_capabilities_never_include_tokens():
     system = capability_registry.system_capabilities()
     assert "token" not in system
     assert "BLOB" not in " ".join(system.keys())
+
+
+CLIENT_ONLY_DEV_TOOLS = {
+    "uuid-generator",
+    "hash-generator",
+    "base64-encoder",
+    "url-encoder",
+    "timestamp-converter",
+    "regex-tester",
+    "color-converter",
+    "password-generator",
+    "cron-parser",
+    "html-entities",
+    "number-base-converter",
+    "lorem-ipsum",
+}
+
+
+def test_client_only_dev_tools_run_everywhere(monkeypatch):
+    for tool_id in CLIENT_ONLY_DEV_TOOLS:
+        tool = capability_registry.get(tool_id)
+        assert tool is not None, tool_id
+        assert tool.client_only, tool_id
+        assert tool.requires_module is None, tool_id
+        assert tool.requires_binary is None, tool_id
+        assert set(tool.environments) == {"local", VERCEL_DRIVER}, tool_id
+
+    monkeypatch.setattr(capability_registry, "driver", VERCEL_DRIVER)
+    effective = {
+        tool["id"]: tool for tool in capability_registry.effective_tools()
+    }
+    for tool_id in CLIENT_ONLY_DEV_TOOLS:
+        assert effective[tool_id]["status"] == "available", tool_id
+
+
+def test_client_only_dev_tools_ship_page_and_script():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2] / "frontend"
+    for tool_id in CLIENT_ONLY_DEV_TOOLS:
+        assert (root / "pages" / f"{tool_id}.html").is_file(), tool_id
+        assert (
+            root / "assets" / "js" / "pages" / f"{tool_id}.js"
+        ).is_file(), tool_id

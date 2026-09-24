@@ -554,6 +554,163 @@ class CapabilityRegistry:
                 status="available",
                 environments=(LOCAL_DRIVER, VERCEL_DRIVER),
             ),
+            # --- Client-only developer tools (no backend route) ---
+            Tool(
+                id="uuid-generator",
+                client_only=True,
+                name="UUID & ULID Generator",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Generate UUID v4, time-ordered UUID v7 and ULID "
+                    "identifiers in bulk."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="hash-generator",
+                client_only=True,
+                name="Hash Generator",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "MD5, SHA-1, SHA-256, SHA-384 and SHA-512 hashes "
+                    "and HMACs of text or files."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser; files are never uploaded.",
+            ),
+            Tool(
+                id="base64-encoder",
+                client_only=True,
+                name="Base64 Encoder & Decoder",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Encode or decode Base64 and URL-safe Base64url "
+                    "text with full UTF-8 support."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="url-encoder",
+                client_only=True,
+                name="URL Encoder, Decoder & Parser",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Percent-encode or decode URL text and break URLs "
+                    "into parts and query parameters."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="timestamp-converter",
+                client_only=True,
+                name="Unix Timestamp Converter",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Convert Unix timestamps to dates and back in any "
+                    "time zone, with seconds/milliseconds auto-detect."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="regex-tester",
+                client_only=True,
+                name="Regex Tester",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Test JavaScript regular expressions with live "
+                    "highlighting, capture groups and replace preview."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="color-converter",
+                client_only=True,
+                name="Color Converter & Contrast Checker",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Convert HEX, RGB, HSL, HWB and OKLCH colors and "
+                    "check WCAG contrast ratios."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="password-generator",
+                client_only=True,
+                name="Password Generator",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Create strong random passwords or memorable "
+                    "passphrases with a strength meter."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="cron-parser",
+                client_only=True,
+                name="Cron Expression Parser",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Explain cron schedules in plain English and list "
+                    "the next run times."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="html-entities",
+                client_only=True,
+                name="HTML Entity Encoder & Decoder",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Escape text for HTML or decode named and numeric "
+                    "character references."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="number-base-converter",
+                client_only=True,
+                name="Number Base Converter",
+                category=CATEGORY_DEVELOPER,
+                description=(
+                    "Convert integers between binary, octal, decimal, "
+                    "hex and any base up to 36."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
+            Tool(
+                id="lorem-ipsum",
+                client_only=True,
+                name="Lorem Ipsum Generator",
+                category=CATEGORY_TEXT,
+                description=(
+                    "Generate placeholder paragraphs, sentences or "
+                    "words as plain text or HTML."
+                ),
+                status="available",
+                environments=(LOCAL_DRIVER, VERCEL_DRIVER),
+                notes="Runs entirely in the browser.",
+            ),
         )
 
     @property

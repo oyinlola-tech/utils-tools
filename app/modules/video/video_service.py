@@ -6,14 +6,15 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict
 
-from app.core.config import settings
 from app.core.exceptions import ProcessingError
 from app.core.logging import get_tool_logger
+from app.infrastructure.storage import storage
 from app.modules.video.video_utils import (
     _get_yt_dlp,
     ffmpeg_available,
     format_duration,
     select_format,
+    validate_public_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ class VideoDownloaderService:
         """Fetch video metadata and available qualities without downloading."""
         tool_logger = get_tool_logger("video-downloader")
         started = time.monotonic()
+        url = validate_public_url(url)
         yt_dlp = _get_yt_dlp()
         ydl_opts = {
             "quiet": True,
@@ -87,8 +89,11 @@ class VideoDownloaderService:
         """Download video/audio to local storage and return the output file path."""
         tool_logger = get_tool_logger("video-downloader")
         started = time.monotonic()
+        url = validate_public_url(url)
         yt_dlp = _get_yt_dlp()
-        download_dir = Path(settings.temp_directory)
+        # storage.temp_path is writable on every driver (/tmp on Vercel);
+        # the old settings.temp_directory is read-only there.
+        download_dir = Path(storage.temp_path)
         download_dir.mkdir(parents=True, exist_ok=True)
 
         job_id = uuid.uuid4().hex[:8]
@@ -99,6 +104,10 @@ class VideoDownloaderService:
             "quiet": True,
             "no_warnings": True,
             "noplaylist": True,
+            # ASCII-only, bounded names: raw titles can exceed the
+            # 255-byte filename limit or break download headers.
+            "restrictfilenames": True,
+            "trim_file_name": 80,
         }
         base_opts.update(select_format(format_choice, quality_choice, ffmpeg_available()))
 
@@ -157,12 +166,23 @@ class VideoDownloaderService:
         ydl: Any,
         info: Dict[str, Any],
     ) -> Path:
+        # After audio extraction the file on disk has a different
+        # extension from prepare_filename(); prefer the final file.
+        requested = info.get("requested_downloads") or []
+        for item in requested:
+            candidate = item.get("filepath") or item.get("_filename")
+            if candidate and Path(candidate).exists():
+                return Path(candidate)
         downloaded_path = Path(ydl.prepare_filename(info))
         if downloaded_path.exists():
             return downloaded_path
-        matches = list(download_dir.glob(f"video_{job_id}_*"))
+        matches = [
+            path
+            for path in download_dir.glob(f"video_{job_id}_*")
+            if path.suffix not in {".part", ".ytdl", ".temp"}
+        ]
         if matches:
-            return matches[0]
+            return max(matches, key=lambda path: path.stat().st_mtime)
         raise ProcessingError("Downloaded file not found after processing.")
 
 

@@ -29,6 +29,18 @@ const TOOL_ICONS = {
     "barcode-generator": "barcode",
     "social-media-resizer": "share-nodes",
     "screenshot-beautifier": "window-restore",
+    "uuid-generator": "fingerprint",
+    "hash-generator": "hashtag",
+    "base64-encoder": "file-code",
+    "url-encoder": "link",
+    "timestamp-converter": "clock",
+    "regex-tester": "asterisk",
+    "color-converter": "eye-dropper",
+    "password-generator": "key",
+    "cron-parser": "calendar-days",
+    "html-entities": "code",
+    "number-base-converter": "calculator",
+    "lorem-ipsum": "paragraph",
 };
 
 const CATEGORY_ICONS = {
