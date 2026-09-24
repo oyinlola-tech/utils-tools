@@ -1,5 +1,5 @@
 import { openSupport } from "./support-popup.js";
-import { injectIcons, iconHtml, brandIconHtml } from "./icons.js";
+import { injectIcons, iconHtml, brandIconHtml, toolIconHtml } from "./icons.js";
 import {
     CATEGORY_META,
     CATEGORY_ORDER,
@@ -46,9 +46,10 @@ function renderHeader() {
 <header class="shell-header" data-shell-header>
   <div class="shell-bar">
     ${brandHtml()}
-    <nav class="shell-nav" aria-label="Main">
-      <button type="button" class="shell-nav-link shell-tools-toggle" data-shell-tools-toggle aria-expanded="false" aria-controls="shell-mega">
-        Tools ${iconHtml("chevron-down")}
+    <nav class="shell-nav" aria-label="Main" data-shell-nav>
+      <span class="shell-nav-indicator" aria-hidden="true" data-shell-nav-indicator></span>
+      <button type="button" class="shell-nav-link shell-tools-toggle" data-shell-tools-toggle aria-expanded="false" aria-controls="shell-mega" aria-haspopup="true">
+        Tools <span class="shell-tools-count" data-shell-tools-count></span> ${iconHtml("chevron-down")}
       </button>
       ${links}
     </nav>
@@ -73,9 +74,19 @@ function renderHeader() {
         <a href="/tools">All tools</a>
         ${NAV_ITEMS.map((item) => `<a href="${item.href}">${item.label}</a>`).join("")}
       </nav>
-      <div class="shell-mega-grid" data-shell-mega-grid>
-        <p class="shell-mega-loading">Loading tools…</p>
+      <div class="shell-mega-layout">
+        <div class="shell-mega-rail" role="tablist" aria-orientation="vertical" aria-label="Tool categories" data-shell-mega-rail></div>
+        <div class="shell-mega-panel" role="tabpanel" data-shell-mega-panel>
+          <p class="shell-mega-loading">Loading tools…</p>
+        </div>
+        <aside class="shell-mega-promo" aria-label="Find the right tool">
+          <p class="shell-mega-promo-kicker">Not sure which tool?</p>
+          <p class="shell-mega-promo-title">Drop your file on the home page and see every tool that fits it.</p>
+          <a href="/#hero-title" class="shell-mega-promo-link">Open the file inspector ${iconHtml("arrow-right")}</a>
+          <div class="shell-mega-popular" data-shell-mega-popular></div>
+        </aside>
       </div>
+      <div class="shell-mega-grid" data-shell-mega-grid></div>
       <div class="shell-mega-foot">
         <a href="/tools" class="shell-mega-all">Browse every tool ${iconHtml("arrow-right")}</a>
         <span class="shell-mega-hint">Tip: press <kbd>${IS_MAC ? "⌘" : "Ctrl"} K</kbd> anywhere to search.</span>
@@ -171,14 +182,94 @@ async function availableByCategory() {
     })).filter((group) => group.tools.length);
 }
 
+function currentToolId() {
+    const match = /^\/tools\/([a-z0-9-]+)$/.exec(window.location.pathname);
+    return match ? match[1] : null;
+}
+
+function categoryTitle(meta, category) {
+    return (meta ? meta.title : category).replace(/ tools$/i, "");
+}
+
+function renderMegaPanel(panel, group) {
+    const active = currentToolId();
+    const { category, meta, tools } = group;
+    panel.dataset.category = category;
+    panel.setAttribute("aria-labelledby", `mega-tab-${category}`);
+    panel.innerHTML = `
+      <div class="shell-mega-panel-head">
+        <p>${escapeHtml(meta ? meta.description : "")}</p>
+        <a href="/tools#category-${category}" class="shell-mega-panel-all">All ${tools.length} ${escapeHtml(categoryTitle(meta, category).toLowerCase())} tools ${iconHtml("arrow-right")}</a>
+      </div>
+      <ul class="shell-mega-items">
+        ${tools
+            .map(
+                (tool) => `
+        <li><a href="/tools/${encodeURIComponent(tool.id)}" class="shell-mega-item" data-category="${category}"${tool.id === active ? ' aria-current="page"' : ""}>
+          <span class="shell-mega-icon" aria-hidden="true">${toolIconHtml(tool.id)}</span>
+          <span class="shell-mega-text">
+            <span class="shell-mega-name">${escapeHtml(tool.name)}</span>
+            <span class="shell-mega-desc">${escapeHtml(tool.description)}</span>
+          </span>
+        </a></li>`
+            )
+            .join("")}
+      </ul>`;
+}
+
+let megaGroups = [];
+
+function selectMegaCategory(category, { focus = false } = {}) {
+    const rail = document.querySelector("[data-shell-mega-rail]");
+    const panel = document.querySelector("[data-shell-mega-panel]");
+    const group = megaGroups.find((item) => item.category === category);
+    if (!rail || !panel || !group) {
+        return;
+    }
+    rail.querySelectorAll("[role=tab]").forEach((tab) => {
+        const selected = tab.dataset.category === category;
+        tab.setAttribute("aria-selected", String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        if (selected && focus) {
+            tab.focus();
+        }
+    });
+    if (panel.dataset.category !== category) {
+        renderMegaPanel(panel, group);
+    }
+}
+
 async function fillMegaMenu() {
+    const rail = document.querySelector("[data-shell-mega-rail]");
+    const panel = document.querySelector("[data-shell-mega-panel]");
     const grid = document.querySelector("[data-shell-mega-grid]");
-    if (!grid) {
+    const popular = document.querySelector("[data-shell-mega-popular]");
+    if (!rail || !panel) {
         return;
     }
     try {
-        const groups = await availableByCategory();
-        grid.innerHTML = groups
+        megaGroups = await availableByCategory();
+    } catch {
+        panel.innerHTML = `<p class="shell-mega-loading">Tools could not be loaded. <a href="/tools">Open the tools page</a>.</p>`;
+        return;
+    }
+
+    rail.innerHTML = megaGroups
+        .map(
+            ({ category, meta, tools }) => `
+        <button type="button" role="tab" id="mega-tab-${category}" data-category="${category}"
+            aria-selected="false" aria-controls="shell-mega-panel" tabindex="-1">
+          ${tagHtml(category)}
+          <span class="shell-mega-rail-name">${escapeHtml(categoryTitle(meta, category))}</span>
+          <span class="shell-mega-rail-count">${tools.length}</span>
+        </button>`
+        )
+        .join("");
+    panel.id = "shell-mega-panel";
+
+    // Mobile shows every group stacked instead of the rail + panel.
+    if (grid) {
+        grid.innerHTML = megaGroups
             .map(
                 ({ category, meta, tools }) => `
           <section class="shell-mega-group" data-category="${category}">
@@ -187,22 +278,86 @@ async function fillMegaMenu() {
           </section>`
             )
             .join("");
-    } catch {
-        grid.innerHTML = `<p class="shell-mega-loading">Tools could not be loaded. <a href="/tools">Open the tools page</a>.</p>`;
     }
+
+    if (popular) {
+        const featured = megaGroups.flatMap((group) => group.tools).filter((tool) => tool.featured).slice(0, 5);
+        popular.innerHTML = featured.length
+            ? `<p>Popular</p>${featured
+                  .map((tool) => `<a href="/tools/${encodeURIComponent(tool.id)}">${escapeHtml(tool.name)}</a>`)
+                  .join("")}`
+            : "";
+    }
+
+    // Open on the category of the tool being viewed, otherwise the first.
+    const activeTool = currentToolId();
+    const start = megaGroups.find((group) => group.tools.some((tool) => tool.id === activeTool)) || megaGroups[0];
+    selectMegaCategory(start.category);
+
+    // Hovering a category switches the panel. A short delay stops a
+    // diagonal move towards the panel from flicking through categories.
+    let hoverTimer = null;
+    rail.addEventListener("pointerover", (event) => {
+        const tab = event.target.closest("[role=tab]");
+        if (!tab || event.pointerType === "touch") {
+            return;
+        }
+        clearTimeout(hoverTimer);
+        hoverTimer = setTimeout(() => selectMegaCategory(tab.dataset.category), 70);
+    });
+    rail.addEventListener("pointerleave", () => clearTimeout(hoverTimer));
+    rail.addEventListener("click", (event) => {
+        const tab = event.target.closest("[role=tab]");
+        if (tab) {
+            selectMegaCategory(tab.dataset.category);
+        }
+    });
+    rail.addEventListener("keydown", (event) => {
+        const keys = ["ArrowDown", "ArrowUp", "Home", "End"];
+        if (!keys.includes(event.key)) {
+            return;
+        }
+        event.preventDefault();
+        const tabs = Array.from(rail.querySelectorAll("[role=tab]"));
+        const current = tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true");
+        let next = current;
+        if (event.key === "ArrowDown") next = (current + 1) % tabs.length;
+        if (event.key === "ArrowUp") next = (current - 1 + tabs.length) % tabs.length;
+        if (event.key === "Home") next = 0;
+        if (event.key === "End") next = tabs.length - 1;
+        selectMegaCategory(tabs[next].dataset.category, { focus: true });
+    });
 }
 
 function setupMegaMenu() {
     const header = document.querySelector("[data-shell-header]");
     const mega = document.querySelector("[data-shell-mega]");
-    const toggles = document.querySelectorAll("[data-shell-tools-toggle], [data-shell-menu-toggle]");
+    const toolsToggle = document.querySelector("[data-shell-tools-toggle]");
     const menuToggle = document.querySelector("[data-shell-menu-toggle]");
+    const toggles = [toolsToggle, menuToggle].filter(Boolean);
     if (!header || !mega) {
         return;
     }
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
     let filled = false;
+    let openedByHover = false;
+    let openTimer = null;
+    let closeTimer = null;
 
-    const setOpen = (open) => {
+    const warm = () => {
+        if (!filled) {
+            filled = true;
+            fillMegaMenu();
+        }
+    };
+
+    const setOpen = (open, { viaHover = false } = {}) => {
+        clearTimeout(openTimer);
+        clearTimeout(closeTimer);
+        openedByHover = open && viaHover;
+        if (mega.hidden === !open) {
+            return;
+        }
         mega.hidden = !open;
         header.classList.toggle("is-open", open);
         toggles.forEach((toggle) => toggle.setAttribute("aria-expanded", String(open)));
@@ -210,18 +365,61 @@ function setupMegaMenu() {
             menuToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
             menuToggle.innerHTML = iconHtml(open ? "xmark" : "bars");
         }
-        if (open && !filled) {
-            filled = true;
-            fillMegaMenu();
+        if (open) {
+            warm();
         }
     };
 
     toggles.forEach((toggle) =>
         toggle.addEventListener("click", (event) => {
             event.stopPropagation();
+            if (toggle === toolsToggle && openedByHover && !mega.hidden) {
+                // Clicking a menu that hover already opened pins it open.
+                openedByHover = false;
+                return;
+            }
             setOpen(mega.hidden);
         })
     );
+
+    if (toolsToggle) {
+        // Hover intent: open after a short pause, close after the pointer
+        // has been gone for a moment, so passing over the bar never flickers.
+        toolsToggle.addEventListener("pointerenter", (event) => {
+            if (event.pointerType !== "mouse" || !canHover.matches) {
+                return;
+            }
+            warm();
+            clearTimeout(closeTimer);
+            if (mega.hidden) {
+                openTimer = setTimeout(() => setOpen(true, { viaHover: true }), 90);
+            }
+        });
+        toolsToggle.addEventListener("pointerleave", () => clearTimeout(openTimer));
+    }
+
+    header.addEventListener("pointerenter", () => clearTimeout(closeTimer));
+    header.addEventListener("pointerleave", (event) => {
+        if (event.pointerType === "mouse" && openedByHover) {
+            closeTimer = setTimeout(() => setOpen(false), 260);
+        }
+    });
+
+    // Hovering a sibling nav link closes a hover-opened menu, like any
+    // desktop menu bar.
+    document.querySelectorAll("[data-shell-nav-link]").forEach((link) =>
+        link.addEventListener("pointerenter", () => {
+            if (openedByHover) {
+                setOpen(false);
+            }
+        })
+    );
+
+    mega.addEventListener("click", (event) => {
+        if (event.target.closest("a")) {
+            setOpen(false);
+        }
+    });
 
     document.addEventListener("click", (event) => {
         if (!mega.hidden && !event.target.closest("[data-shell-header]")) {
@@ -232,30 +430,106 @@ function setupMegaMenu() {
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && !mega.hidden) {
             setOpen(false);
-            const toggle = window.innerWidth > 860
-                ? document.querySelector("[data-shell-tools-toggle]")
-                : menuToggle;
+            const toggle = window.innerWidth > 860 ? toolsToggle : menuToggle;
             if (toggle) {
                 toggle.focus();
             }
         }
     });
 
-    // Prefetch so the menu opens instantly.
-    const warm = () => {
-        if (!filled) {
-            filled = true;
-            fillMegaMenu();
-        }
-    };
-    const toolsToggle = document.querySelector("[data-shell-tools-toggle]");
     if (toolsToggle) {
-        toolsToggle.addEventListener("pointerenter", warm, { once: true });
+        toolsToggle.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                setOpen(true);
+                const focusRail = () => {
+                    const tab = document.querySelector("[data-shell-mega-rail] [aria-selected=true]");
+                    if (tab) {
+                        tab.focus();
+                    } else {
+                        setTimeout(focusRail, 50);
+                    }
+                };
+                focusRail();
+            }
+        });
     }
 
+    if (window.location.pathname === "/") {
+        header.classList.add("is-home");
+    }
     const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
+
+    loadCapabilities()
+        .then((data) => {
+            const count = data.tools.filter((tool) => tool.status === "available").length;
+            const badge = document.querySelector("[data-shell-tools-count]");
+            if (badge && count) {
+                badge.textContent = String(count);
+            }
+        })
+        .catch(() => {});
+}
+
+// A pill that glides to whichever top-level link is under the pointer and
+// rests on the current page's link.
+function setupNavIndicator() {
+    const nav = document.querySelector("[data-shell-nav]");
+    const indicator = document.querySelector("[data-shell-nav-indicator]");
+    if (!nav || !indicator) {
+        return;
+    }
+    const items = () => Array.from(nav.querySelectorAll(".shell-nav-link"));
+    const place = (target, instant = false) => {
+        if (!target) {
+            indicator.style.opacity = "0";
+            return;
+        }
+        if (instant) {
+            indicator.style.transition = "none";
+        }
+        indicator.style.width = `${target.offsetWidth}px`;
+        indicator.style.transform = `translateX(${target.offsetLeft}px)`;
+        indicator.style.opacity = "1";
+        indicator.classList.toggle("is-current", target.matches("[aria-current], .is-current"));
+        if (instant) {
+            void indicator.offsetWidth;
+            indicator.style.transition = "";
+        }
+    };
+    const resting = () =>
+        items().find((item) => item.matches("[aria-current], .is-current, [aria-expanded=true]")) || null;
+
+    nav.classList.add("has-indicator");
+    place(resting(), true);
+    nav.addEventListener("pointerover", (event) => {
+        const link = event.target.closest(".shell-nav-link");
+        if (link) {
+            place(link);
+        }
+    });
+    nav.addEventListener("pointerleave", () => place(resting()));
+    nav.addEventListener("focusin", (event) => {
+        const link = event.target.closest(".shell-nav-link");
+        if (link) {
+            place(link);
+        }
+    });
+    nav.addEventListener("focusout", () => place(resting()));
+    const toolsToggle = nav.querySelector("[data-shell-tools-toggle]");
+    if (toolsToggle) {
+        new MutationObserver(() => {
+            if (!nav.matches(":hover")) {
+                place(resting());
+            }
+        }).observe(toolsToggle, { attributes: true, attributeFilter: ["aria-expanded"] });
+    }
+    window.addEventListener("resize", () => place(resting(), true));
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => place(resting(), true));
+    }
 }
 
 function scoreTool(tool, words) {
@@ -446,7 +720,7 @@ async function renderFooterColumns() {
                 .slice(0, 6)
                 .map((tool) => `<a href="/tools/${encodeURIComponent(tool.id)}">${escapeHtml(tool.name)}</a>`)
                 .join("")}
-            ${tools.length > 6 ? `<a href="/tools#${category}" class="shell-footer-more">+${tools.length - 6} more</a>` : ""}
+            ${tools.length > 6 ? `<a href="/tools#category-${category}" class="shell-footer-more">+${tools.length - 6} more</a>` : ""}
           </section>`
             )
             .join("");
@@ -488,6 +762,7 @@ export function renderShell() {
 
     markCurrentNav();
     setupMegaMenu();
+    setupNavIndicator();
     setupPalette();
     setupClone();
 
