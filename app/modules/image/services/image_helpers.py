@@ -7,7 +7,7 @@ from app.infrastructure.compression.pillow_adapter import _parse_color
 from app.shared.utils.image_util import load_image
 
 SUPPORTED_CONVERSION_FORMATS = {"jpg", "png", "webp", "avif"}
-SUPPORTED_RESIZE_FORMATS = {"jpg", "png", "webp"}
+SUPPORTED_RESIZE_FORMATS = {"jpg", "png", "webp", "avif"}
 SUPPORTED_OUTPUT_FORMATS = {"auto", "jpg", "jpeg", "png", "webp"}
 SUPPORTED_CROP_FORMATS = {"auto", "jpg", "jpeg", "png", "webp"}
 

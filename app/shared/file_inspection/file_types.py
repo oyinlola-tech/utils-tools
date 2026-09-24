@@ -16,6 +16,7 @@ class SupportedImageType(StrEnum):
     GIF = "image/gif"
     BMP = "image/bmp"
     TIFF = "image/tiff"
+    AVIF = "image/avif"
 
 
 class SupportedFileType(StrEnum):
@@ -25,5 +26,6 @@ class SupportedFileType(StrEnum):
     GIF = "image/gif"
     BMP = "image/bmp"
     TIFF = "image/tiff"
+    AVIF = "image/avif"
 
     PDF = "application/pdf"

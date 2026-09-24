@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#fbfbf7" />
+    <meta name="theme-color" content="#f4f6f0" />
     <meta name="description" content="Compress JPG, PNG, and WebP images locally. Control quality (10-100), set a target file size, and strip metadata. Private, no account needed." />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://tools.oyinlola.site/tools/image-compressor" />
@@ -24,13 +24,14 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet" />
     <script type="module" src="/static/assets/js/error-boundary.js"></script>
 
     <link rel="stylesheet" href="/static/assets/css/reset.css" />
     <link rel="stylesheet" href="/static/assets/css/variables.css" />
     <link rel="stylesheet" href="/static/assets/css/base.css" />
     <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link rel="stylesheet" href="/static/assets/css/shell.css" />
     <link rel="stylesheet" href="/static/assets/css/responsive.css" />
   </head>
   <body>
@@ -54,8 +55,8 @@
               <h2>Drop your files here</h2>
               <p>Or choose files from your computer</p>
               <label for="compressor-file-input" class="primary-button">Choose file</label>
-              <input id="compressor-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/jpg" multiple class="visually-hidden" />
-              <p class="file-hint">JPG, JPEG, PNG, WebP</p>
+              <input id="compressor-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/jpg,.avif" multiple class="visually-hidden" />
+              <p class="file-hint">JPG, JPEG, PNG, WebP, AVIF</p>
             </div>
 
             <div id="compressor-workspace" class="compressor-workspace hidden">

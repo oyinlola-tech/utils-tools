@@ -32,6 +32,9 @@ const processingCount = document.querySelector("#processing-count");
 const cancelCompressionButton = document.querySelector("#cancel-compression");
 const resultMeta = document.querySelector("#compression-result-meta");
 const completedFiles = document.querySelector("#completed-files");
+// Only the PDF compressor page has a preset picker; the image page
+// uses the quality slider instead (and the PDF page has no slider).
+const qualityPreset = document.querySelector("#quality-preset");
 
 let files = [];
 let selectedQuality = 80;
@@ -47,6 +50,7 @@ const ACCEPTED_EXTENSIONS = {
     "image/jpg": [".jpg", ".jpeg"],
     "image/png": [".png"],
     "image/webp": [".webp"],
+    "image/avif": [".avif"],
     "application/pdf": [".pdf"],
 };
 
@@ -459,7 +463,12 @@ function renderCompletedFiles(job) {
             return "Balanced";
         }
 
-        if (file.compression_preset) {
+        if (!qualityPreset && file.quality) {
+            const quality = document.createElement("span");
+            quality.className = "completed-file-detail";
+            quality.textContent = `Quality ${file.quality}`;
+            details.appendChild(quality);
+        } else if (file.compression_preset) {
             const preset = document.createElement("span");
             preset.className = "completed-file-detail";
             preset.textContent = getPresetLabel(file.compression_preset);
@@ -784,8 +793,8 @@ compressButton.addEventListener("click", async () => {
         const startResult = await startImageCompression({
             files: files.map((item) => item.file),
             outputFormat: advancedFormat ? advancedFormat.value : "auto",
-            quality: selectedQuality,
-            compressionPreset: (document.querySelector("#quality-preset") || {}).value || "balanced",
+            quality: qualitySlider ? selectedQuality : null,
+            compressionPreset: qualityPreset ? qualityPreset.value : "balanced",
             maxDimension: maxDimension ? (maxDimension.value || null) : null,
             targetSize: selectedTargetSize !== null ? selectedTargetSize : (targetSize ? (targetSize.value || null) : null),
             removeMetadata: stripMetadata ? stripMetadata.checked : true,

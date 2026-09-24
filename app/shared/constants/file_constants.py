@@ -7,6 +7,7 @@ SUPPORTED_IMAGE_EXTENSIONS = {
     ".jpeg",
     ".png",
     ".webp",
+    ".avif",
     ".bmp",
     ".tiff",
     ".tif",
@@ -32,5 +33,6 @@ EXPECTED_EXTENSION_BY_MIME = {
     "image/webp": ".webp",
     "image/bmp": ".bmp",
     "image/tiff": ".tiff",
+    "image/avif": ".avif",
     "application/pdf": ".pdf",
 }
