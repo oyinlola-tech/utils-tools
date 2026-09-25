@@ -5,10 +5,11 @@ import json
 from vercel.blob import (
     BlobNotFoundError,
     delete,
-    get,
     list_objects,
-    put,
 )
+
+from app.infrastructure.storage.blob_access import get_blob as blob_get
+from app.infrastructure.storage.blob_access import put_blob as blob_put
 
 
 def job_prefix(prefix: str, job_id: str) -> str:
@@ -22,14 +23,15 @@ def blob_path(prefix: str, job_id: str, filename: str) -> str:
 def put_blob(blob_path_value: str, data: bytes, access: str) -> None:
     # Job metadata is rewritten on every status change; the SDK rejects
     # writes to an existing pathname unless overwrite is explicit.
-    put(blob_path_value, data, access=access, overwrite=True)
+    # ``access`` is kept for callers; the store's real mode is used.
+    blob_put(blob_path_value, data, overwrite=True)
 
 
 def get_blob(blob_path_value: str, access: str) -> bytes | None:
     # Bypass the CDN cache, otherwise polling sees the first version of
     # metadata.json forever.
     try:
-        result = get(blob_path_value, access=access, use_cache=False)
+        result = blob_get(blob_path_value, use_cache=False)
     except BlobNotFoundError:
         return None
     return result.content

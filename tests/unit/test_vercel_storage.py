@@ -57,19 +57,17 @@ def fake_sdk(monkeypatch):
             raise BlobNotFoundError()
         return FakeResult(size=len(blob_store[url_or_path]), url=f"https://x/{url_or_path}")
 
-    def fake_get_download_url(blob_url):
-        return f"{blob_url}?signed=1"
-
     module = "app.infrastructure.storage.vercel_storage"
-    monkeypatch.setattr(f"{module}.put", fake_put)
-    monkeypatch.setattr(f"{module}.get", fake_get)
     monkeypatch.setattr(f"{module}.delete", fake_delete)
     monkeypatch.setattr(f"{module}.head", fake_head)
-    monkeypatch.setattr(f"{module}.get_download_url", fake_get_download_url)
+
+    # Reads and writes go through blob_access, which picks the store's mode.
+    access_module = "app.infrastructure.storage.blob_access"
+    monkeypatch.setattr(f"{access_module}.put", fake_put)
+    monkeypatch.setattr(f"{access_module}.get", fake_get)
+    monkeypatch.setattr(f"{access_module}._mode", "public")
 
     jobs_module = "app.infrastructure.jobs.vercel_blob_io"
-    monkeypatch.setattr(f"{jobs_module}.put", fake_put)
-    monkeypatch.setattr(f"{jobs_module}.get", fake_get)
     monkeypatch.setattr(f"{jobs_module}.delete", fake_delete)
 
     def fake_list_objects(**kwargs):
@@ -169,13 +167,15 @@ class TestVercelStorage:
         url = vercel_storage.get_url(vercel_storage.upload_path / "a.png")
         assert "uploads/a.png" in url
 
-    def test_get_url_private_returns_signed_url(self, fake_sdk, monkeypatch, tmp_path):
+    def test_get_url_private_has_no_browser_url(self, fake_sdk, monkeypatch, tmp_path):
+        # Private blobs need the server token, so there is no URL a browser
+        # can open; downloads are streamed through the app instead.
         monkeypatch.setattr(
             "app.core.config.settings.blob_read_write_token",
             "test-token",
         )
         monkeypatch.setattr(
-            "app.core.config.settings.blob_access_mode",
+            "app.infrastructure.storage.blob_access._mode",
             "private",
         )
         monkeypatch.setattr(
@@ -186,8 +186,7 @@ class TestVercelStorage:
         storage.upload_path = tmp_path / "uploads"
         _, blob_store = fake_sdk
         blob_store["uploads/a.png"] = b"x"
-        url = storage.get_url(storage.upload_path / "a.png")
-        assert url.endswith("?signed=1")
+        assert storage.get_url(storage.upload_path / "a.png") == ""
 
     def test_missing_token_raises(self, fake_sdk, monkeypatch):
         monkeypatch.setattr(

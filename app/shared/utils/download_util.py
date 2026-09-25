@@ -8,6 +8,7 @@ large downloads are redirected to the Blob URL instead.
 
 from pathlib import Path
 
+from fastapi import HTTPException
 from fastapi.responses import FileResponse, RedirectResponse
 
 from app.core.config import settings
@@ -18,18 +19,25 @@ VERCEL_RESPONSE_LIMIT_BYTES = 4 * 1024 * 1024
 
 
 def _blob_download_url(file_path: Path, blob_key: str | None = None) -> str:
+    """A browser-openable Blob URL, or "" when there isn't one.
+
+    Private stores have none: their URLs need the server's token, so a
+    redirect would hand the browser a link it can't open.
+    """
+    from app.infrastructure.storage.blob_access import access_mode
+
+    if access_mode() != "public":
+        return ""
     try:
         if blob_key:
-            from vercel.blob import get_download_url, head
+            from vercel.blob import head
 
             url = head(blob_key).url
-            if settings.blob_access_mode == "private":
-                url = get_download_url(url)
         else:
             url = storage.get_url(file_path)
     except Exception:
         return ""
-    if url and settings.blob_access_mode == "public" and "download=" not in url:
+    if url and "download=" not in url:
         # Ask Blob to send Content-Disposition: attachment, since the
         # <a download> attribute is ignored for cross-origin links.
         url += ("&" if "?" in url else "?") + "download=1"
@@ -54,6 +62,15 @@ def download_response(
         url = _blob_download_url(file_path, blob_key)
         if url:
             return RedirectResponse(url, status_code=307)
+        # Streaming it would exceed Vercel's 4.5 MB response cap and fail
+        # with an opaque platform error; say what happened instead.
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                "This result is larger than the hosting platform can deliver "
+                "(4.5 MB). Try a smaller file or a more compact output format."
+            ),
+        )
     return FileResponse(
         path=file_path,
         media_type=media_type,

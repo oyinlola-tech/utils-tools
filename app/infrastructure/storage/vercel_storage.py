@@ -19,14 +19,12 @@ from pathlib import Path
 from vercel.blob import (
     BlobNotFoundError,
     delete,
-    get,
-    get_download_url,
     head,
-    put,
 )
 
 from app.core.config import settings
 from app.infrastructure.storage.base import StorageInterface
+from app.infrastructure.storage.blob_access import access_mode, get_blob, put_blob
 
 logger = logging.getLogger(__name__)
 
@@ -75,12 +73,7 @@ class VercelStorage(StorageInterface):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_bytes(data)
         blob_path = self._blob_key(file_path)
-        result = put(
-            blob_path,
-            data,
-            access=self._access,
-            overwrite=True,
-        )
+        result = put_blob(blob_path, data, overwrite=True)
         self._remember_url(blob_path, result.url)
 
     def save(
@@ -95,18 +88,14 @@ class VercelStorage(StorageInterface):
     def read(self, file_path: Path) -> bytes:
         self._check_token()
         blob_path = self._blob_key(file_path)
-        result = get(blob_path, access=self._access, use_cache=False)
+        result = get_blob(blob_path, use_cache=False)
         return result.content
 
     def materialize(self, file_path: Path) -> Path:
         if file_path.exists():
             return file_path
         try:
-            result = get(
-                self._blob_key(file_path),
-                access=self._access,
-                use_cache=False,
-            )
+            result = get_blob(self._blob_key(file_path), use_cache=False)
         except BlobNotFoundError:
             return file_path
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -146,8 +135,10 @@ class VercelStorage(StorageInterface):
             except BlobNotFoundError:
                 return ""
             self._remember_url(blob_path, url)
-        if self._access == "private":
-            return get_download_url(url)
+        if access_mode() == "private":
+            # Private blobs can't be opened by a browser; callers must
+            # stream them through the app instead.
+            return ""
         return url
 
 
