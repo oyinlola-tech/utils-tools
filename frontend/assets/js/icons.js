@@ -1,6 +1,18 @@
 const FA_CSS = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css";
 
 const TOOL_ICONS = {
+    "video-downloader": "circle-down",
+    "pdf-encrypt": "lock",
+    "pdf-page-number": "list-ol",
+    "pdf-watermark": "stamp",
+    "json-csv-converter": "table",
+    "json-formatter": "indent",
+    "jwt-decoder": "unlock-keyhole",
+    "text-diff": "code-compare",
+    "case-converter": "text-height",
+    "word-counter": "spell-check",
+    "text-to-speech": "volume-high",
+    "palette-extractor": "palette",
     "background-remover": "wand-magic-sparkles",
     "background-replacement": "layer-group",
     "image-compressor": "compress",
@@ -23,7 +35,7 @@ const TOOL_ICONS = {
     "favicon-generator": "bookmark",
     "svg-optimizer": "vector-square",
     "svg-generator": "bezier-curve",
-    "image-to-base64": "binary",
+    "image-to-base64": "image",
     "base64-to-image": "file-arrow-down",
     "qr-generator": "qrcode",
     "barcode-generator": "barcode",

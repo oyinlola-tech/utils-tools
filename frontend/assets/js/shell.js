@@ -82,7 +82,7 @@ function renderHeader() {
         <aside class="shell-mega-promo" aria-label="Find the right tool">
           <p class="shell-mega-promo-kicker">Not sure which tool?</p>
           <p class="shell-mega-promo-title">Drop your file on the home page and see every tool that fits it.</p>
-          <a href="/#hero-title" class="shell-mega-promo-link">Open the file inspector ${iconHtml("arrow-right")}</a>
+          <a href="/#hero-title" class="shell-mega-promo-link">Open inspector ${iconHtml("arrow-right")}</a>
           <div class="shell-mega-popular" data-shell-mega-popular></div>
         </aside>
       </div>
