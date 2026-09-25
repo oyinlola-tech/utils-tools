@@ -22,6 +22,16 @@ const ERROR_STATE = {
             document.body.appendChild(this.boundary);
         }
         window.addEventListener("error", (event) => {
+            // Capture phase also sees resource failures (a blocked analytics
+            // script, a broken image). Those are not app crashes and must not
+            // take over the page.
+            if (event.target && event.target !== window && event.target.nodeType === 1) {
+                return;
+            }
+            // Opaque cross-origin errors carry no detail and aren't ours.
+            if (!event.error && /^Script error\.?$/i.test(event.message || "")) {
+                return;
+            }
             this.handle(event.error || { message: event.message }, event.filename, event.lineno);
         }, true);
         window.addEventListener("unhandledrejection", (event) => {
