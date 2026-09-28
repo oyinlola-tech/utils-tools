@@ -23,7 +23,10 @@ const MAX_CHUNK_BYTES = 8 * MB;
 // well inside the host's limit, without a request per few kilobytes.
 const CHUNK_SECONDS = 5;
 const PARALLEL_UPLOADS = 3;
-const ATTEMPTS = 4;
+const ATTEMPTS = 6;
+// A chunk is sized to take seconds; one still going after this has stalled
+// and is about to be cut by the host anyway.
+const CHUNK_TIMEOUT_MS = 25 * 1000;
 // How long the server may hold a request open waiting for the result.
 const WAIT_SECONDS = 15;
 const GIVE_UP_AFTER_MS = 30 * 60 * 1000;
@@ -80,11 +83,29 @@ async function attempt(send, signal) {
         try {
             return await send();
         } catch (error) {
-            if (signal.aborted || tries >= ATTEMPTS) {
+            if (signal.aborted || tries >= ATTEMPTS || error.name === "TimeoutError") {
                 throw error;
             }
-            await pause(400 * tries);
+            await pause(Math.min(500 * 2 ** (tries - 1), 8000));
         }
+    }
+}
+
+async function sendChunk(url, chunk, signal) {
+    const stalled = new AbortController();
+    const timer = setTimeout(() => stalled.abort(), CHUNK_TIMEOUT_MS);
+    const cancel = () => stalled.abort();
+    signal.addEventListener("abort", cancel, { once: true });
+    try {
+        return await fetch(url, { method: "POST", body: chunk, signal: stalled.signal });
+    } catch (error) {
+        if (!signal.aborted && stalled.signal.aborted) {
+            throw new DOMException("The chunk stalled.", "TimeoutError");
+        }
+        throw error;
+    } finally {
+        clearTimeout(timer);
+        signal.removeEventListener("abort", cancel);
     }
 }
 
@@ -93,19 +114,39 @@ async function uploadChunks(session, body, type, signal) {
     let chunkBytes = FIRST_CHUNK_BYTES;
     let next = 0;
     let refusal = null;
+    // Ranges to send again in smaller pieces, ahead of fresh ones.
+    const again = [];
 
-    const upload = async (start, end) => {
+    const take = () => {
+        if (again.length) {
+            return again.shift();
+        }
+        if (next >= size) {
+            return null;
+        }
+        const start = next;
+        next = Math.min(size, start + chunkBytes);
+        return [start, next];
+    };
+
+    const upload = async ([start, end]) => {
         const query = new URLSearchParams({ offset: start, size, type });
+        const url = `${RELAY_URL}/${session}/chunk?${query}`;
         const started = performance.now();
-        const response = await attempt(
-            () =>
-                fetch(`${RELAY_URL}/${session}/chunk?${query}`, {
-                    method: "POST",
-                    body: body.slice(start, end),
-                    signal,
-                }),
-            signal
-        );
+        let response;
+        try {
+            response = await attempt(() => sendChunk(url, body.slice(start, end), signal), signal);
+        } catch (error) {
+            if (error.name !== "TimeoutError" || end - start <= MIN_CHUNK_BYTES) {
+                throw error;
+            }
+            // The connection got slower than this chunk was sized for.
+            chunkBytes = MIN_CHUNK_BYTES;
+            for (let from = start; from < end; from += MIN_CHUNK_BYTES) {
+                again.push([from, Math.min(end, from + MIN_CHUNK_BYTES)]);
+            }
+            return;
+        }
         if (!response.ok) {
             refusal = refusal || response;
             return;
@@ -116,17 +157,14 @@ async function uploadChunks(session, body, type, signal) {
     };
 
     const worker = async () => {
-        while (next < size && !refusal) {
-            const start = next;
-            next = Math.min(size, start + chunkBytes);
-            await upload(start, next);
+        for (let range = take(); range && !refusal; range = take()) {
+            await upload(range);
         }
     };
 
     // The first chunk goes alone: it opens the upload on the server and
     // measures the connection before the parallel ones are sized.
-    next = Math.min(size, chunkBytes);
-    await upload(0, next);
+    await upload(take());
     await Promise.all(Array.from({ length: PARALLEL_UPLOADS }, worker));
     return refusal;
 }
