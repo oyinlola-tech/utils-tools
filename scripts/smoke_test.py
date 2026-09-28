@@ -16,6 +16,8 @@ import time
 import pikepdf
 import requests
 from PIL import Image
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 API = "/api/v1"
 JOB_TIMEOUT_SECONDS = 120
@@ -65,6 +67,11 @@ class Deployment:
     def __init__(self, base_url: str, origin: str | None) -> None:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
+        # Servers close idle keep-alive connections; a request that lands
+        # on one fails before it is sent and is safe to send again.
+        retries = Retry(total=2, read=2, allowed_methods=None, backoff_factor=0.5)
+        self.session.mount("https://", HTTPAdapter(max_retries=retries))
+        self.session.mount("http://", HTTPAdapter(max_retries=retries))
         if origin:
             self.session.headers["Origin"] = origin
 
