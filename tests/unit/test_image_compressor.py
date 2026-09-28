@@ -359,9 +359,9 @@ class TestImageCompressEndpoint:
             validate_file_size,
         )
 
-        assert MAX_IMAGE_SIZE == 25 * 1024 * 1024
+        assert MAX_IMAGE_SIZE == 100 * 1024 * 1024
 
-        # Just over the 25 MB image limit
+        # Just over the 100 MB image limit
         oversized_data = b"\x00" * (MAX_IMAGE_SIZE + 1)
         with pytest.raises(Exception):
             validate_file_size(oversized_data, MAX_IMAGE_SIZE)

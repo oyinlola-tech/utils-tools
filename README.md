@@ -293,7 +293,7 @@ categories stream to stdout, which Vercel surfaces in the dashboard.
 - File type is determined by **magic bytes**, not by filename or browser-provided MIME type.
 - Images are validated with Pillow (`verify()` + `load()`).
 - `Image.MAX_IMAGE_PIXELS = 50_000_000` protects against decompression bombs.
-- Upload size limits: images 25 MB, PDFs 50 MB.
+- Upload size limits: images and PDFs 100 MB.
 - Filenames are sanitized before storage.
 - Vercel Blob token is never exposed to the frontend.
 

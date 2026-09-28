@@ -6,6 +6,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict
 
+from app.core.config import settings
 from app.core.exceptions import ProcessingError
 from app.core.logging import get_tool_logger
 from app.infrastructure.storage import storage
@@ -22,6 +23,45 @@ logger = logging.getLogger(__name__)
 # Keeps a single download from filling the disk (/tmp is 512 MB on Vercel).
 MAX_VIDEO_BYTES = 400 * 1024 * 1024
 
+# yt-dlp errors name command-line flags, which mean nothing to a visitor.
+_SITE_REFUSALS = (
+    (
+        "confirm you",
+        "This site is refusing requests from our server: it asks servers "
+        "to sign in to prove they are not bots. This is a restriction on "
+        "the site's side and affects most online downloaders. Links from "
+        "other sites still work.",
+    ),
+    (
+        "logged-in",
+        "This site only serves this video to signed-in accounts, so it "
+        "cannot be downloaded here.",
+    ),
+    (
+        "impersonat",
+        "This site only answers web browsers and refused our server. "
+        "Links from other sites still work.",
+    ),
+)
+
+
+def _site_options() -> Dict[str, Any]:
+    """Settings an operator can supply for sites that block servers."""
+    options: Dict[str, Any] = {}
+    if settings.video_cookies_file and Path(settings.video_cookies_file).is_file():
+        options["cookiefile"] = settings.video_cookies_file
+    if settings.video_proxy:
+        options["proxy"] = settings.video_proxy
+    return options
+
+
+def _explain(prefix: str, error: Exception) -> str:
+    message = str(error)
+    for marker, explanation in _SITE_REFUSALS:
+        if marker in message:
+            return explanation
+    return f"{prefix}: {message}"
+
 
 class VideoDownloaderService:
     """Business logic for querying and downloading online videos."""
@@ -37,6 +77,7 @@ class VideoDownloaderService:
             "no_warnings": True,
             "skip_download": True,
             "extract_flat": False,
+            **_site_options(),
         }
 
         try:
@@ -78,7 +119,7 @@ class VideoDownloaderService:
                 }
         except yt_dlp.utils.DownloadError as exc:
             tool_logger.warning("yt-dlp extraction error for URL %s: %s", url, str(exc))
-            raise ProcessingError(f"Could not retrieve video details: {exc!s}")
+            raise ProcessingError(_explain("Could not retrieve video details", exc))
         except Exception as exc:
             tool_logger.error("Unexpected error fetching video info for URL %s: %s", url, str(exc))
             raise ProcessingError(f"An error occurred while fetching video info: {exc!s}")
@@ -112,6 +153,7 @@ class VideoDownloaderService:
             "restrictfilenames": True,
             "trim_file_name": 80,
             "max_filesize": MAX_VIDEO_BYTES,
+            **_site_options(),
         }
         base_opts.update(select_format(format_choice, quality_choice, ffmpeg_available()))
 
@@ -144,7 +186,7 @@ class VideoDownloaderService:
                                 "streams, and ffmpeg is not installed on the server "
                                 "to merge them. Try the MP3 format, or install ffmpeg."
                             )
-                        raise ProcessingError(f"Video download failed: {exc!s}")
+                        raise ProcessingError(_explain("Video download failed", exc))
                     tool_logger.info(
                         "format '%s' failed (%s); retrying with best", selected, exc
                     )

@@ -76,8 +76,8 @@ function setupUpload() {
         accept: "image/jpeg,image/png,image/webp,image/jpg",
         multiple: true,
         maxFiles: 50,
-        maxSizeMb: 25,
-        hint: "JPG, PNG, WebP up to 25 MB",
+        maxSizeMb: 100,
+        hint: "JPG, PNG, WebP up to 100 MB",
         onFiles: (files) => {
             currentFiles = files;
             kit.banner.hide();
@@ -90,7 +90,7 @@ function updateFileSummary() {
     const upload = document.querySelector("#tool-upload");
     const hint = upload.querySelector(".file-hint");
     if (currentFiles.length === 0) {
-        if (hint) hint.textContent = "JPG, PNG, WebP up to 25 MB";
+        if (hint) hint.textContent = "JPG, PNG, WebP up to 100 MB";
     } else {
         if (hint) hint.textContent = `${currentFiles.length} image(s) ready`;
     }

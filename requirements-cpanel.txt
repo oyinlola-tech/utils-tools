@@ -27,7 +27,15 @@ numpy==2.4.6
 potracer==0.0.4
 requests==2.34.2
 gTTS==2.5.4
-yt-dlp>=2024.0.0
+# curl-cffi lets yt-dlp present itself as a browser, which several
+# sites require before they answer.
+yt-dlp[curl-cffi]>=2024.0.0
+
+# Runs the bundled background-removal model without rembg's heavier
+# dependencies (see app/infrastructure/image/rembg_adapter.py).
+onnxruntime==1.28.0
+flatbuffers==25.12.19
+protobuf==7.35.1
 
 # ASGI -> WSGI bridge used by passenger_wsgi.py
 a2wsgi==1.10.10

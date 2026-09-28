@@ -13,8 +13,8 @@ from app.shared.utils.image_util import ImageTooLargeError, check_pixel_limit
 Image.MAX_IMAGE_PIXELS = 50_000_000
 
 
-MAX_IMAGE_SIZE = 25 * 1024 * 1024
-MAX_PDF_SIZE = 50 * 1024 * 1024
+MAX_IMAGE_SIZE = 100 * 1024 * 1024
+MAX_PDF_SIZE = 100 * 1024 * 1024
 
 
 def validate_file_count(

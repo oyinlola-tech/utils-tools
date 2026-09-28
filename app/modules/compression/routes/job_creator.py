@@ -5,6 +5,7 @@ from pathlib import Path
 
 from fastapi import BackgroundTasks, HTTPException, UploadFile
 
+from app.core.config import settings
 from app.infrastructure.jobs import local_job_storage
 from app.modules.compression.batch_compression_service import (
     batch_compression_service,
@@ -129,12 +130,12 @@ async def start_compression(
                 buffer.extend(chunk)
                 total_size += len(chunk)
 
-                if total_size > (50 * 1024 * 1024):
+                if total_size > settings.max_upload_size_bytes:
                     raise HTTPException(
                         status_code=413,
                         detail=(
                             f"{original_filename} is larger than the "
-                            "50 MB upload limit."
+                            f"{settings.max_upload_size_mb} MB upload limit."
                         ),
                     )
 
