@@ -40,8 +40,21 @@ class Settings(BaseSettings):
     blob_store_id: str = ""
     blob_webhook_public_key: str = ""
 
+    # Per client and window; see app/core/rate_limit.py for the tiers.
     rate_limit_max_requests: int = 120
     rate_limit_window_seconds: int = 60
+    rate_limit_read_max_requests: int = 600
+    rate_limit_transfer_max_requests: int = 600
+    rate_limit_heavy_max_requests: int = 20
+    rate_limit_heavy_hourly_requests: int = 200
+    # Header a trusted reverse proxy sets to the client address, e.g.
+    # "x-forwarded-for". Leave empty when clients connect directly,
+    # otherwise they can spoof it.
+    trusted_proxy_header: str = ""
+
+    # Optional yt-dlp settings for sites that refuse datacenter addresses.
+    video_cookies_file: str = ""
+    video_proxy: str = ""
 
     cors_origins: str = "http://127.0.0.1:8000,http://localhost:8000"
 

@@ -4,9 +4,9 @@ Every request receives a short random ID that is attached to log
 records and returned in the ``X-Request-ID`` header, so errors can be
 traced without leaking internals.
 
-The rate limiter protects the API from being overwhelmed by bursts of
-requests, returning a designed 429 page for browsers and the standard
-error envelope for API clients.
+The rate limiter covers every endpoint (see ``app.core.rate_limit``),
+returning a designed 429 page for browsers and the standard error
+envelope for API clients.
 
 The static-cache middleware forces browsers and the edge cache to
 revalidate static assets, so a fresh deploy is never masked by stale
@@ -15,9 +15,7 @@ JS/CSS.
 
 import asyncio
 import logging
-import time
 import uuid
-from collections import deque
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -25,27 +23,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.api import API_PREFIX
 from app.core.config import settings
 from app.core.exceptions import _error_page_response
+from app.core.rate_limit import client_key, rate_limiter, rules_for
 
 logger = logging.getLogger(__name__)
-
-_RATE_LIMIT_BUCKETS: dict[str, deque[float]] = {}
-_MAX_TRACKED_CLIENTS = 5000
-_UNLIMITED_METHODS = {"GET", "HEAD", "OPTIONS"}
-
-
-def _evict_idle_buckets(now: float, window: float) -> None:
-    """Drop clients with no requests in the current window.
-
-    Buckets were never removed, so the dict grew by one entry per
-    distinct client IP for the life of the process.
-    """
-    for key in [
-        key
-        for key, bucket in _RATE_LIMIT_BUCKETS.items()
-        if not bucket or now - bucket[-1] > window
-    ]:
-        del _RATE_LIMIT_BUCKETS[key]
-
 
 _BACKGROUND_TASKS: set[asyncio.Task] = set()
 
@@ -101,61 +81,33 @@ class StaticCacheMiddleware(BaseHTTPMiddleware):
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    """In-memory sliding-window limiter for API requests.
-
-    One window per client IP. Limits are best-effort on serverless
-    runtimes (state is per instance) but are enough to absorb accidental
-    bursts and abusive loops.
-    """
+    """Charge every request to its client's budget, or answer 429."""
 
     async def dispatch(self, request: Request, call_next):
-        if not request.url.path.startswith(API_PREFIX):
-            return await call_next(request)
         if settings.app_env != "production":
             return await call_next(request)
-        if request.method in _UNLIMITED_METHODS:
-            # Job polling (every 500 ms) and downloads are cheap reads;
-            # counting them made a single long compression job exhaust
-            # the 120 req/min budget and fail with 429s mid-job.
+        if request.method == "OPTIONS":
             return await call_next(request)
 
-        client = self._client_key(request)
-        now = time.monotonic()
-        window = float(settings.rate_limit_window_seconds)
-        limit = settings.rate_limit_max_requests
-
-        if len(_RATE_LIMIT_BUCKETS) > _MAX_TRACKED_CLIENTS:
-            _evict_idle_buckets(now, window)
-        bucket = _RATE_LIMIT_BUCKETS.setdefault(client, deque())
-        while bucket and now - bucket[0] > window:
-            bucket.popleft()
-
-        if len(bucket) >= limit:
+        tier, rules = rules_for(request.method, request.url.path)
+        retry_after = rate_limiter.check(
+            client_key(
+                request.client.host if request.client else None,
+                request.headers,
+            ),
+            tier,
+            rules,
+        )
+        if retry_after is not None:
             response = _error_page_response(
                 request,
                 429,
                 "RATE_LIMITED",
                 "Too many requests. Please try again in a moment.",
             )
-            response.headers["Retry-After"] = str(int(window))
+            response.headers["Retry-After"] = str(retry_after)
             return response
-
-        bucket.append(now)
         return await call_next(request)
-
-    @staticmethod
-    def _client_key(request: Request) -> str:
-        # Set by Vercel's edge and not client-controllable, unlike the
-        # first X-Forwarded-For entry.
-        for header in ("x-vercel-forwarded-for", "x-real-ip"):
-            value = request.headers.get(header, "").strip()
-            if value:
-                return value.split(",")[0].strip()
-        forwarded = request.headers.get("x-forwarded-for", "")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-        host = request.client.host if request.client else "unknown"
-        return host
 
 
 class _BodyTooLarge(Exception):
