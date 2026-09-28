@@ -145,21 +145,29 @@ class RelayService:
             raise RelayConflictError("This request has already been started.")
         session.parts.mkdir(parents=True, exist_ok=True)
         meta = {"size": size, "content_type": content_type}
+        # Linked into place so parallel chunks never read a half-written file.
+        temporary = session.directory / f"meta.{os.getpid()}.{threading.get_ident()}"
+        temporary.write_text(json.dumps(meta), encoding="utf-8")
         try:
-            with open(session.meta, "x", encoding="utf-8") as handle:
-                json.dump(meta, handle)
+            os.link(temporary, session.meta)
         except FileExistsError:
             if self._read_json(session.meta) != meta:
                 raise RelayConflictError(
                     "Chunk does not match the upload it belongs to."
                 ) from None
+        finally:
+            temporary.unlink(missing_ok=True)
 
     def _staged_bytes(self, session: _Session) -> int:
         """Bytes covered from the start of the body without a gap."""
         covered = 0
+        try:
+            entries = list(session.parts.iterdir())
+        except FileNotFoundError:
+            return 0
         for start, length in sorted(
             tuple(int(value) for value in entry.name.split("-"))
-            for entry in session.parts.iterdir()
+            for entry in entries
         ):
             if start > covered:
                 break
@@ -172,6 +180,8 @@ class RelayService:
         """Replay the staged request in the background. Idempotent."""
         session = self.session(session_id)
         path, query = self._validate_target(method, target)
+        if session.state.exists():
+            return  # a retry of a run request that did get through
         meta = self._read_json(session.meta)
         if meta is None:
             raise NotFoundError("Nothing has been uploaded for this request.")
@@ -181,7 +191,7 @@ class RelayService:
             with open(session.state, "x", encoding="utf-8") as handle:
                 json.dump({"target": target, "started": time.time()}, handle)
         except FileExistsError:
-            return  # a retry of a run request that did get through
+            return
 
         headers = [
             (name.encode("latin-1"), request.headers[name].encode("latin-1"))
@@ -299,9 +309,6 @@ class RelayService:
                         "body": block,
                         "more_body": body.tell() < size,
                     }
-                if size == 0 and not response.get("body_sent"):
-                    response["body_sent"] = True
-                    return {"type": "http.request", "body": b"", "more_body": False}
                 # Only report a disconnect once the response is complete,
                 # or handlers watching for one would abort mid-response.
                 await finished.wait()

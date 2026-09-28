@@ -51,15 +51,21 @@ class Tool:
     notes: str = ""
     # runtime dependency that must exist for the tool to work
     requires_binary: str | None = None
-    requires_module: str | None = None
+    # a module name, or several when any one of them is enough
+    requires_module: str | tuple[str, ...] | None = None
     # whether the tool is surfaced on the landing page as a featured entry
     featured: bool = False
     # runs entirely in the browser; files never reach the server
     client_only: bool = False
 
 
-def _module_available(module_name: str) -> bool:
-    return importlib.util.find_spec(module_name) is not None
+def _module_available(module_name: str | tuple[str, ...]) -> bool:
+    names = (module_name,) if isinstance(module_name, str) else module_name
+    return any(importlib.util.find_spec(name) is not None for name in names)
+
+
+# rembg, or onnxruntime alone running the bundled model (see rembg_adapter).
+BACKGROUND_MODULES = ("rembg", "onnxruntime")
 
 
 def _binary_available(binary_name: str) -> bool:
@@ -87,7 +93,7 @@ class CapabilityRegistry:
                 environments=(LOCAL_DRIVER, VERCEL_DRIVER),
                 max_upload_mb=25,
                 notes="Powered by rembg; model is loaded lazily.",
-                requires_module="rembg",
+                requires_module=BACKGROUND_MODULES,
                 featured=True,
             ),
             Tool(
@@ -211,7 +217,7 @@ class CapabilityRegistry:
                 environments=(LOCAL_DRIVER, VERCEL_DRIVER),
                 max_upload_mb=25,
                 notes="Depends on the background-removal engine.",
-                requires_module="rembg",
+                requires_module=BACKGROUND_MODULES,
             ),
             # --------------------------------------------------- pdf
             Tool(
@@ -720,12 +726,14 @@ class CapabilityRegistry:
     def system_capabilities(self) -> dict:
         """Runtime capabilities of the host, not user-facing tool claims."""
         pdf_compression = _module_available("pymupdf")
-        background_removal = _module_available("rembg")
+        background_removal = _module_available(BACKGROUND_MODULES)
         return {
             "local_processing": True,
             "background_removal": background_removal,
             "pdf_compression": pdf_compression,
             "zip_support": True,
+            # Chunked uploads and detached processing (app.modules.relay).
+            "relay": self.driver == LOCAL_DRIVER,
             "max_upload_size_mb": self.upload_limit_mb(
                 settings.max_upload_size_mb
             ),
@@ -816,7 +824,10 @@ class CapabilityRegistry:
                 tool.requires_module
                 and not _module_available(tool.requires_module)
             ):
-                key = f"module '{tool.requires_module}'"
+                names = tool.requires_module
+                if not isinstance(names, str):
+                    names = " or ".join(names)
+                key = f"module '{names}'"
                 missing.setdefault(key, []).append(tool.id)
             if (
                 tool.requires_binary

@@ -120,7 +120,7 @@ class RateLimiter:
         with self._lock:
             try:
                 return self._check(key, tier, rules, now)
-            except sqlite3.Error:
+            except (sqlite3.Error, OSError):
                 # A limiter that is down must not take the site down.
                 logger.warning("Rate limit store unavailable; allowing request", exc_info=True)
                 self._close()
@@ -130,7 +130,7 @@ class RateLimiter:
         with self._lock:
             try:
                 self._connect().execute("DELETE FROM hits")
-            except sqlite3.Error:
+            except (sqlite3.Error, OSError):
                 self._close()
 
     def _check(self, key: str, tier: str, rules: tuple[Rule, ...], now: float) -> int | None:

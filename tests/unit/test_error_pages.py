@@ -2,8 +2,8 @@
 
 from fastapi.testclient import TestClient
 
-from app.core import middleware as middleware_module
 from app.core.config import settings
+from app.core.rate_limit import rate_limiter
 from app.main import app
 
 client = TestClient(app)
@@ -57,7 +57,7 @@ def test_auth_error_pages_removed():
 
 
 def test_rate_limit_returns_429(monkeypatch):
-    middleware_module._RATE_LIMIT_BUCKETS.clear()
+    rate_limiter.reset()
     monkeypatch.setattr(settings, "app_env", "production")
     monkeypatch.setattr(settings, "rate_limit_max_requests", 3)
     monkeypatch.setattr(settings, "rate_limit_window_seconds", 60)
@@ -70,7 +70,7 @@ def test_rate_limit_returns_429(monkeypatch):
         )
         assert response.status_code == 200
 
-    # Cheap reads (job polling, capabilities, downloads) are not counted.
+    # Cheap reads (job polling, capabilities, downloads) have their own budget.
     for _ in range(5):
         assert limited_client.get("/api/v1/capabilities").status_code == 200
 
@@ -78,11 +78,11 @@ def test_rate_limit_returns_429(monkeypatch):
         "/api/v1/tools/text/word-counter", json=payload
     )
     assert response.status_code == 429
-    assert response.headers["Retry-After"] == "60"
+    assert 1 <= int(response.headers["Retry-After"]) <= 60
     body = response.json()
     assert body["error"]["code"] == "RATE_LIMITED"
     assert body["error"]["status"] == 429
-    middleware_module._RATE_LIMIT_BUCKETS.clear()
+    rate_limiter.reset()
 
 
 def test_robots_and_sitemap_list_tool_pages():

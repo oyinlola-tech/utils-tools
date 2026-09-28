@@ -480,16 +480,18 @@ def test_request_body_limit_returns_413(monkeypatch):
     assert response.json()["error"]["code"] == "FILE_TOO_LARGE"
 
 
-def test_rate_limiter_evicts_idle_clients():
-    from app.core import middleware
+def test_rate_limiter_purges_expired_counters(tmp_path, monkeypatch):
+    from app.core import rate_limit
 
-    middleware._RATE_LIMIT_BUCKETS.clear()
-    now = time.monotonic()
-    middleware._RATE_LIMIT_BUCKETS["old"] = middleware.deque([now - 1000])
-    middleware._RATE_LIMIT_BUCKETS["active"] = middleware.deque([now])
-    middleware._evict_idle_buckets(now, 60)
-    assert set(middleware._RATE_LIMIT_BUCKETS) == {"active"}
-    middleware._RATE_LIMIT_BUCKETS.clear()
+    limiter = rate_limit.RateLimiter(tmp_path / "limits.sqlite3")
+    clock = {"now": 120_000.0}
+    monkeypatch.setattr(rate_limit.time, "time", lambda: clock["now"])
+    rules = (rate_limit.Rule(5, 60),)
+    limiter.check("old", "write", rules)
+    clock["now"] += 1000
+    limiter.check("active", "write", rules)
+    clients = limiter._connect().execute("SELECT client FROM hits").fetchall()
+    assert clients == [("active",)]
 
 
 def test_background_job_registry_is_bounded():

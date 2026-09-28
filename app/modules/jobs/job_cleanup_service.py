@@ -192,6 +192,20 @@ class JobCleanupService:
             )
         )
 
+    def cleanup_expired_relays(self) -> int:
+        """Sweep relay sessions one by one.
+
+        The relay folder sits inside temp/, which is swept as a single
+        entry: while any session is active the folder looks fresh and
+        none of the finished ones would ever be removed.
+        """
+        from app.modules.relay.relay_service import relay_service
+
+        return sweep_directory(
+            relay_service.root,
+            settings.job_ttl_minutes * 60,
+        )
+
     def cleanup_expired_blobs(self) -> int:
         """Delete expired objects from Vercel Blob (no-op locally)."""
         if settings.storage_driver != "vercel":
@@ -219,6 +233,7 @@ class JobCleanupService:
             ("jobs_removed", self.cleanup_expired_jobs),
             ("downloads_removed", self.cleanup_expired_downloads),
             ("outputs_removed", self.cleanup_expired_outputs),
+            ("relays_removed", self.cleanup_expired_relays),
             ("blobs_removed", self.cleanup_expired_blobs),
         ):
             try:

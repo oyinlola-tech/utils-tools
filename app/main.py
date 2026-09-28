@@ -43,6 +43,7 @@ from app.modules.image.image_tools_route import (
 )
 from app.modules.jobs.job_route import router as job_router
 from app.modules.pdf.pdf_route import router as pdf_router
+from app.modules.relay.relay_route import router as relay_router
 from app.modules.seo.seo_route import (
     router as seo_router,
 )
@@ -109,6 +110,7 @@ app.include_router(dev_tools_router)
 app.include_router(video_router)
 app.include_router(text_router)
 app.include_router(seo_router)
+app.include_router(relay_router)
 
 @app.on_event("startup")
 async def startup_cleanup():
