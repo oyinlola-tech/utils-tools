@@ -12,8 +12,8 @@ based on environment variables.
 
 ### Backend (cPanel)
 
-1. **Git Version Control** — clone the repository into `~/utils-tool`.
-2. **Setup Python App** — Python 3.13, application root `utils-tool`,
+1. **Git Version Control** — clone the repository into `~/utils-backend`.
+2. **Setup Python App** — Python 3.12, application root `utils-backend`,
    application URL `tools.telente.site`, startup file `passenger_wsgi.py`,
    entry point `application`.
 3. Environment variables:
