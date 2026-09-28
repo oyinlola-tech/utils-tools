@@ -44,6 +44,7 @@ def encode(
                 image,
                 quality=quality,
                 strip_metadata=strip_metadata,
+                smallest=True,
             ),
             "image/webp",
         )
@@ -63,6 +64,7 @@ def encode(
             pillow_adapter.encode_png(
                 image,
                 strip_metadata=strip_metadata,
+                smallest=True,
             ),
             "image/png",
         )

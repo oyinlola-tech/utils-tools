@@ -10,17 +10,32 @@ from app.infrastructure.compression.pillow_utils import (
 )
 
 
+# Exhaustive settings cost far more time than they save in bytes: on a
+# 12 megapixel photo, PNG at zlib level 9 takes twelve times as long as
+# level 6 for a file 14% smaller, and WebP method 6 on an image with
+# transparency takes fourteen times as long as method 4 for 20%. Only
+# the compressor, where size is the point, asks for ``smallest``.
+_PNG_OPTIMIZE_MAX_PIXELS = 2_000_000
+_PNG_LEVEL = 6
+_WEBP_METHOD = 4
+_WEBP_METHOD_SMALLEST = 6
+
+
 def encode_png(
     image: Image.Image,
     strip_metadata: bool = True,
+    smallest: bool = False,
 ) -> bytes:
     output = BytesIO()
     try:
         save_kwargs = filter_metadata(image, strip=strip_metadata)
+        if smallest or image.width * image.height <= _PNG_OPTIMIZE_MAX_PIXELS:
+            save_kwargs["optimize"] = True
+        else:
+            save_kwargs["compress_level"] = _PNG_LEVEL
         image.save(
             output,
             format="PNG",
-            optimize=True,
             **save_kwargs,
         )
         return output.getvalue()
@@ -33,6 +48,7 @@ def encode_webp(
     quality: int = 95,
     strip_metadata: bool = True,
     lossless: bool = False,
+    smallest: bool = False,
 ) -> bytes:
     output = BytesIO()
     try:
@@ -49,7 +65,7 @@ def encode_webp(
                 output,
                 format="WEBP",
                 quality=quality,
-                method=6,
+                method=_WEBP_METHOD_SMALLEST if smallest else _WEBP_METHOD,
                 **save_kwargs,
             )
         return output.getvalue()

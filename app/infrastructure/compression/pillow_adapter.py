@@ -26,8 +26,13 @@ class PillowAdapter:
         self,
         image: Image.Image,
         strip_metadata: bool = True,
+        smallest: bool = False,
     ) -> bytes:
-        return encode_png(image, strip_metadata=strip_metadata)
+        return encode_png(
+            image,
+            strip_metadata=strip_metadata,
+            smallest=smallest,
+        )
 
     def encode_webp(
         self,
@@ -35,12 +40,14 @@ class PillowAdapter:
         quality: int = 95,
         strip_metadata: bool = True,
         lossless: bool = False,
+        smallest: bool = False,
     ) -> bytes:
         return encode_webp(
             image,
             quality=quality,
             strip_metadata=strip_metadata,
             lossless=lossless,
+            smallest=smallest,
         )
 
     def encode_jpeg(

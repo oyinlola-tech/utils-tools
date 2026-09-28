@@ -48,7 +48,9 @@ def encode_output(
             output_buffer,
             format="WEBP",
             quality=95,
-            method=6,
+            # Method 6 takes many times longer on images with transparency,
+            # which is every image this tool produces.
+            method=4,
         )
         extension = ".webp"
     return output_buffer.getvalue(), extension

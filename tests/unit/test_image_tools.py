@@ -400,3 +400,31 @@ def test_crop_rotation_180_dimensions_swap():
     )
     assert result["width"] == 50
     assert result["height"] == 50
+
+
+def test_fast_encoders_stay_close_to_the_smallest_output():
+    """The default encoder settings trade a little size for a lot of time."""
+    import os
+
+    from PIL import Image
+
+    from app.infrastructure.compression.pillow_adapter import pillow_adapter
+
+    width, height = 1800, 1400
+    photo = Image.frombytes("RGB", (width, height), os.urandom(width * height * 3))
+    photo = photo.resize((width // 6, height // 6)).resize((width, height))
+
+    for encode in (pillow_adapter.encode_png, pillow_adapter.encode_webp):
+        fast = encode(photo)
+        smallest = encode(photo, smallest=True)
+        assert len(smallest) <= len(fast) <= len(smallest) * 1.25
+        assert Image.open(BytesIO(fast)).size == (width, height)
+
+
+def test_small_pngs_are_still_fully_optimized():
+    from PIL import Image
+
+    from app.infrastructure.compression.pillow_adapter import pillow_adapter
+
+    icon = Image.new("RGBA", (256, 256), (20, 120, 200, 255))
+    assert pillow_adapter.encode_png(icon) == pillow_adapter.encode_png(icon, smallest=True)
