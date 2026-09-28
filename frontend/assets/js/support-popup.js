@@ -2,7 +2,27 @@ import { icon } from "./icons.js";
 
 const STORAGE_KEY = "lr_usage_count";
 const SHOWN_KEY = "lr_support_popup_shown";
-const SUPPORT_IFRAME = `<iframe src="https://myhappr.com/embed/oyinlola?color=%235EB5FF&title=Support+Oluwayemi+Oyinlola" width="100%" height="600" frameborder="0" scrolling="no" style="border-radius: 12px;"></iframe>`;
+const SUPPORT_URL =
+  "https://myhappr.com/embed/oyinlola?color=%235EB5FF&title=Support+Oluwayemi+Oyinlola";
+// Room the modal leaves around the form: its header and the page margin.
+const HEADER_HEIGHT = "48px";
+
+function supportFrame() {
+  const frame = document.createElement("iframe");
+  frame.src = SUPPORT_URL;
+  frame.title = "Support Oluwayemi Oyinlola";
+  frame.style.display = "block";
+  frame.style.width = "100%";
+  frame.style.border = "0";
+  frame.style.borderRadius = "0 0 12px 12px";
+  // As tall as the screen allows and free to scroll. At a fixed 600
+  // pixels with scrolling off, the last step's button sat below the
+  // fold on laptop screens and could not be reached.
+  frame.style.height = `min(720px, calc(90vh - ${HEADER_HEIGHT}))`;
+  // Where supported: the height that excludes a phone's browser bars.
+  frame.style.height = `min(720px, calc(90dvh - ${HEADER_HEIGHT}))`;
+  return frame;
+}
 
 function getCount() {
   try {
@@ -33,7 +53,7 @@ function alreadyShown() {
   }
 }
 
-function createModal(iframeHtml) {
+function createModal(content) {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
   overlay.style.inset = "0";
@@ -45,7 +65,7 @@ function createModal(iframeHtml) {
 
   const modal = document.createElement("div");
   modal.style.width = "min(900px, 95%)";
-  modal.style.maxHeight = "90%";
+  modal.style.maxHeight = "90vh";
   modal.style.background = "#fff";
   modal.style.borderRadius = "12px";
   modal.style.overflow = "hidden";
@@ -54,6 +74,9 @@ function createModal(iframeHtml) {
   const header = document.createElement("div");
   header.style.display = "flex";
   header.style.justifyContent = "flex-end";
+  header.style.alignItems = "center";
+  header.style.boxSizing = "border-box";
+  header.style.height = HEADER_HEIGHT;
   header.style.padding = "8px";
 
   const close = document.createElement("button");
@@ -70,18 +93,30 @@ function createModal(iframeHtml) {
 
   const body = document.createElement("div");
   body.style.padding = "0";
-  body.innerHTML = iframeHtml;
+  body.appendChild(content);
 
   modal.appendChild(header);
   modal.appendChild(body);
   overlay.appendChild(modal);
 
+  // Scrolling belongs to the form while it is open, not the page behind.
+  const root = document.documentElement;
+  const pageOverflow = root.style.overflow;
+  root.style.overflow = "hidden";
+
+  function onKey(ev) {
+    if (ev.key === "Escape") closeModal();
+  }
+
   function closeModal() {
+    root.style.overflow = pageOverflow;
+    document.removeEventListener("keydown", onKey);
     try {
       document.body.removeChild(overlay);
     } catch (e) {}
   }
 
+  document.addEventListener("keydown", onKey);
   close.addEventListener("click", () => {
     closeModal();
   });
@@ -94,7 +129,7 @@ function createModal(iframeHtml) {
 }
 
 export function openSupport() {
-  const { overlay } = createModal(SUPPORT_IFRAME);
+  const { overlay } = createModal(supportFrame());
   document.body.appendChild(overlay);
 }
 

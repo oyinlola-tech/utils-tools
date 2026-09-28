@@ -185,3 +185,73 @@ export async function isAnimated(file, mimeType) {
     }
     return false;
 }
+
+const METADATA_ORDER = ["exif", "gps", "dpi", "icc_profile", "comment", "photoshop"];
+
+/**
+ * Which kinds of metadata a file carries, named as Pillow names them.
+ * Returns null for formats this does not read.
+ */
+export async function embeddedMetadata(file, mimeType) {
+    const found = new Set();
+    const text = (buffer) => String.fromCharCode(...new Uint8Array(buffer));
+    try {
+        if (mimeType === "image/jpeg") {
+            for await (const { marker, read } of jpegSegments(file)) {
+                const head = await read(16);
+                const label = text(head);
+                if (marker === 0xe1 && label.startsWith("Exif")) {
+                    // Pillow falls back to the resolution stored in EXIF.
+                    found.add("exif").add("dpi");
+                } else if (marker === 0xe0 && label.startsWith("JFIF")) {
+                    const units = new Uint8Array(head)[7];
+                    if (units === 1 || units === 2) {
+                        found.add("dpi");
+                    }
+                } else if (marker === 0xe2 && label.startsWith("ICC_PROFILE")) {
+                    found.add("icc_profile");
+                } else if (marker === 0xed && label.startsWith("Photoshop")) {
+                    found.add("photoshop");
+                } else if (marker === 0xfe) {
+                    found.add("comment");
+                }
+            }
+        } else if (mimeType === "image/png") {
+            let offset = 8;
+            while (offset + 12 <= file.size) {
+                const head = await file.slice(offset, offset + 32).arrayBuffer();
+                const length = new DataView(head).getUint32(0);
+                const type = text(head.slice(4, 8));
+                const data = new Uint8Array(head, 8);
+                if (type === "IDAT" || type === "IEND") {
+                    break;
+                }
+                if (type === "pHYs" && data[8] === 1) {
+                    found.add("dpi");
+                } else if (type === "iCCP") {
+                    found.add("icc_profile");
+                } else if (type === "eXIf") {
+                    found.add("exif");
+                } else if (/^(tEXt|zTXt|iTXt)$/.test(type) && text(data).startsWith("comment\0")) {
+                    found.add("comment");
+                }
+                offset += 12 + length;
+            }
+        } else if (mimeType === "image/webp") {
+            const bytes = new Uint8Array(await file.slice(0, 32).arrayBuffer());
+            if (startsWith(bytes, ascii("VP8X"), 12)) {
+                if (bytes[20] & 0x08) {
+                    found.add("exif");
+                }
+                if (bytes[20] & 0x20) {
+                    found.add("icc_profile");
+                }
+            }
+        } else {
+            return null;
+        }
+    } catch {
+        return null;
+    }
+    return METADATA_ORDER.filter((name) => found.has(name));
+}

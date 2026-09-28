@@ -55,14 +55,18 @@ function isOpaque(rgba) {
     return true;
 }
 
-function paletteScanlines(pixels, width, height, colors) {
-    const lines = new Uint8Array((width + 1) * height);
+function paletteIndexes(pixels, colors) {
+    const indexes = new Uint8Array(pixels.length);
+    for (let index = 0; index < pixels.length; index += 1) {
+        indexes[index] = colors.get(pixels[index]);
+    }
+    return indexes;
+}
+
+function unfilteredScanlines(bytes, rowBytes, height) {
+    const lines = new Uint8Array((rowBytes + 1) * height);
     for (let row = 0; row < height; row += 1) {
-        const out = row * (width + 1) + 1;
-        const from = row * width;
-        for (let column = 0; column < width; column += 1) {
-            lines[out + column] = colors.get(pixels[from + column]);
-        }
+        lines.set(bytes.subarray(row * rowBytes, (row + 1) * rowBytes), row * (rowBytes + 1) + 1);
     }
     return lines;
 }
@@ -140,28 +144,31 @@ function filterRow(current, previous, stride, candidates, out, at) {
     out.set(candidates[best], at + 1);
 }
 
-async function truecolorScanlines(rgba, width, height, stride) {
+/**
+ * Scanlines with the best filter chosen for each row. `source` holds
+ * `sourceStride` bytes a pixel, of which the first `stride` are kept:
+ * RGBA pixels written as RGB drop their alpha here.
+ */
+async function filteredScanlines(source, width, height, sourceStride, stride) {
     const rowBytes = width * stride;
     const lines = new Uint8Array((rowBytes + 1) * height);
     const candidates = Array.from({ length: 5 }, () => new Uint8Array(rowBytes));
-    let current = new Uint8Array(rowBytes);
+    const rows = [new Uint8Array(rowBytes), new Uint8Array(rowBytes)];
     let previous = null;
-    let spare = new Uint8Array(rowBytes);
     for (let row = 0; row < height; row += 1) {
-        const from = row * width * 4;
-        if (stride === 4) {
-            current.set(rgba.subarray(from, from + rowBytes));
+        const current = rows[row % 2];
+        const from = row * width * sourceStride;
+        if (stride === sourceStride) {
+            current.set(source.subarray(from, from + rowBytes));
         } else {
             for (let column = 0; column < width; column += 1) {
-                current[column * 3] = rgba[from + column * 4];
-                current[column * 3 + 1] = rgba[from + column * 4 + 1];
-                current[column * 3 + 2] = rgba[from + column * 4 + 2];
+                for (let channel = 0; channel < stride; channel += 1) {
+                    current[column * stride + channel] = source[from + column * sourceStride + channel];
+                }
             }
         }
         filterRow(current, previous, stride, candidates, lines, row * (rowBytes + 1));
-        const finished = current;
-        current = previous || spare;
-        previous = finished;
+        previous = current;
         if (row % ROWS_PER_SLICE === ROWS_PER_SLICE - 1) {
             await pause();
         }
@@ -188,18 +195,26 @@ export async function encodePng({ data, width, height }) {
     view.setUint32(4, height);
     header[8] = 8;
 
-    let scanlines;
+    let compressed;
     const extra = [];
     if (colors) {
         header[9] = PALETTE;
-        scanlines = paletteScanlines(pixels, width, height, colors);
         extra.push(...paletteChunks(colors));
+        // Filtering usually hurts indexed pixels, but not when rows
+        // repeat, as they do in screenshots. These images are small
+        // enough to try both.
+        const indexes = paletteIndexes(pixels, colors);
+        const [plain, filtered] = await Promise.all([
+            deflate(unfilteredScanlines(indexes, width, height)),
+            deflate(await filteredScanlines(indexes, width, height, 1, 1)),
+        ]);
+        compressed = filtered.length < plain.length ? filtered : plain;
     } else if (isOpaque(data)) {
         header[9] = RGB;
-        scanlines = await truecolorScanlines(data, width, height, 3);
+        compressed = await deflate(await filteredScanlines(data, width, height, 4, 3));
     } else {
         header[9] = RGBA;
-        scanlines = await truecolorScanlines(data, width, height, 4);
+        compressed = await deflate(await filteredScanlines(data, width, height, 4, 4));
     }
 
     return new Blob(
@@ -208,7 +223,7 @@ export async function encodePng({ data, width, height }) {
                 Uint8Array.from(SIGNATURE),
                 chunk("IHDR", header),
                 ...extra,
-                chunk("IDAT", await deflate(scanlines)),
+                chunk("IDAT", compressed),
                 chunk("IEND", new Uint8Array(0)),
             ]),
         ],

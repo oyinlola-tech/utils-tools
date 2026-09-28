@@ -335,8 +335,35 @@ function buildFormData(files = [], fields = {}) {
 }
 
 
+/**
+ * Gives the browser the first go at a request (see local/index.js).
+ * Whatever goes wrong there, the server is asked instead: it is the one
+ * that knows how to explain a bad file.
+ */
+async function runLocally(path, files, fields) {
+    try {
+        const local = await import("./local/index.js");
+        return await local.runLocally(path, files, fields);
+    } catch {
+        return null;
+    }
+}
+
+async function prepareUpload(path, files) {
+    try {
+        const local = await import("./local/index.js");
+        return await local.prepareUpload(path, files);
+    } catch {
+        return files;
+    }
+}
+
 export async function apiUpload(path, { files = [], fields = {} } = {}) {
-    const formData = buildFormData(files, fields);
+    const local = await runLocally(path, files, fields);
+    if (local) {
+        return local;
+    }
+    const formData = buildFormData(await prepareUpload(path, files), fields);
     const response = await safeFetch(`${API_BASE_URL}${path}`, {
         method: "POST",
         body: formData,
@@ -350,7 +377,7 @@ export async function apiUpload(path, { files = [], fields = {} } = {}) {
 
 
 export async function apiDownload(path, { files = [], fields = {} } = {}) {
-    const formData = buildFormData(files, fields);
+    const formData = buildFormData(await prepareUpload(path, files), fields);
     const response = await safeFetch(`${API_BASE_URL}${path}`, {
         method: "POST",
         body: formData,

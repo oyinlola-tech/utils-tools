@@ -19,6 +19,19 @@ from app.modules.image.services.resize_math import (
 )
 
 
+def _cover_box(
+    source: tuple[int, int],
+    target: tuple[int, int],
+) -> tuple[float, float, float, float]:
+    """The largest centred region of ``source`` with the shape of ``target``."""
+    scale = max(target[0] / source[0], target[1] / source[1])
+    width = min(source[0], target[0] / scale)
+    height = min(source[1], target[1] / scale)
+    left = (source[0] - width) / 2
+    top = (source[1] - height) / 2
+    return (left, top, left + width, top + height)
+
+
 class ImageResizerService:
     """Resize images with aspect, exact, percent or max modes."""
 
@@ -36,8 +49,13 @@ class ImageResizerService:
         quality: int | None = None,
         strip_metadata: bool = True,
         background_color: str | None = None,
+        cover: bool = False,
     ) -> dict:
-        """Resize an image with full control over dimensions and output."""
+        """Resize an image with full control over dimensions and output.
+
+        With ``cover`` an exact size is filled by cropping the image
+        around its centre instead of stretching it.
+        """
         tool_logger = get_tool_logger("image-resizer")
         started = time.monotonic()
         image = open_image(file_data)
@@ -72,7 +90,11 @@ class ImageResizerService:
         elif new_size[0] <= 0 or new_size[1] <= 0:
             raise ValueError("Calculated dimensions are not positive.")
         else:
-            resized = image.resize(new_size, Image.Resampling.LANCZOS)
+            resized = image.resize(
+                new_size,
+                Image.Resampling.LANCZOS,
+                box=_cover_box(image.size, new_size) if cover else None,
+            )
 
         if output_format == "auto":
             fmt_map = {
@@ -85,6 +107,9 @@ class ImageResizerService:
             output_format = fmt_map.get(input_format, "png")
 
         output_format = output_format.lower()
+        if output_format == "jpeg":
+            # Accepted by the controller, so it has to work here too.
+            output_format = "jpg"
         if output_format not in SUPPORTED_RESIZE_FORMATS:
             raise ValueError(
                 f"Unsupported output format for resize: {output_format}. "

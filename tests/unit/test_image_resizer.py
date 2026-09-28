@@ -674,3 +674,36 @@ def test_api_crop_auto_format_preserves_png():
     )
     assert response.status_code == 200
     assert response.json()["format"] == "png"
+
+
+def test_cover_crops_instead_of_stretching():
+    """A preset of another shape must not squash the picture."""
+    from PIL import Image
+
+    from app.modules.image.services.resizer_service import image_resizer_service
+
+    # A circle, twice as wide a canvas as it is tall.
+    source = Image.new("RGB", (400, 200), "white")
+    for x in range(400):
+        for y in range(200):
+            if (x - 200) ** 2 + (y - 100) ** 2 <= 80 ** 2:
+                source.putpixel((x, y), (0, 0, 0))
+    buffer = BytesIO()
+    source.save(buffer, format="PNG")
+
+    result = image_resizer_service.resize(
+        buffer.getvalue(),
+        resize_mode="exact",
+        width=100,
+        height=100,
+        output_format="png",
+        allow_upscale=True,
+        cover=True,
+    )
+    output = Image.open(BytesIO(result["data"])).convert("L")
+    assert output.size == (100, 100)
+    dark_columns = [x for x in range(100) if output.getpixel((x, 50)) < 128]
+    dark_rows = [y for y in range(100) if output.getpixel((50, y)) < 128]
+    # Still round: as wide as it is tall, and centred.
+    assert abs(len(dark_columns) - len(dark_rows)) <= 2
+    assert abs(dark_columns[0] - (99 - dark_columns[-1])) <= 2

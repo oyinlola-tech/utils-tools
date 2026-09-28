@@ -42,6 +42,7 @@ class ResizeController:
                 resize_mode=resize_mode,
                 output_format=normalized,
                 allow_upscale=cover,
+                cover=cover,
                 **resize_kwargs,
             )
             return build_result(filename, result)

@@ -9,7 +9,6 @@ from app.infrastructure.compression.pillow_utils import (
     parse_color,
 )
 
-
 # Exhaustive settings cost far more time than they save in bytes: on a
 # 12 megapixel photo, PNG at zlib level 9 takes twelve times as long as
 # level 6 for a file 14% smaller, and WebP method 6 on an image with
