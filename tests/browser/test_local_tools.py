@@ -66,10 +66,16 @@ def png_file(data=PHOTO_PNG, name="picture.png", field="files"):
     return (field, name, data, "image/png")
 
 
+def on_white(image: Image.Image) -> Image.Image:
+    """As it is seen: what lies under transparent pixels does not count."""
+    canvas = Image.new("RGBA", image.size, "white")
+    return Image.alpha_composite(canvas, image.convert("RGBA")).convert("RGB")
+
+
 def psnr(first: Image.Image, second: Image.Image) -> float:
     """Closeness of two images in decibels; 40 and up look identical."""
     assert first.size == second.size
-    difference = ImageChops.difference(first.convert("RGB"), second.convert("RGB"))
+    difference = ImageChops.difference(on_white(first), on_white(second))
     mean_square = sum(ImageStat.Stat(difference).sum2) / (first.width * first.height * 3)
     return 99.0 if mean_square == 0 else 10 * math.log10(255**2 / mean_square)
 

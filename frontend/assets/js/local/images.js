@@ -43,6 +43,7 @@ function browserSupport() {
             };
             return {
                 decode: bitmap.width === 1 && bitmap.height === 2,
+                smooth: resamplesSmoothly(),
                 jpg: await encodes(MIME.jpg),
                 webp: await encodes(MIME.webp),
                 png: canEncodePng(),
@@ -77,14 +78,34 @@ function context(canvas) {
 }
 
 /**
- * Draws `source` (cropped to `crop`) at the target size. Shrinking by
- * more than half in one step skips source pixels and aliases, so large
- * reductions are taken in halves first.
+ * Whether the browser averages the pixels it shrinks away. A one pixel
+ * checkerboard reduced eight times is an even grey when it does; a
+ * browser that only samples a few source pixels leaves it patchy.
  */
-function draw(source, crop, width, height) {
+function resamplesSmoothly() {
+    const size = 64;
+    const board = newCanvas(size, size);
+    const pixels = context(board).createImageData(size, size);
+    for (let index = 0; index < size * size; index += 1) {
+        const shade = ((index % size) + Math.floor(index / size)) % 2 ? 255 : 0;
+        pixels.data.set([shade, shade, shade, 255], index * 4);
+    }
+    context(board).putImageData(pixels, 0, 0);
+    const small = newCanvas(size / 8, size / 8);
+    context(small).drawImage(board, 0, 0, small.width, small.height);
+    const { data } = context(small).getImageData(0, 0, small.width, small.height);
+    return data.every((value, index) => index % 4 === 3 || Math.abs(value - 128) < 24);
+}
+
+/**
+ * Draws `source` (cropped to `crop`) at the target size. Where the
+ * browser does not resample smoothly, large reductions are taken in
+ * halves, each of which it can do without skipping pixels.
+ */
+function draw(source, crop, width, height, smooth) {
     let from = source;
     let { x, y, w, h } = crop;
-    while (w / 2 >= width && h / 2 >= height) {
+    while (!smooth && w / 2 >= width && h / 2 >= height) {
         const half = newCanvas(Math.ceil(w / 2), Math.ceil(h / 2));
         context(half).drawImage(from, x, y, w, h, 0, 0, half.width, half.height);
         from = half;
@@ -231,7 +252,7 @@ async function process(file, { format, quality, background, plan }) {
         }
         const { size } = planned;
         const crop = planned.crop || { x: 0, y: 0, w: source.width, h: source.height };
-        let canvas = draw(bitmap, crop, size.width, size.height);
+        let canvas = draw(bitmap, crop, size.width, size.height, can.smooth);
 
         const transparent = inputFormat !== "JPEG" && hasTransparency(canvas);
         const flattened = output === "jpg" && transparent;
@@ -482,7 +503,8 @@ export async function shrink(file, side) {
                 bitmap,
                 { x: 0, y: 0, w: width, h: height },
                 Math.max(1, Math.round(width * ratio)),
-                Math.max(1, Math.round(height * ratio))
+                Math.max(1, Math.round(height * ratio)),
+                can.smooth
             );
             const lossless = !can.jpg || (INPUTS[kind.mime_type] !== "JPEG" && hasTransparency(canvas));
             if (lossless && !can.png) {
