@@ -41,6 +41,14 @@ Git Version Control creates the application root with mode `0700`. The web
 server then cannot see into it, logs "cannot determine application type"
 and answers 404 for every URL. Set the folder to `0755` in File Manager.
 
+A worker that has sat idle takes 5 to 13 seconds to start. A cron job
+(cPanel > Cron Jobs) keeps one warm by asking for the health endpoint
+every two minutes:
+
+```
+*/2 * * * * curl -fsS -m 60 -o /dev/null https://tools.telente.site/api/v1/health >/dev/null 2>&1
+```
+
 After a deployment, check every server tool with:
 
 ```bash
