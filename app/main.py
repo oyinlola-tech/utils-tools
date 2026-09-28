@@ -87,6 +87,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    # Read by the frontend when it is hosted on another origin.
+    expose_headers=["Content-Disposition", "X-Request-ID"],
 )
 
 app.mount(

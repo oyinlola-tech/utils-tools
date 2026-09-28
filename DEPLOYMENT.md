@@ -3,6 +3,45 @@
 One codebase, two targets. Storage, logging, and capability gating switch
 based on environment variables.
 
+## Production: Vercel frontend + cPanel backend
+
+| | Host | Serves |
+|---|---|---|
+| Frontend | `tools.oyinlola.site` (Vercel) | static pages and assets from `frontend/` |
+| Backend | `tools.telente.site` (cPanel) | the FastAPI app, `STORAGE_DRIVER=local` |
+
+### Backend (cPanel)
+
+1. **Git Version Control** — clone the repository into `~/utils-tool`.
+2. **Setup Python App** — Python 3.13, application root `utils-tool`,
+   application URL `tools.telente.site`, startup file `passenger_wsgi.py`,
+   entry point `application`.
+3. Environment variables:
+   - `APP_ENV=production`, `DEBUG=false`
+   - `STORAGE_DRIVER=local`
+   - `CORS_ORIGINS=https://tools.oyinlola.site`
+   - `PUBLIC_SITE_URL=https://tools.oyinlola.site`
+4. Add `requirements-cpanel.txt` as the configuration file, run
+   **Pip Install**, then **Restart**.
+
+Passenger speaks WSGI, so `passenger_wsgi.py` wraps the ASGI app with
+`a2wsgi`. To update: pull in Git Version Control, then restart the app.
+
+### Frontend (Vercel)
+
+`vercel.json` publishes `frontend/` as a static site and mirrors the page
+routes FastAPI serves locally (`/tools/{id}`, `/about`, `/errors/{name}`,
+`/static/*`). `.vercelignore` keeps the Python code out of the build.
+
+API calls go straight to the backend: `frontend/assets/js/config.js` maps
+the frontend host to the API origin, and the backend allows that origin
+through `CORS_ORIGINS`. `/api/*`, `/sitemap.xml` and `/robots.txt` are also
+proxied to the backend, which covers hosts not listed in `config.js`
+(preview deployments).
+
+To move either side to another domain, change `config.js` and
+`vercel.json` (backend) or `CORS_ORIGINS` and `PUBLIC_SITE_URL` (frontend).
+
 ## Local
 
 ```bash
@@ -25,12 +64,14 @@ Production-like local run (no reload):
 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --log-level info
 ```
 
-## Vercel
+## Vercel serverless (previous setup)
 
-The repo is wired for Vercel serverless (Python):
+The whole app can also run as a single Vercel Python function. This needs
+the earlier `vercel.json`, which built `api/index.py` and routed `/(.*)`
+to it, and no `.vercelignore`:
 
-- `vercel.json` builds `api/index.py` and routes `/(.*)` to it; FastAPI
-  serves pages, static assets, and API routes through the same handler.
+- FastAPI serves pages, static assets, and API routes through the same
+  handler.
 - `api/index.py` wraps the app with `Mangum`.
 
 ### Setup

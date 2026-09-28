@@ -1,23 +1,52 @@
 {
   "version": 2,
-  "builds": [
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": "frontend",
+  "rewrites": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+      "source": "/static/:path*",
+      "destination": "/:path*"
+    },
+    {
+      "source": "/about",
+      "destination": "/pages/about.html"
+    },
+    {
+      "source": "/tools",
+      "destination": "/pages/tools.html"
+    },
+    {
+      "source": "/tools/:tool([a-z0-9][a-z0-9-]*)",
+      "destination": "/pages/:tool.html"
+    },
+    {
+      "source": "/errors/:name([a-z0-9-]+)",
+      "destination": "/errors/:name.html"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://tools.telente.site/api/:path*"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://tools.telente.site/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://tools.telente.site/robots.txt"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/(.*)",
-      "dest": "/api/index.py"
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     }
-  ],
-  "env": {
-    "APP_ENV": "production",
-    "DEBUG": "false",
-    "NUMBA_DISABLE_JIT": "1",
-    "STORAGE_DRIVER": "vercel",
-    "MODEL_CHECKSUM_DISABLED": "1",
-    "XDG_CACHE_HOME": "/tmp"
-  }
+  ]
 }

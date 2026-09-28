@@ -1,4 +1,27 @@
-const API_BASE_URL = "/api/v1";
+import { API_ORIGIN } from "./config.js";
+
+const API_BASE_URL = `${API_ORIGIN}/api/v1`;
+
+/**
+ * The backend returns root-relative links (download_url,
+ * download_all_url). When the API lives on another origin they have to
+ * point there, otherwise images and downloads resolve against the page.
+ */
+function resolveApiLinks(value) {
+    if (!API_ORIGIN || value === null || typeof value !== "object") {
+        return value;
+    }
+    for (const [key, item] of Object.entries(value)) {
+        if (typeof item === "string") {
+            if (/(^|_)url$/.test(key) && item.startsWith("/api/")) {
+                value[key] = `${API_ORIGIN}${item}`;
+            }
+        } else {
+            resolveApiLinks(item);
+        }
+    }
+    return value;
+}
 
 async function parseJsonResponse(response) {
     const text = await response.text();
@@ -6,7 +29,7 @@ async function parseJsonResponse(response) {
         return null;
     }
     try {
-        return JSON.parse(text);
+        return resolveApiLinks(JSON.parse(text));
     } catch {
         return null;
     }

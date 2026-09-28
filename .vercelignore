@@ -1,0 +1,11 @@
+# Vercel serves only the static frontend; the API runs on cPanel.
+# Without this, api/index.py is detected and built as a function.
+/api
+/app
+/tests
+/scripts
+/models
+/storage
+/logs
+/passenger_wsgi.py
+/requirements*.txt
