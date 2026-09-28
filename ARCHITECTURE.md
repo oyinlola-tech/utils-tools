@@ -103,6 +103,26 @@ pages consult it before enabling the run button. Unavailable tools render a
 - `frontend/assets/js/api.js` — `apiGet` / `apiUpload` / `apiDownload`.
 - Client-side-only tools (cropper, editor, base64 pair, beautifier) perform
   all work in the browser with zero uploads.
+- `frontend/assets/js/local/` — server tools that the browser does itself
+  when it can. `apiUpload` offers every request to `local/index.js` first;
+  a tool there answers in the shape of the API response it replaces, with
+  download links that point at data held in the page, or declines with
+  `null` and the request goes to the server unchanged.
+
+| Request | In the browser | Left to the server |
+|---|---|---|
+| `/tools/file/zip` | always, where `CompressionStream` exists | — |
+| `/tools/file/duplicates` | always | — |
+| `/tools/file/analyze` | everything else | batches with a PDF, TIFF or AVIF |
+| `/images/convert`, `/images/resize`, `/tools/image/resize`, `/tools/image/remove-metadata` | JPEG, PNG and WebP up to 16.7 megapixels, written as JPEG, PNG or WebP | AVIF, lossless WebP, animations, keeping metadata, larger images, invalid options |
+| `/tools/image/palette-extractor`, `/tools/dev/favicon` | the image is reduced before it is uploaded | the tool itself |
+
+The server remains the reference: the browser tests in `tests/browser`
+run each local tool beside its endpoint on the same files and compare
+the answers.
+
+PNGs are written by `local/png.js` rather than `canvas.toBlob()`, whose
+output is two to four times the size.
 
 ## Lifecycle & storage
 

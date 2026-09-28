@@ -28,6 +28,21 @@ The suite (110 tests) covers:
 - `tests/unit/test_new_tool_api.py` — endpoint contracts + page/JS serving
 - Legacy suites for compression, jobs, storage.
 
+### Browser tests
+
+`tests/browser` runs the frontend in a real browser against a server it
+starts itself. They are skipped unless Playwright is installed, and use
+the Chromium or Chrome already on the machine (`BROWSER_PATH` overrides
+the choice):
+
+```bash
+pip install playwright
+python -m pytest tests/browser -q
+```
+
+Run them after changing anything under `frontend/assets/js/local/` or the
+server tools those modules stand in for.
+
 ## Adding a new tool
 
 1. **Registry**: add an entry to `app/core/capabilities.py` (id, name,
@@ -53,6 +68,12 @@ The suite (110 tests) covers:
 If a tool needs no backend (cropper, editor, base64 pair, screenshot
 beautifier), keep the page script fully self-contained and mark it in the
 registry with `"backend": false` so no route is expected.
+
+A tool that has a backend can still be done in the browser when the
+browser produces the same result: add it to `TOOLS` in
+`frontend/assets/js/local/index.js` and return `null` for whatever it
+does not handle. The page script does not change. Add a test to
+`tests/browser/test_local_tools.py` that compares it with the endpoint.
 
 ## Conventions
 

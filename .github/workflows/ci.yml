@@ -65,6 +65,6 @@ jobs:
 
       - name: Check JavaScript syntax
         run: |
-          for f in frontend/assets/js/pages/*.js frontend/assets/js/components/*.js frontend/assets/js/*.js; do
+          for f in frontend/assets/js/pages/*.js frontend/assets/js/components/*.js frontend/assets/js/local/*.js frontend/assets/js/*.js; do
             node --check "$f"
           done

@@ -463,6 +463,7 @@ function renderResizeResult(item) {
 
 function initPage() {
     kit.banner.hide();
+    setupUpload();
     setupModeButtons();
     setupDimensionInputs();
     setupPresetSelects();

@@ -92,54 +92,45 @@ function paletteChunks(colors) {
     return chunks;
 }
 
-function paeth(left, up, corner) {
-    const estimate = left + up - corner;
-    const toLeft = Math.abs(estimate - left);
-    const toUp = Math.abs(estimate - up);
-    const toCorner = Math.abs(estimate - corner);
-    if (toLeft <= toUp && toLeft <= toCorner) {
-        return left;
-    }
-    return toUp <= toCorner ? up : corner;
-}
+const cost = (value) => (value < 128 ? value : 256 - value);
 
 /**
  * Filters one row five ways and keeps the one with the smallest sum of
- * absolute values, the heuristic libpng uses to guess what deflates best.
+ * absolute values, the heuristic libpng uses to guess what deflates
+ * best. One pass computes all five: this loop runs once for every byte
+ * of the image, and is most of the time the encoder takes.
  */
 function filterRow(current, previous, stride, candidates, out, at) {
+    const [none, sub, up, average, paeth] = candidates;
+    const costs = [0, 0, 0, 0, 0];
     const length = current.length;
-    let best = 0;
-    let bestCost = Infinity;
-    for (let filter = 0; filter < 5; filter += 1) {
-        const candidate = candidates[filter];
-        let cost = 0;
-        for (let index = 0; index < length; index += 1) {
-            const left = index >= stride ? current[index - stride] : 0;
-            const up = previous ? previous[index] : 0;
-            let predicted = 0;
-            if (filter === 1) {
-                predicted = left;
-            } else if (filter === 2) {
-                predicted = up;
-            } else if (filter === 3) {
-                predicted = (left + up) >> 1;
-            } else if (filter === 4) {
-                const corner = previous && index >= stride ? previous[index - stride] : 0;
-                predicted = paeth(left, up, corner);
-            }
-            const value = (current[index] - predicted) & 0xff;
-            candidate[index] = value;
-            cost += value < 128 ? value : 256 - value;
-            if (cost >= bestCost) {
-                break;
-            }
+    for (let index = 0; index < length; index += 1) {
+        const value = current[index];
+        const above = previous[index];
+        let left = 0;
+        let corner = 0;
+        if (index >= stride) {
+            left = current[index - stride];
+            corner = previous[index - stride];
         }
-        if (cost < bestCost) {
-            bestCost = cost;
-            best = filter;
+        const estimate = left + above - corner;
+        const toLeft = estimate > left ? estimate - left : left - estimate;
+        const toAbove = estimate > above ? estimate - above : above - estimate;
+        const toCorner = estimate > corner ? estimate - corner : corner - estimate;
+        let nearest = corner;
+        if (toLeft <= toAbove && toLeft <= toCorner) {
+            nearest = left;
+        } else if (toAbove <= toCorner) {
+            nearest = above;
         }
+
+        costs[0] += cost((none[index] = value));
+        costs[1] += cost((sub[index] = (value - left) & 0xff));
+        costs[2] += cost((up[index] = (value - above) & 0xff));
+        costs[3] += cost((average[index] = (value - ((left + above) >> 1)) & 0xff));
+        costs[4] += cost((paeth[index] = (value - nearest) & 0xff));
     }
+    const best = costs.indexOf(Math.min(...costs));
     out[at] = best;
     out.set(candidates[best], at + 1);
 }
@@ -154,7 +145,8 @@ async function filteredScanlines(source, width, height, sourceStride, stride) {
     const lines = new Uint8Array((rowBytes + 1) * height);
     const candidates = Array.from({ length: 5 }, () => new Uint8Array(rowBytes));
     const rows = [new Uint8Array(rowBytes), new Uint8Array(rowBytes)];
-    let previous = null;
+    // The row above the first one counts as zeros.
+    let previous = new Uint8Array(rowBytes);
     for (let row = 0; row < height; row += 1) {
         const current = rows[row % 2];
         const from = row * width * sourceStride;
