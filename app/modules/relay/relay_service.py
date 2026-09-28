@@ -58,6 +58,13 @@ class RelayConflictError(AppException):
         super().__init__(message, 409, "RELAY_CONFLICT")
 
 
+class RelayNotStartedError(AppException):
+    """Tells a client that lost its run request to send it again."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message, 404, "RELAY_NOT_STARTED")
+
+
 class RelayInterruptedError(AppException):
     def __init__(self) -> None:
         super().__init__(
@@ -176,6 +183,9 @@ class RelayService:
 
     # ---------------------------------------------------------- execution
 
+    def started(self, session_id: str) -> bool:
+        return self.session(session_id).state.exists()
+
     def start(self, session_id: str, app, request, method: str, target: str) -> None:
         """Replay the staged request in the background. Idempotent."""
         session = self.session(session_id)
@@ -184,7 +194,7 @@ class RelayService:
             return  # a retry of a run request that did get through
         meta = self._read_json(session.meta)
         if meta is None:
-            raise NotFoundError("Nothing has been uploaded for this request.")
+            raise RelayNotStartedError("Nothing has been uploaded for this request.")
         if self._staged_bytes(session) < meta["size"]:
             raise RelayConflictError("The upload is incomplete.")
         try:
@@ -363,7 +373,7 @@ class RelayService:
             if recorded is not None:
                 return {**recorded, "body": session.response_body}
             if not session.state.exists():
-                raise NotFoundError("This request has not been started.")
+                raise RelayNotStartedError("This request has not been started.")
             try:
                 idle = time.time() - session.heartbeat.stat().st_mtime
             except OSError:

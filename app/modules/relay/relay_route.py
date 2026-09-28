@@ -43,7 +43,8 @@ async def run(
 ):
     """Start the staged request; a body sent here is the whole request."""
     size = int(request.headers.get("content-length") or 0)
-    if size:
+    # A client that lost the reply sends the same request again.
+    if size and not relay_service.started(session_id):
         await relay_service.stage(
             session_id,
             0,

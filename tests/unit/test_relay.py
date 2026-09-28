@@ -110,12 +110,14 @@ def test_a_request_can_be_collected_later_and_more_than_once():
     first = collect(session)
     assert first.status_code == 200
     assert collect(session).json() == first.json()
-    # Starting again is a no-op, not a second run.
-    again = client.post(
-        f"/api/v1/relay/{session}/run",
-        params={"path": "/api/v1/tools/text/word-counter", "wait": 5},
-    )
-    assert again.json() == first.json()
+    # Starting again, with or without the body, is not a second run.
+    for body in ({"text": "a different request"}, None):
+        again = client.post(
+            f"/api/v1/relay/{session}/run",
+            params={"path": "/api/v1/tools/text/word-counter", "wait": 5},
+            json=body,
+        )
+        assert again.json() == first.json()
 
 
 def test_errors_are_replayed_with_their_status():
@@ -209,7 +211,9 @@ def test_only_api_posts_can_be_relayed(method, path):
 def test_session_ids_are_validated():
     response = client.get("/api/v1/relay/not-a-session")
     assert response.status_code == 422
-    assert client.get(f"/api/v1/relay/{new_session()}").status_code == 404
+    unknown = client.get(f"/api/v1/relay/{new_session()}")
+    assert unknown.status_code == 404
+    assert unknown.json()["error"]["code"] == "RELAY_NOT_STARTED"
 
 
 def test_a_dead_worker_is_reported_instead_of_waited_for():

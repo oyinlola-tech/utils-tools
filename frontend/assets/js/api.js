@@ -1,6 +1,14 @@
 import { API_ORIGIN } from "./config.js";
+import { relayFetch } from "./relay.js";
 
 const API_BASE_URL = `${API_ORIGIN}/api/v1`;
+
+// JSON endpoints that can outlast the host's request limit; uploads
+// always go through the relay.
+const SLOW_PATHS = ["/tools/video/", "/tools/text/text-to-speech"];
+
+const CAPABILITIES_KEY = "utils-tool:capabilities";
+const CAPABILITIES_FRESH_MS = 10 * 60 * 1000;
 
 /**
  * The backend returns root-relative links (download_url,
@@ -61,7 +69,20 @@ function apiError(response, data, fallback) {
     return error;
 }
 
+async function usesRelay(url, options) {
+    if (options.method !== "POST") {
+        return false;
+    }
+    const upload = options.body instanceof FormData;
+    if (!upload && !SLOW_PATHS.some((path) => url.includes(path))) {
+        return false;
+    }
+    const capabilities = await getCapabilities().catch(() => null);
+    return Boolean(capabilities && capabilities.system && capabilities.system.relay);
+}
+
 async function safeFetch(url, options = {}) {
+    const relayed = await usesRelay(url, options);
     const controller = new AbortController();
     const timeout = options.timeout || 0;
     let timeoutId;
@@ -69,7 +90,8 @@ async function safeFetch(url, options = {}) {
         timeoutId = setTimeout(() => controller.abort(), timeout);
     }
     try {
-        const response = await fetch(url, {
+        const send = relayed ? relayFetch : fetch;
+        const response = await send(url, {
             ...options,
             signal: controller.signal,
         });
@@ -220,13 +242,54 @@ export async function getJob(jobId) {
     return data;
 }
 
-export async function getCapabilities() {
+async function fetchCapabilities() {
     const response = await safeFetch(`${API_BASE_URL}/capabilities`);
     const data = await parseJsonResponse(response);
     if (!response.ok) {
         throw apiError(response, data, "Unable to load capabilities.");
     }
+    try {
+        sessionStorage.setItem(CAPABILITIES_KEY, JSON.stringify({ at: Date.now(), data }));
+    } catch {
+        // Storage can be full or blocked; the page works without it.
+    }
     return data;
+}
+
+function storedCapabilities() {
+    try {
+        const stored = JSON.parse(sessionStorage.getItem(CAPABILITIES_KEY));
+        if (stored && Date.now() - stored.at < CAPABILITIES_FRESH_MS) {
+            return stored.data;
+        }
+    } catch {
+        // Unreadable or blocked storage is the same as none.
+    }
+    return null;
+}
+
+let capabilities = null;
+
+/**
+ * Every page needs the capabilities before it can enable anything, so a
+ * recent copy is served at once and refreshed behind it for the next
+ * page, rather than holding each page up for a round trip.
+ */
+export function getCapabilities() {
+    if (!capabilities) {
+        const stored = storedCapabilities();
+        const fetched = fetchCapabilities();
+        if (stored) {
+            fetched.catch(() => {});
+            capabilities = Promise.resolve(stored);
+        } else {
+            capabilities = fetched.catch((error) => {
+                capabilities = null;
+                throw error;
+            });
+        }
+    }
+    return capabilities;
 }
 
 
