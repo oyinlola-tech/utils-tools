@@ -37,6 +37,59 @@ Pip Install can report "Unknown error occurred" after about two minutes
 while it is still running in the background. Wait for it to finish before
 retrying; a retry during that time fails with "Can't acquire lock".
 
+Git Version Control creates the application root with mode `0700`. The web
+server then cannot see into it, logs "cannot determine application type"
+and answers 404 for every URL. Set the folder to `0755` in File Manager.
+
+After a deployment, check every server tool with:
+
+```bash
+python scripts/smoke_test.py https://tools.telente.site
+```
+
+#### Large uploads and slow tools
+
+The server cuts any request that lasts longer than about 30 seconds, and
+does not deliver a response until the request's background work is done.
+Uploads and slow tools therefore go through the relay
+(`app/modules/relay`): the browser sends the body in short chunks, the
+request runs in a worker thread, and the browser collects the response.
+The frontend uses it whenever the capabilities report `system.relay`,
+which is the case for `STORAGE_DRIVER=local`.
+
+Files up to 100 MB are accepted, and 250 MB per request
+(`MAX_UPLOAD_SIZE_MB`, `MAX_REQUEST_BODY_MB`).
+
+#### Rate limits
+
+Every endpoint is limited per client address (`app/core/rate_limit.py`).
+The counters are kept in `storage/temp/.rate_limit.sqlite3` because the
+server runs several worker processes. Limits apply when
+`APP_ENV=production`:
+
+| Variable | Default | Covers |
+|---|---|---|
+| `RATE_LIMIT_READ_MAX_REQUESTS` | 600 / min | pages, assets, polling, downloads |
+| `RATE_LIMIT_TRANSFER_MAX_REQUESTS` | 600 / min | relay chunks and collection |
+| `RATE_LIMIT_MAX_REQUESTS` | 120 / min | every other request |
+| `RATE_LIMIT_HEAVY_MAX_REQUESTS` | 20 / min | background, compression, PDF to image, speech, video |
+| `RATE_LIMIT_HEAVY_HOURLY_REQUESTS` | 200 / hour | the same tools |
+
+Clients are identified by the address they connect from. Set
+`TRUSTED_PROXY_HEADER` (for example `x-forwarded-for`) only when a reverse
+proxy in front of the app sets that header, since clients can otherwise
+send it themselves.
+
+#### Video downloader
+
+Some sites, YouTube among them, refuse requests from server addresses.
+Two optional settings are passed to yt-dlp for those:
+
+- `VIDEO_COOKIES_FILE` — path to a cookies file exported from a signed-in
+  browser. The account is then used for every visitor's download and can
+  be restricted by the site; use a separate account, never a personal one.
+- `VIDEO_PROXY` — proxy URL to send the requests through.
+
 ### Frontend (Vercel)
 
 `vercel.json` publishes `frontend/` as a static site and mirrors the page
@@ -48,6 +101,11 @@ the frontend host to the API origin, and the backend allows that origin
 through `CORS_ORIGINS`. `/api/*`, `/sitemap.xml` and `/robots.txt` are also
 proxied to the backend, which covers hosts not listed in `config.js`
 (preview deployments).
+
+Pages are sent with a `Link` header that preconnects to the API and
+preloads the JavaScript modules every page shares. Without it the browser
+finds them one import at a time, seven round trips deep. When a module is
+added to or removed from that shared set, update the list in `vercel.json`.
 
 To move either side to another domain, change `config.js` and
 `vercel.json` (backend) or `CORS_ORIGINS` and `PUBLIC_SITE_URL` (frontend).

@@ -19,6 +19,7 @@ from PIL import Image
 
 API = "/api/v1"
 JOB_TIMEOUT_SECONDS = 120
+FINISHED = {"completed", "failed", "cancelled"}
 VIDEO_URL = "https://www.youtube.com/watch?v=jNQXAC9IVRw"
 
 SAMPLE_JWT = (
@@ -84,7 +85,7 @@ class Deployment:
         deadline = time.monotonic() + JOB_TIMEOUT_SECONDS
         while time.monotonic() < deadline:
             job = self.get(f"/jobs/{job_id}").json()
-            if job.get("status") in {"completed", "failed", "cancelled"}:
+            if job.get("status") in FINISHED:
                 return job
             time.sleep(1)
         raise AssertionError(f"job {job_id} did not finish in {JOB_TIMEOUT_SECONDS}s")
@@ -115,7 +116,8 @@ def verify(deployment: Deployment, response: requests.Response) -> str:
         return f"{content_type}, {len(response.content)} bytes"
     body = response.json()
     if isinstance(body, dict) and body.get("job_id") and "status" in body:
-        body = deployment.wait_for_job(body["job_id"])
+        if body["status"] not in FINISHED:
+            body = deployment.wait_for_job(body["job_id"])
         if body.get("status") != "completed":
             raise AssertionError(f"job ended as {body.get('status')}: {str(body)[:200]}")
     links = download_links(body)
@@ -264,7 +266,7 @@ def main() -> int:
         try:
             detail = verify(deployment, run(deployment))
             status = "PASS"
-        except Exception as error:  # noqa: BLE001 - report and keep going
+        except Exception as error:  # report and keep going
             detail = f"{type(error).__name__}: {error}"
             status = "FAIL"
             failures += 1

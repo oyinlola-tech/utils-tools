@@ -40,11 +40,56 @@
   ],
   "headers": [
     {
-      "source": "/static/(.*)",
+      "source": "/static/assets/(js|css)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/static/assets/(brand|img)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://tools.telente.site>; rel=preconnect; crossorigin, </static/assets/js/shell.js>; rel=modulepreload, </static/assets/js/capabilities.js>; rel=modulepreload, </static/assets/js/api.js>; rel=modulepreload, </static/assets/js/relay.js>; rel=modulepreload, </static/assets/js/config.js>; rel=modulepreload, </static/assets/js/icons.js>; rel=modulepreload, </static/assets/js/support-popup.js>; rel=modulepreload, </static/assets/js/handoff.js>; rel=modulepreload, </static/assets/js/utils.js>; rel=modulepreload"
+        }
+      ]
+    },
+    {
+      "source": "/tools",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://tools.telente.site>; rel=preconnect; crossorigin, </static/assets/js/shell.js>; rel=modulepreload, </static/assets/js/capabilities.js>; rel=modulepreload, </static/assets/js/api.js>; rel=modulepreload, </static/assets/js/relay.js>; rel=modulepreload, </static/assets/js/config.js>; rel=modulepreload, </static/assets/js/icons.js>; rel=modulepreload, </static/assets/js/support-popup.js>; rel=modulepreload, </static/assets/js/handoff.js>; rel=modulepreload, </static/assets/js/utils.js>; rel=modulepreload"
+        }
+      ]
+    },
+    {
+      "source": "/about",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://tools.telente.site>; rel=preconnect; crossorigin, </static/assets/js/shell.js>; rel=modulepreload, </static/assets/js/capabilities.js>; rel=modulepreload, </static/assets/js/api.js>; rel=modulepreload, </static/assets/js/relay.js>; rel=modulepreload, </static/assets/js/config.js>; rel=modulepreload, </static/assets/js/icons.js>; rel=modulepreload, </static/assets/js/support-popup.js>; rel=modulepreload, </static/assets/js/handoff.js>; rel=modulepreload, </static/assets/js/utils.js>; rel=modulepreload"
+        }
+      ]
+    },
+    {
+      "source": "/tools/:tool([a-z0-9][a-z0-9-]*)",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://tools.telente.site>; rel=preconnect; crossorigin, </static/assets/js/pages/tool-kit.js>; rel=modulepreload, </static/assets/js/components/ui.js>; rel=modulepreload, </static/assets/js/shell.js>; rel=modulepreload, </static/assets/js/capabilities.js>; rel=modulepreload, </static/assets/js/api.js>; rel=modulepreload, </static/assets/js/relay.js>; rel=modulepreload, </static/assets/js/config.js>; rel=modulepreload, </static/assets/js/icons.js>; rel=modulepreload, </static/assets/js/support-popup.js>; rel=modulepreload, </static/assets/js/handoff.js>; rel=modulepreload, </static/assets/js/utils.js>; rel=modulepreload"
         }
       ]
     }
