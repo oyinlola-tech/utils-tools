@@ -14,7 +14,7 @@ based on environment variables.
 
 1. **Git Version Control** — clone the repository into `~/utils-backend`.
 2. **Setup Python App** — Python 3.12, application root `utils-backend`,
-   application URL `tools.telente.site`, startup file `passenger_wsgi.py`,
+   application URL `tools.telente.site`, startup file `cpanel_wsgi.py`,
    entry point `application`.
 3. Environment variables:
    - `APP_ENV=production`, `DEBUG=false`
@@ -24,8 +24,18 @@ based on environment variables.
 4. Add `requirements-cpanel.txt` as the configuration file, run
    **Pip Install**, then **Restart**.
 
-Passenger speaks WSGI, so `passenger_wsgi.py` wraps the ASGI app with
+Passenger speaks WSGI, so `cpanel_wsgi.py` wraps the ASGI app with
 `a2wsgi`. To update: pull in Git Version Control, then restart the app.
+
+cPanel overwrites `passenger_wsgi.py` in the application root with a stub
+that loads the startup file, so the startup file must not use that name.
+The server copy therefore differs from the repository; leave
+`passenger_wsgi.py` unchanged here, or the next pull on the server
+conflicts with it.
+
+Pip Install can report "Unknown error occurred" after about two minutes
+while it is still running in the background. Wait for it to finish before
+retrying; a retry during that time fails with "Can't acquire lock".
 
 ### Frontend (Vercel)
 

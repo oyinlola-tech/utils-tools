@@ -8,4 +8,5 @@
 /storage
 /logs
 /passenger_wsgi.py
+/cpanel_wsgi.py
 /requirements*.txt
